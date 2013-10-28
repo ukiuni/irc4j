@@ -1,0 +1,32 @@
+package org.irc4j.server;
+
+import java.util.List;
+
+import org.irc4j.IRCEventHandler;
+
+public class RecieveModeCommand extends ServerCommand {
+
+	@Override
+	public void execute(IRCServer ircServer, ClientConnection con, List<IRCEventHandler> handlers) throws Throwable {
+		if (getCommandParameters().length == 1) {
+			if (getCommandParameters()[0].startsWith("#")) {
+				con.sendCommand("324 " + con.getNickName() + " " + getCommandParameters()[0] + " +nt");
+			} else {
+				con.sendPrivateCommand("User mode query is not supported now.");
+			}
+		} else if (getCommandParameters().length == 2 && (getCommandParameters()[1].equals("+b") || getCommandParameters()[1].equals("+e"))) {
+			if (getCommandParameters()[0].startsWith("#")) {// 368,349
+				if (getCommandParameters()[1].equals("+b")) {
+					con.sendCommand("368 " + con.getNickName() + " " + getCommandParameters()[0] + " :End of channel ban list");
+				} else {
+					con.sendCommand("349 " + con.getNickName() + " " + getCommandParameters()[0] + " :End of channel exception list");
+				}
+			} else {
+				con.sendCommand("mode setting is +b or +e.");
+			}
+		} else {
+			con.sendPrivateCommand("Specific modes not supported.");
+		}
+	}
+
+}
