@@ -15,7 +15,7 @@ public class RecieveQuitCommand extends ServerCommand {
 			} catch (Throwable e) {
 			}
 		}
-		ircServer.getConnectionMap().remove(selfClientConnection.getNickName());
+		ircServer.removeConnection(selfClientConnection.getNickName());
 
 		selfClientConnection.close();
 	}

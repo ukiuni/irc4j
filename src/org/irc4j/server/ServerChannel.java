@@ -37,6 +37,7 @@ public class ServerChannel extends Channel {
 			try {
 				clientConnection.send(lowCommand);
 			} catch (Exception e) {// TODO something do with exception???
+				ircServer.removeConnection(clientConnection.getNickName());
 				Log.log(e);
 			}
 		}
@@ -57,9 +58,12 @@ public class ServerChannel extends Channel {
 
 	public void sendMessage(String type, String senderFQUN, String targetChannel, String message, ClientConnection exeptClientConnection) throws IOException {
 		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
+		Log.log("sendMessage size "+sendClients.size());
 		for (ClientConnection clientConnection : sendClients) {
 			try {
-				clientConnection.sendMessage(type, senderFQUN, targetChannel, message);
+				if (exeptClientConnection != clientConnection) {
+					clientConnection.sendMessage(type, senderFQUN, targetChannel, message);
+				}
 			} catch (Exception e) {// TODO something do with exception???
 				Log.log(e);
 			}

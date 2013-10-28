@@ -786,4 +786,8 @@ public class IRCClient {
 		this.autoRecconect = autoRecconect;
 	}
 
+	public void sendWho(String channelName) throws IOException {
+		write(Command.COMMAND_WHO, channelName);
+	}
+
 }

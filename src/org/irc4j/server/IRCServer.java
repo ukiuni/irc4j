@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.irc4j.Channel;
@@ -53,7 +54,8 @@ public class IRCServer implements Runnable {
 		isRunning = false;
 		IOUtil.close(serverSocket);
 		channelMap.clear();
-		for (ClientConnection clientConnection : connectionMap.values()) {
+		List<ClientConnection> closeCollections = new ArrayList<ClientConnection>(connectionMap.values());
+		for (ClientConnection clientConnection : closeCollections) {
 			IOUtil.close(clientConnection);
 		}
 		connectionMap.clear();
@@ -150,13 +152,6 @@ public class IRCServer implements Runnable {
 		}
 		channel.getUserList().add(con.getUser());
 		channel.addConnection(con);
-		final ServerChannel removeChannel = channel;
-		con.addExceptionHandler(new ExceptionHandler() {
-			@Override
-			public void handle(Throwable e) {
-				removeChannel.removeConnection(con);
-			}
-		});
 		channel.send(":" + con.getUser().getFQUN() + " JOIN " + channelName);
 		if (createdNew) {
 			con.sendCommand("MODE " + channelName + " +nt");
@@ -181,7 +176,7 @@ public class IRCServer implements Runnable {
 		channelMap.remove(name);
 	}
 
-	public void removeConnection(String nickName) {
+	public synchronized void removeConnection(String nickName) {
 		ClientConnection clientConnection = connectionMap.remove(nickName);
 		for (ServerChannel channel : clientConnection.getJoinedChannels().values()) {
 			try {
