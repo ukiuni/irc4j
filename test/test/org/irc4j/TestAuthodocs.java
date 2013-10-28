@@ -2,6 +2,7 @@ package test.org.irc4j;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -119,6 +120,7 @@ public class TestAuthodocs {
 		client2.sendQuit();
 		client3.sendQuit();
 	}
+
 	@Test
 	public void testNotRecieveIfJoinOtherChannel() throws Exception {
 		final Map<String, Object> resultMap = new HashMap<String, Object>();
@@ -157,6 +159,7 @@ public class TestAuthodocs {
 		client2.sendQuit();
 		client3.sendQuit();
 	}
+
 	@Test
 	public void testNotRecieveIfClose() throws Exception {
 		final Map<String, Object> resultMap = new HashMap<String, Object>();
@@ -164,14 +167,14 @@ public class TestAuthodocs {
 		IRCClient client2 = createClient("client2NickName", "client2RealName");
 		IRCClient client3 = createClient("client3NickName", "client3RealName");
 		resultMap.put("352Count", 0);
-		
+
 		client1.addHandler(new IRCEventAdapter() {
 			@Override
 			public void onServerMessage(int id, String message) {
 				resultMap.put("id", id);
 				resultMap.put("message1", message);
-				if(352 == id){
-					resultMap.put("352Count", ((Integer)resultMap.get("352Count"))+1);
+				if (352 == id) {
+					resultMap.put("352Count", ((Integer) resultMap.get("352Count")) + 1);
 				}
 			}
 		});
@@ -199,12 +202,12 @@ public class TestAuthodocs {
 		client1.sendWho("#testChannel");
 		client3.sendQuit();
 		Thread.sleep(2000);
-		assertEquals(3, ((Integer)resultMap.get("352Count")).intValue());
+		assertEquals(3, ((Integer) resultMap.get("352Count")).intValue());
 		client1.sendMessage("#testChannel", "testMessage");
 		Thread.sleep(1000);
 		client1.sendWho("#testChannel");
 		Thread.sleep(1000);
-		assertEquals(5, ((Integer)resultMap.get("352Count")).intValue());
+		assertEquals(5, ((Integer) resultMap.get("352Count")).intValue());
 		assertEquals("#testChannel", resultMap.get("channel2"));
 		assertEquals("client1NickName", resultMap.get("from2"));
 		assertEquals("testMessage", resultMap.get("message2"));
@@ -223,6 +226,40 @@ public class TestAuthodocs {
 		client1.setRealName(realName);
 		client1.connect();
 		return client1;
+	}
+
+	@Test
+	public void testHistory() throws Exception {
+		final Map<String, Object> resultMap = new HashMap<String, Object>();
+		IRCClient client1 = createClient("client1NickName", "client1RealName");
+		IRCClient client2 = createClient("client2NickName", "client2RealName");
+		client2.addHandler(new IRCEventAdapter() {
+			@Override
+			public void onMessage(String channelName, String from, String message) {
+				resultMap.put("channel", channelName);
+				resultMap.put("from", from);
+				resultMap.put("message", message);
+			}
+
+			@Override
+			public void onServerMessage(int id, String message) {
+				resultMap.put("serverMessage", message);
+			}
+		});
+		client1.sendJoin("#testChannel");
+		Thread.sleep(1000);
+		client1.sendMessage("#testChannel", "testMessage");
+		Thread.sleep(1000);
+
+		client2.sendJoin("#testChannel");
+		client2.write("HISTORY #testChannel");
+		Thread.sleep(1000);
+		assertNull("#testChannel", resultMap.get("channel"));
+		assertNull("client1NickName", resultMap.get("from"));
+		assertNull("testMessage", resultMap.get("message"));
+		assertTrue("serverMessage", ((String) resultMap.get("serverMessage")).endsWith("testMessage"));
+		client1.sendQuit();
+		client2.sendQuit();
 	}
 
 }

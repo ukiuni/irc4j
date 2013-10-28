@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import org.irc4j.IRCClient;
 import org.irc4j.IRCEventHandler;
 
@@ -50,8 +53,13 @@ public class Main {
 		ircClient.connect();
 		ircClient.sendJoin(channel);
 		ircClient.sendMessage(channel, message);
-		ircClient.sendQuit();
 		// some irc server wait some second for complete message;
-		Thread.sleep(3000);
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		String line;
+		while(!"".equals(line = in.readLine())){
+			ircClient.sendMessage(channel, line);
+		}
+		ircClient.sendQuit();
+		
 	}
 }

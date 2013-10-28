@@ -2,16 +2,20 @@ package org.irc4j.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.irc4j.Channel;
 import org.irc4j.Log;
+import org.irc4j.Message;
 
 public class ServerChannel extends Channel {
 
 	private IRCServer ircServer;
 	public List<ClientConnection> joinedConnectionList = new ArrayList<ClientConnection>();
 	private String password;
+	private LimitedQueue<Message> messageQueue = new LimitedQueue<Message>(10);
 
 	public ServerChannel(IRCServer server, String name) {
 		super(name);
@@ -58,7 +62,15 @@ public class ServerChannel extends Channel {
 
 	public void sendMessage(String type, String senderFQUN, String targetChannel, String message, ClientConnection exeptClientConnection) throws IOException {
 		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
-		Log.log("sendMessage size "+sendClients.size());
+		Message messageObj = new Message();
+		messageObj.setDate(new Date());
+		messageObj.setMessage(message);
+		messageObj.setSenderFQUN(senderFQUN);
+		messageObj.setSenderNickName(exeptClientConnection.getNickName());
+		messageObj.setTargetChannel(targetChannel);
+		messageObj.setType(type);
+		messageQueue.add(messageObj);
+
 		for (ClientConnection clientConnection : sendClients) {
 			try {
 				if (exeptClientConnection != clientConnection) {
@@ -99,5 +111,26 @@ public class ServerChannel extends Channel {
 	public void part(ClientConnection clientConnection) throws IOException {
 		this.sendExcepFrom(":" + clientConnection.getUser().getFQUN() + " PART " + this.getName(), clientConnection);
 		this.removeConnection(clientConnection);
+	}
+
+	public List<Message> getHistory(int length) {
+		return new ArrayList<Message>(messageQueue);
+	}
+
+	public class LimitedQueue<E> extends LinkedList<E> {
+		private int limit;
+
+		public LimitedQueue(int limit) {
+			this.limit = limit;
+		}
+
+		@Override
+		public boolean add(E o) {
+			boolean added = super.add(o);
+			while (added && size() > limit) {
+				super.remove();
+			}
+			return added;
+		}
 	}
 }
