@@ -15,7 +15,7 @@ public class ServerChannel extends Channel {
 	private IRCServer ircServer;
 	public List<ClientConnection> joinedConnectionList = new ArrayList<ClientConnection>();
 	private String password;
-	private LimitedQueue<Message> messageQueue = new LimitedQueue<Message>(10);
+	private LimitedQueue<Message> messageQueue = new LimitedQueue<Message>(100);
 
 	public ServerChannel(IRCServer server, String name) {
 		super(name);
@@ -114,9 +114,14 @@ public class ServerChannel extends Channel {
 	}
 
 	public List<Message> getHistory(int length) {
-		return new ArrayList<Message>(messageQueue);
+		int start = messageQueue.size() - length;
+		if (start < 0) {
+			start = 0;
+		}
+		return new ArrayList<Message>(messageQueue.subList(start, messageQueue.size()));
 	}
 
+	@SuppressWarnings("serial")
 	public class LimitedQueue<E> extends LinkedList<E> {
 		private int limit;
 

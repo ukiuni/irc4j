@@ -29,7 +29,7 @@ public class ReceiveHistoryCommand extends ServerCommand {
 		}
 		List<Message> messages = channel.getHistory(length);
 		for (Message message : messages) {
-			selfClientConnection.sendPrivateCommand(message.getDate().getHours() + ":" + message.getDate().getMinutes() + "(" + message.getSenderNickName() + ")" + message.getMessage());
+			selfClientConnection.sendPrivateCommand(message.getDate().getHours() + ":" + message.getDate().getMinutes() + " " + message.getSenderNickName() + ": " + message.getMessage());
 		}
 
 	}
