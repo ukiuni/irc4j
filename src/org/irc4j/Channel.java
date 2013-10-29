@@ -61,15 +61,7 @@ public class Channel {
 	 * This method call via child class, caz You have to do many with remove User.
 	 * @param nickName
 	 */
-	protected void removeUser(String nickName) {
-		List<User> removeUsers = new ArrayList<User>();// for duplicate bug. it
-														// may not be better
-														// than single value.
-		for (User user : userList) {
-			if (nickName.equals(user.getNickName())) {
-				removeUsers.add(user);
-			}
-		}
-		userList.removeAll(removeUsers);
+	protected void removeUser(User user) {
+		userList.remove(user);
 	}
 }

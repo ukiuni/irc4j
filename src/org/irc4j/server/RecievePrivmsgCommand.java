@@ -24,7 +24,7 @@ public class RecievePrivmsgCommand extends ServerCommand {
 					channel.sendMessage(getCommandString(), selfClientConnection.getUser().getFQUN(), target, message, selfClientConnection);
 				}
 			} else {
-				ClientConnection clientConnection = ircServer.getConnectionMap().get(target);
+				ClientConnection clientConnection = ircServer.findConnection(target);
 				if (clientConnection == null) {
 					selfClientConnection.sendPrivateCommand("The user " + target + " is not online.");
 				} else {

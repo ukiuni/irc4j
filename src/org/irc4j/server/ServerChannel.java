@@ -29,7 +29,7 @@ public class ServerChannel extends Channel {
 
 	public void removeConnection(ClientConnection clientConnection) {
 		joinedConnectionList.remove(clientConnection);
-		removeUser(clientConnection.getNickName());
+		removeUser(clientConnection.getUser());
 		if (joinedConnectionList.isEmpty()) {
 			ircServer.removeChannel(this.getName());
 		}

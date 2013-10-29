@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,17 +19,13 @@ import org.irc4j.server.worker.Worker;
 import org.irc4j.util.IOUtil;
 
 public class IRCServer implements Runnable {
-	private Map<String, ClientConnection> connectionMap = new HashMap<String, ClientConnection>();
+	private List<ClientConnection> connectionList = new ArrayList<ClientConnection>();
 	private Map<String, ServerChannel> channelMap = new HashMap<String, ServerChannel>();
 	private int portNum = 6667;
 	private ServerSocket serverSocket;
 	private boolean isRunning;
 	private Thread runningThread;
 	private ArrayList<Worker> workerList;
-
-	public Map<String, ClientConnection> getConnectionMap() {
-		return connectionMap;
-	}
 
 	public static void main(String[] args) throws IOException {
 		new IRCServer().start();
@@ -54,11 +52,11 @@ public class IRCServer implements Runnable {
 		isRunning = false;
 		IOUtil.close(serverSocket);
 		channelMap.clear();
-		List<ClientConnection> closeCollections = new ArrayList<ClientConnection>(connectionMap.values());
+		List<ClientConnection> closeCollections = new ArrayList<ClientConnection>(connectionList);
 		for (ClientConnection clientConnection : closeCollections) {
 			IOUtil.close(clientConnection);
 		}
-		connectionMap.clear();
+		connectionList.clear();
 		runningThread = null;
 		if (null != workerList) {
 			for (Worker worker : workerList) {
@@ -116,10 +114,19 @@ public class IRCServer implements Runnable {
 		Map<String, ServerChannel> channelMap = selfClientConnection.getJoinedChannels();
 		for (Channel channel : channelMap.values()) {
 			for (User user : channel.getUserList()) {
-				ClientConnection clientConnection = connectionMap.get(user.getNickName());
+				ClientConnection clientConnection = findConnection(user.getNickName());
 				clientConnection.send(newNickCommand);
 			}
 		}
+	}
+
+	public ClientConnection findConnection(String nickName) {
+		for (ClientConnection connection : connectionList) {
+			if (nickName.equals(connection.getNickName())) {
+				return connection;
+			}
+		}
+		return null;
 	}
 
 	public void joinToChannel(final ClientConnection con, String channelName) throws IOException {
@@ -127,6 +134,7 @@ public class IRCServer implements Runnable {
 	}
 
 	public synchronized void joinToChannel(final ClientConnection con, String channelName, String password) throws IOException {
+		Log.log("joinToChannel start");
 		if (Channel.wrongName(channelName)) {
 			con.sendCommand("Wrong channel name " + channelName);
 			return;
@@ -144,11 +152,9 @@ public class IRCServer implements Runnable {
 				return;
 			}
 		}
-		for (User userInChannel : channel.getUserList()) {
-			if (userInChannel.getNickName().equals(con.getNickName())) {
-				con.sendCommand("You are already a member of " + channelName);
-				return;
-			}
+		if (channel.getUserList().contains(con.getUser())) {
+			con.sendCommand("You are already a member of " + channelName);
+			return;
 		}
 		channel.getUserList().add(con.getUser());
 		channel.addConnection(con);
@@ -166,6 +172,7 @@ public class IRCServer implements Runnable {
 			con.sendCommand("353 " + con.getUser().getNickName() + " = " + channel.getName() + " :" + user.getNickName());
 		}
 		con.sendCommand("366 " + con.getUser().getNickName() + " " + channelName + " :End of /NAMES list");
+		Log.log("joinToChannel end");
 	}
 
 	public ServerChannel getChannel(String channelName) {
@@ -177,7 +184,11 @@ public class IRCServer implements Runnable {
 	}
 
 	public synchronized void removeConnection(String nickName) {
-		ClientConnection clientConnection = connectionMap.remove(nickName);
+		ClientConnection clientConnection = findConnection(nickName);
+		if (null == clientConnection) {
+			return;
+		}
+		connectionList.remove(clientConnection);
 		for (ServerChannel channel : clientConnection.getJoinedChannels().values()) {
 			try {
 				channel.part(clientConnection);
@@ -187,5 +198,38 @@ public class IRCServer implements Runnable {
 		IOUtil.close(clientConnection);
 
 		Log.log("connection removed [" + nickName + "]");
+	}
+
+	public void sendServerHelloAndPutConnection(ClientConnection clientConnection) throws IOException {
+		String nickName = clientConnection.getNickName();
+		clientConnection.setServerHelloSended(true);
+		clientConnection.sendCommand("001 " + nickName + " :Welcome to " + this.getServerName() + ", Multi-Communication server IRC interface.");
+		clientConnection.sendCommand("004 " + nickName + " " + this.getServerName() + " ");
+		clientConnection.sendCommand("375 " + nickName + " :- " + this.getServerName() + " Message of the Day -");
+		clientConnection.sendCommand("372 " + nickName + " :- Hello. Welcome to " + this.getServerName() + ", a test.");
+		clientConnection.sendCommand("372 " + nickName + " :- forsome " + "for more in.");
+		clientConnection.sendCommand("376 " + nickName + " :End of MOTD command. is what");
+		this.putConnection(nickName, clientConnection);
+	}
+
+	public void putConnection(String nickName, ClientConnection clientConnection) {
+		this.connectionList.add(clientConnection);
+	}
+
+	public boolean hasConnection(String nickName) {
+		return null != findConnection(nickName);
+	}
+
+	public void dumpUsers() {
+		System.out.println("start////////");
+		for (ClientConnection connection : connectionList) {
+			System.out.println(connection.getUser().getFQUN());
+		}
+		System.out.println("/////////////");
+
+	}
+
+	public Collection<ClientConnection> getConnectionList() {
+		return Collections.unmodifiableList(connectionList);
 	}
 }

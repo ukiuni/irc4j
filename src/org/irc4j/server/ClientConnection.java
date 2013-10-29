@@ -33,6 +33,7 @@ public class ClientConnection implements Runnable, Closeable {
 	private String encode = "UTF-8";
 	private Date lastRecievePongDate;
 	private Date lastSendPingDate;
+	private boolean serverHelloSended;
 
 	public ClientConnection(IRCServer ircServer, Socket socket, ExceptionHandler exceptionHandler) throws IOException {
 		this.socket = socket;
@@ -70,7 +71,7 @@ public class ClientConnection implements Runnable, Closeable {
 				}
 			}
 			try {
-				ircServer.getConnectionMap().remove(getNickName());
+				ircServer.removeChannel(getNickName());
 			} catch (Throwable e) {
 			}
 		}
@@ -120,8 +121,8 @@ public class ClientConnection implements Runnable, Closeable {
 	}
 
 	public void setNickName(String nickName) {
+		ircServer.removeChannel(this.user.getNickName());
 		this.user.setNickName(nickName);
-		ircServer.getConnectionMap().put(nickName, this);
 	}
 
 	public Map<String, ServerChannel> getJoinedChannels() {
@@ -184,5 +185,17 @@ public class ClientConnection implements Runnable, Closeable {
 
 	public Date getLastSendPingDate() {
 		return lastSendPingDate;
+	}
+
+	public boolean isServerHelloSended() {
+		return this.serverHelloSended;
+	}
+
+	public void setServerHelloSended(boolean serverHelloSended) {
+		this.serverHelloSended = serverHelloSended;
+	}
+
+	public void recievePong() {
+		this.lastRecievePongDate = new Date();
 	}
 }

@@ -7,6 +7,6 @@ import org.irc4j.IRCEventHandler;
 public class RecievePongCommand extends ServerCommand {
 	@Override
 	public void execute(IRCServer ircServer, ClientConnection selfClientConnection, List<IRCEventHandler> handlers) throws Throwable {
-		// selfClientConnection.sendPong(getCommandParameters()[0]);
+		selfClientConnection.recievePong();
 	}
 }

@@ -8,17 +8,21 @@ public class RecieveNickCommand extends ServerCommand {
 
 	@Override
 	public void execute(IRCServer ircServer, ClientConnection selfClientConnection, List<IRCEventHandler> handlers) throws Throwable {
+		ircServer.dumpUsers();
 		String newNickName = getCommandParameters()[0];
-		if (!newNickName.equals(selfClientConnection.getNickName()) && ircServer.getConnectionMap().containsKey(newNickName)) {
+		if ((!newNickName.equals(selfClientConnection.getNickName())) && ircServer.hasConnection(newNickName)) {
 			selfClientConnection.sendCommand("433 " + selfClientConnection.getNickName() + " :nickname " + newNickName + " aleady exists.");
 			return;
 		}
-		if (null != selfClientConnection.getNickName()) {
-			String newNickCommand = ":" + newNickName + "!" + selfClientConnection.getUser().getName() + "@" + selfClientConnection.getUser().getHostName() + " NICK :" + selfClientConnection.getNickName();
-			selfClientConnection.send(newNickCommand);
-			ircServer.getConnectionMap().remove(selfClientConnection.getNickName());
-			ircServer.sendToSameChannelUser(selfClientConnection, newNickCommand);
-		}
+		String oldNickName = selfClientConnection.getNickName();
 		selfClientConnection.setNickName(newNickName);
+
+		String newNickCommand = ":" + oldNickName + "!" + selfClientConnection.getUser().getName() + "@" + selfClientConnection.getUser().getHostName() + " NICK :" + selfClientConnection.getNickName();
+		selfClientConnection.send(newNickCommand);
+		ircServer.sendToSameChannelUser(selfClientConnection, newNickCommand);
+
+		if (!selfClientConnection.isServerHelloSended()) {
+			ircServer.sendServerHelloAndPutConnection(selfClientConnection);
+		}
 	}
 }
