@@ -5,7 +5,12 @@ public class Log {
 		System.out.println(message);
 	}
 
-	public static void log(Exception e) {
+	public static void log(Throwable e) {
 		e.printStackTrace();
+	}
+
+	public static void log(String message, Throwable e) {
+		log(message);
+		log(e);
 	}
 }

@@ -8,7 +8,7 @@ public class RecieveQuitCommand extends ServerCommand {
 
 	@Override
 	public void execute(IRCServer ircServer, ClientConnection selfClientConnection, List<IRCEventHandler> handlers) throws Throwable {
-		for (ServerChannel serverChannel : selfClientConnection.getJoinedChannels().values()) {
+		for (ServerChannel serverChannel : selfClientConnection.getJoinedChannels()) {
 			try {
 				selfClientConnection.partFromChannel(serverChannel.getName());
 				serverChannel.part(selfClientConnection);
@@ -16,8 +16,8 @@ public class RecieveQuitCommand extends ServerCommand {
 			}
 		}
 		ircServer.removeConnection(selfClientConnection.getNickName());
-
+		String quitMessage = getCommandParameters().length > 0 ? getCommandParameters()[1] : "";
+		selfClientConnection.sendQuit(quitMessage);
 		selfClientConnection.close();
 	}
-
 }

@@ -36,6 +36,8 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new RecieveNoticeCommand();
 		} else if (Command.COMMAND_HISTORY.equals(commandString)) {
 			command = new ReceiveHistoryCommand();
+		} else if (Command.COMMAND_WEBLOG.equals(commandString)) {
+			command = new ReceiveWeblogCommand();
 		} else if (commandString.matches("^[4][0-9]{2}$")) {
 			// command = new ServerErrorCommand();
 		} else if (commandString.matches("^[23][0-9]{2}$")) {

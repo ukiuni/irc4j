@@ -1,12 +1,15 @@
-package org.irc4j;
+package org.irc4j.entity;
 
 import java.util.Date;
 
 public class Message {
+	private long id;
 	private String type;
 	private String senderFQUN;
+	private String senderNickName;
 	private String targetChannel;
 	private String message;
+	private Date createdAt;
 
 	public String getType() {
 		return type;
@@ -48,14 +51,19 @@ public class Message {
 		this.senderNickName = senderNickName;
 	}
 
-	public Date getDate() {
-		return date;
+	public Date getCreatedAt() {
+		return createdAt;
 	}
 
-	public void setDate(Date date) {
-		this.date = date;
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
 	}
 
-	private String senderNickName;
-	private Date date;
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
 }

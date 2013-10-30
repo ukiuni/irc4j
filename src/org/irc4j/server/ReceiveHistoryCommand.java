@@ -3,7 +3,7 @@ package org.irc4j.server;
 import java.util.List;
 
 import org.irc4j.IRCEventHandler;
-import org.irc4j.Message;
+import org.irc4j.entity.Message;
 
 public class ReceiveHistoryCommand extends ServerCommand {
 
@@ -32,7 +32,7 @@ public class ReceiveHistoryCommand extends ServerCommand {
 		}
 		List<Message> messages = channel.getHistory(length);
 		for (Message message : messages) {
-			selfClientConnection.sendPrivateCommand(message.getDate().getHours() + ":" + message.getDate().getMinutes() + " " + message.getSenderNickName() + ": " + message.getMessage());
+			selfClientConnection.sendPrivateCommand(message.getCreatedAt().getHours() + ":" + message.getCreatedAt().getMinutes() + " " + message.getSenderNickName() + ": " + message.getMessage());
 		}
 
 	}

@@ -10,7 +10,7 @@ public class RecievePartCommand extends ServerCommand {
 	public void execute(IRCServer ircServer, ClientConnection selfClientConnection, List<IRCEventHandler> handlers) throws Throwable {
 		String[] channels = getCommandParameters()[0].split(",");
 		for (String channelName : channels) {
-			ServerChannel channel = selfClientConnection.getJoinedChannels().get(channelName);
+			ServerChannel channel = selfClientConnection.getJoinedChannel(channelName);
 			if (channelName == null) {
 				selfClientConnection.sendCommand("You're not a member of the channel " + channelName + ", so you can't part it.");
 			} else {

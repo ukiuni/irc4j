@@ -9,10 +9,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.irc4j.ExceptionHandler;
 import org.irc4j.Log;
@@ -125,8 +125,8 @@ public class ClientConnection implements Runnable, Closeable {
 		this.user.setNickName(nickName);
 	}
 
-	public Map<String, ServerChannel> getJoinedChannels() {
-		return joinedChannelMap;
+	public Collection<ServerChannel> getJoinedChannels() {
+		return new ArrayList<ServerChannel>(joinedChannelMap.values());
 	}
 
 	public void sendCommand(String command) throws IOException {
@@ -197,5 +197,13 @@ public class ClientConnection implements Runnable, Closeable {
 
 	public void recievePong() {
 		this.lastRecievePongDate = new Date();
+	}
+
+	public void sendQuit(String message) throws IOException {
+		send(":" + user.getFQUN() + " QUIT :" + message);
+	}
+
+	public ServerChannel getJoinedChannel(String channelName) {
+		return joinedChannelMap.get(channelName);
 	}
 }

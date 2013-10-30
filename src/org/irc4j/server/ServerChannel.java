@@ -8,14 +8,14 @@ import java.util.List;
 
 import org.irc4j.Channel;
 import org.irc4j.Log;
-import org.irc4j.Message;
+import org.irc4j.db.Database;
+import org.irc4j.entity.Message;
 
 public class ServerChannel extends Channel {
 
 	private IRCServer ircServer;
 	public List<ClientConnection> joinedConnectionList = new ArrayList<ClientConnection>();
 	private String password;
-	private LimitedQueue<Message> messageQueue = new LimitedQueue<Message>(100);
 
 	public ServerChannel(IRCServer server, String name) {
 		super(name);
@@ -63,13 +63,13 @@ public class ServerChannel extends Channel {
 	public void sendMessage(String type, String senderFQUN, String targetChannel, String message, ClientConnection exeptClientConnection) throws IOException {
 		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
 		Message messageObj = new Message();
-		messageObj.setDate(new Date());
+		messageObj.setCreatedAt(new Date());
 		messageObj.setMessage(message);
 		messageObj.setSenderFQUN(senderFQUN);
 		messageObj.setSenderNickName(exeptClientConnection.getNickName());
 		messageObj.setTargetChannel(targetChannel);
 		messageObj.setType(type);
-		messageQueue.add(messageObj);
+		Database.getInstance().regist(messageObj);
 
 		for (ClientConnection clientConnection : sendClients) {
 			try {
@@ -114,11 +114,7 @@ public class ServerChannel extends Channel {
 	}
 
 	public List<Message> getHistory(int length) {
-		int start = messageQueue.size() - length;
-		if (start < 0) {
-			start = 0;
-		}
-		return new ArrayList<Message>(messageQueue.subList(start, messageQueue.size()));
+		return Database.getInstance().loadMessage(getName(), length);
 	}
 
 	@SuppressWarnings("serial")
@@ -137,5 +133,9 @@ public class ServerChannel extends Channel {
 			}
 			return added;
 		}
+	}
+
+	public long getMessageMaxId() {
+		return Database.getInstance().loadMaxId(getName());
 	}
 }

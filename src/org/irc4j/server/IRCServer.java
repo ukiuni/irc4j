@@ -15,6 +15,7 @@ import org.irc4j.ExceptionHandler;
 import org.irc4j.Log;
 import org.irc4j.User;
 import org.irc4j.server.worker.PingPongWorker;
+import org.irc4j.server.worker.WebWorker;
 import org.irc4j.server.worker.Worker;
 import org.irc4j.util.IOUtil;
 
@@ -28,7 +29,18 @@ public class IRCServer implements Runnable {
 	private ArrayList<Worker> workerList;
 
 	public static void main(String[] args) throws IOException {
-		new IRCServer().start();
+		final IRCServer server = new IRCServer();
+		server.start();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				try {
+					server.stop();
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	public IRCServer() {
@@ -43,6 +55,7 @@ public class IRCServer implements Runnable {
 		runningThread.start();
 		this.workerList = new ArrayList<Worker>();
 		this.workerList.add(new PingPongWorker());
+		this.workerList.add(new WebWorker());
 		for (Worker worker : workerList) {
 			worker.work(this);
 		}
@@ -92,7 +105,7 @@ public class IRCServer implements Runnable {
 
 		@Override
 		public void handle(Throwable e) {
-			// Log.log("Exception with " + clientConnection.getNickName());
+			Log.log("Exception with " + clientConnection.getNickName(), e);
 			// e.printStackTrace();
 			// ircServer.connectionMap.remove(clientConnection.getNickName());
 		}
@@ -111,8 +124,7 @@ public class IRCServer implements Runnable {
 	}
 
 	public void sendToSameChannelUser(ClientConnection selfClientConnection, String newNickCommand) throws IOException {
-		Map<String, ServerChannel> channelMap = selfClientConnection.getJoinedChannels();
-		for (Channel channel : channelMap.values()) {
+		for (Channel channel : selfClientConnection.getJoinedChannels()) {
 			for (User user : channel.getUserList()) {
 				ClientConnection clientConnection = findConnection(user.getNickName());
 				clientConnection.send(newNickCommand);
@@ -189,7 +201,7 @@ public class IRCServer implements Runnable {
 			return;
 		}
 		connectionList.remove(clientConnection);
-		for (ServerChannel channel : clientConnection.getJoinedChannels().values()) {
+		for (ServerChannel channel : clientConnection.getJoinedChannels()) {
 			try {
 				channel.part(clientConnection);
 			} catch (IOException e) {
