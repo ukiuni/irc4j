@@ -39,7 +39,7 @@ public abstract class Command {
 	public static final String COMMAND_MODE = "MODE";
 	public static final String COMMAND_TOPIC = "TOPIC";
 	public static final String COMMAND_HISTORY = "HISTORY";
-	public static final String COMMAND_WEBLOG = "WEBLOG";
+	public static final String COMMAND_WEBLOG = "WLOG";
 	private String line;
 	private String prefix;
 	private String command;

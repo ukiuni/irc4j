@@ -3,10 +3,13 @@ package org.irc4j.server.worker;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.arnx.jsonic.JSON;
 
+import org.irc4j.Conf;
 import org.irc4j.Log;
 import org.irc4j.db.Database;
 import org.irc4j.entity.Message;
@@ -23,18 +26,29 @@ public class WebWorker implements Worker {
 	@Override
 	public void work(IRCServer ircServer) {
 		Log.log("webWorker start basedir = " + baseDir.getAbsolutePath());
-		httpServer = new HttpServer(1080);
-		httpServer.getDefaultHandler().addResponseAll(baseDir);
+		httpServer = new HttpServer(Conf.getHttpServerPort());
+		httpServer.getDefaultHandler().addStaticBaseDir(baseDir);
 		httpServer.getDefaultHandler().addResponse("/logs", new Response() {
 			@Override
 			public void onResponse(OutputStream out) throws Throwable {
 				String key = getRequest().getParameter("k");
 				String[] param = CipherUtil.decode(key).split(" ");
-				String channel = param[0];
+				String channelName = param[0];
 				long maxId = Long.valueOf(param[1]);
 				int limit = Integer.valueOf(param[2]);
-				List<Message> messageList = Database.getInstance().loadMessage(channel, maxId, limit);
-				write(out, 200, JSON.encode(messageList), "application/json; charset=utf-8", "UTF-8");
+				String user = param[3];
+				long dateLong = Long.valueOf(param[4]);
+				List<Message> messageList = Database.getInstance().loadMessage(channelName, maxId, limit);
+				Map<String, Object> responseMap = new HashMap<String, Object>();
+				if (!messageList.isEmpty()) {
+					responseMap.put("date", dateLong);
+					responseMap.put("user", user);
+					responseMap.put("channelName", channelName);
+					responseMap.put("logs", messageList);
+					write(out, 200, JSON.encode(responseMap), "application/json; charset=utf-8", "UTF-8");
+				} else {
+					write(out, 400, "error", "application/json; charset=utf-8", "UTF-8");
+				}
 			}
 		});
 		try {

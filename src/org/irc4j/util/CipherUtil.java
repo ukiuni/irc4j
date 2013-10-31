@@ -1,12 +1,22 @@
 package org.irc4j.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterInputStream;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 
+import net.arnx.jsonic.util.Base64;
+
+import org.irc4j.Conf;
+
 public class CipherUtil {
-	private static byte[] PRIVATE_KEY = "123456789012345678901234".getBytes(); //TODO out
+	private static byte[] PRIVATE_KEY = Conf.getLogCipherKey().getBytes();
 
 	public static String encode(String src) {
 		try {
@@ -14,8 +24,8 @@ public class CipherUtil {
 			SecretKey secretKey = SecretKeyFactory.getInstance("DESEde").generateSecret(new DESedeKeySpec(PRIVATE_KEY));
 			Cipher cipher = Cipher.getInstance(secretKey.getAlgorithm() + "/ECB/PKCS5Padding");
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-			byte[] encryptedText = cipher.doFinal(rawText);;
-			return toHex(encryptedText);
+			byte[] encryptedText = cipher.doFinal(rawText);
+			return toHex(zip(encryptedText));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -23,7 +33,7 @@ public class CipherUtil {
 
 	public static String decode(String src) {
 		try {
-			byte[] rawText = toByteArray(src);
+			byte[] rawText = unzip(toByteArray(src));
 			SecretKey secretKey = SecretKeyFactory.getInstance("DESEde").generateSecret(new DESedeKeySpec(PRIVATE_KEY));
 			Cipher cipher = Cipher.getInstance(secretKey.getAlgorithm() + "/ECB/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, secretKey);
@@ -46,11 +56,47 @@ public class CipherUtil {
 		return strbuf.toString();
 	}
 
+	private static byte[] zip(byte[] src) {
+		try {
+			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			DeflaterOutputStream zout = new DeflaterOutputStream(bout);
+			zout.write(src);
+			zout.finish();
+			return bout.toByteArray();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static byte[] unzip(byte[] src) {
+		try {
+			InflaterInputStream in = new InflaterInputStream(new ByteArrayInputStream(src));
+			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			int readed = in.read(buffer);
+			while (readed > 0) {
+				bout.write(buffer, 0, readed);
+				readed = in.read(buffer);
+			}
+			return bout.toByteArray();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static byte[] toByteArray(String hex) {
 		byte[] bytes = new byte[hex.length() / 2];
 		for (int index = 0; index < bytes.length; index++) {
 			bytes[index] = (byte) Integer.parseInt(hex.substring(index * 2, (index + 1) * 2), 16);
 		}
 		return bytes;
+	}
+
+	private static String toBase64String(byte[] src) {
+		return Base64.encode(src);
+	}
+
+	private static byte[] returnBase64(String src) {
+		return Base64.decode(src);
 	}
 }

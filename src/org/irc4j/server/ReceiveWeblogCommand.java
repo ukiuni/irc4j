@@ -1,7 +1,9 @@
 package org.irc4j.server;
 
+import java.util.Date;
 import java.util.List;
 
+import org.irc4j.Conf;
 import org.irc4j.IRCEventHandler;
 import org.irc4j.util.CipherUtil;
 
@@ -30,7 +32,7 @@ public class ReceiveWeblogCommand extends ServerCommand {
 		} catch (Exception e) {
 		}
 		long messagesId = channel.getMessageMaxId();
-		selfClientConnection.sendPrivateCommand("uri: /logs?k=" + CipherUtil.encode(channelName + " " + messagesId + " " + length));
+		selfClientConnection.sendPrivateCommand("uri: " + Conf.getHttpServerURL() + "/logs/#" + CipherUtil.encode(channelName + " " + messagesId + " " + length + " " + selfClientConnection.getNickName() + " " + new Date().getTime()));
 
 	}
 
