@@ -15,14 +15,13 @@ public class RecieveNickCommand extends ServerCommand {
 			return;
 		}
 		String oldNickName = selfClientConnection.getNickName();
+
 		selfClientConnection.setNickName(newNickName);
-
-		String newNickCommand = ":" + oldNickName + "!" + selfClientConnection.getUser().getName() + "@" + selfClientConnection.getUser().getHostName() + " NICK :" + selfClientConnection.getNickName();
-		selfClientConnection.send(newNickCommand);
-		ircServer.sendToSameChannelUser(selfClientConnection, newNickCommand);
-
-		if (!selfClientConnection.isServerHelloSended()) {
-			ircServer.sendServerHelloAndPutConnection(selfClientConnection);
+		if (null != oldNickName) {
+			String newNickCommand = ":" + oldNickName + "!" + selfClientConnection.getUser().getName() + "@" + selfClientConnection.getUser().getHostName() + " NICK :" + selfClientConnection.getNickName();
+			selfClientConnection.send(newNickCommand);
+			ircServer.sendToSameChannelUser(selfClientConnection, newNickCommand);
 		}
+		ircServer.putConnection(selfClientConnection);
 	}
 }

@@ -88,7 +88,6 @@ public class IRCServer implements Runnable {
 				ClientConnectionExceptionHandler exceptionHandler = new ClientConnectionExceptionHandler();
 				ClientConnection clientConnection = new ClientConnection(this, socket, exceptionHandler);
 				exceptionHandler.setClinetConnection(clientConnection);
-				exceptionHandler.setIRCServer(this);
 				clientConnection.start();
 			}
 		} catch (Throwable e) {
@@ -101,17 +100,10 @@ public class IRCServer implements Runnable {
 	public static class ClientConnectionExceptionHandler implements ExceptionHandler {
 
 		private ClientConnection clientConnection;
-		private IRCServer ircServer;
 
 		@Override
 		public void handle(Throwable e) {
 			Log.log("Exception with " + clientConnection.getNickName(), e);
-			// e.printStackTrace();
-			// ircServer.connectionMap.remove(clientConnection.getNickName());
-		}
-
-		public void setIRCServer(IRCServer ircServer) {
-			this.ircServer = ircServer;
 		}
 
 		public void setClinetConnection(ClientConnection clientConnection) {
@@ -127,7 +119,9 @@ public class IRCServer implements Runnable {
 		for (Channel channel : selfClientConnection.getJoinedChannels()) {
 			for (User user : channel.getUserList()) {
 				ClientConnection clientConnection = findConnection(user.getNickName());
-				clientConnection.send(newNickCommand);
+				if (null != clientConnection) {
+					clientConnection.send(newNickCommand);
+				}
 			}
 		}
 	}
@@ -195,8 +189,11 @@ public class IRCServer implements Runnable {
 		channelMap.remove(name);
 	}
 
-	public synchronized void removeConnection(String nickName) {
-		ClientConnection clientConnection = findConnection(nickName);
+	public synchronized void deleteOldChannelCache(ClientConnection clientConnection) {
+		connectionList.remove(clientConnection);
+	}
+
+	public synchronized void removeConnection(ClientConnection clientConnection) {
 		if (null == clientConnection) {
 			return;
 		}
@@ -209,10 +206,15 @@ public class IRCServer implements Runnable {
 		}
 		IOUtil.close(clientConnection);
 
-		Log.log("connection removed [" + nickName + "]");
+		Log.log("connection removed [" + clientConnection.getNickName() + "]");
 	}
 
-	public void sendServerHelloAndPutConnection(ClientConnection clientConnection) throws IOException {
+	public synchronized void removeConnection(String nickName) {
+		ClientConnection clientConnection = findConnection(nickName);
+		removeConnection(clientConnection);
+	}
+
+	public void sendServerHello(ClientConnection clientConnection) throws IOException {
 		String nickName = clientConnection.getNickName();
 		clientConnection.setServerHelloSended(true);
 		clientConnection.sendCommand("001 " + nickName + " :Welcome to " + this.getServerName() + ", Multi-Communication server IRC interface.");
@@ -221,10 +223,9 @@ public class IRCServer implements Runnable {
 		clientConnection.sendCommand("372 " + nickName + " :- Hello. Welcome to " + this.getServerName() + ", a test.");
 		clientConnection.sendCommand("372 " + nickName + " :- forsome " + "for more in.");
 		clientConnection.sendCommand("376 " + nickName + " :End of MOTD command. is what");
-		this.putConnection(nickName, clientConnection);
 	}
 
-	public void putConnection(String nickName, ClientConnection clientConnection) {
+	public void putConnection(ClientConnection clientConnection) {
 		this.connectionList.add(clientConnection);
 	}
 

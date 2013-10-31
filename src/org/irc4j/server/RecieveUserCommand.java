@@ -8,17 +8,13 @@ public class RecieveUserCommand extends ServerCommand {
 
 	@Override
 	public void execute(IRCServer ircServer, ClientConnection selfClientConnection, List<IRCEventHandler> handlers) throws Throwable {
-		String newNickName = getCommandParameters()[0];
-		if (getCommandParameters().length >= 3) {
-			selfClientConnection.getUser().setName(getCommandParameters()[2]);
+		String userName = getCommandParameters()[0];
+		if (getCommandParameters().length > 3) {
+			selfClientConnection.getUser().setDescription(getCommandParameters()[3]);
 		}
-		if (!newNickName.equals(selfClientConnection.getNickName()) && ircServer.hasConnection(newNickName)) {
-			selfClientConnection.sendCommand("433 " + selfClientConnection.getNickName() + " :nickname " + newNickName + " aleady exists.");
-			return;
-		}
-		selfClientConnection.getUser().setNickName(newNickName);
-		if(!selfClientConnection.isServerHelloSended()){
-			ircServer.sendServerHelloAndPutConnection(selfClientConnection);
+		selfClientConnection.getUser().setName(userName);
+		if (!selfClientConnection.isServerHelloSended()) {
+			ircServer.sendServerHello(selfClientConnection);
 		}
 	}
 }

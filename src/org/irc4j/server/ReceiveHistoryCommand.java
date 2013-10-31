@@ -10,8 +10,9 @@ public class ReceiveHistoryCommand extends ServerCommand {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void execute(IRCServer ircServer, ClientConnection selfClientConnection, List<IRCEventHandler> handlers) throws Throwable {
-		if (1 < getCommandParameters().length) {
+		if (1 > getCommandParameters().length) {
 			selfClientConnection.sendPrivateCommand("channel and history length must be specified");
+			return;
 		}
 		String targetChannel = getCommandParameters()[0];
 		if (targetChannel.startsWith(":")) {
@@ -34,7 +35,5 @@ public class ReceiveHistoryCommand extends ServerCommand {
 		for (Message message : messages) {
 			selfClientConnection.sendPrivateCommand(message.getCreatedAt().getHours() + ":" + message.getCreatedAt().getMinutes() + " " + message.getSenderNickName() + ": " + message.getMessage());
 		}
-
 	}
-
 }

@@ -22,6 +22,7 @@ package org.irc4j;
  */
 public class User {
 	private String name;
+	private String realName;
 	private String hostName;
 	private String nickName;
 	private String description;
@@ -69,5 +70,13 @@ public class User {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getRealName() {
+		return realName;
+	}
+
+	public void setRealName(String realName) {
+		this.realName = realName;
 	}
 }

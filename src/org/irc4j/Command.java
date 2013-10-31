@@ -62,6 +62,9 @@ public abstract class Command {
 	}
 
 	public String[] getCommandParameters() {
+		if (null == commandParametersString) {
+			return null;
+		}
 		return commandParametersString.split(" ");
 	}
 

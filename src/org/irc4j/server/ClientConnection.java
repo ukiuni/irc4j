@@ -121,7 +121,6 @@ public class ClientConnection implements Runnable, Closeable {
 	}
 
 	public void setNickName(String nickName) {
-		ircServer.removeChannel(this.user.getNickName());
 		this.user.setNickName(nickName);
 	}
 
