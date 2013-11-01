@@ -141,6 +141,10 @@ public class IRCServer implements Runnable {
 
 	public synchronized void joinToChannel(final ClientConnection con, String channelName, String password) throws IOException {
 		Log.log("joinToChannel start");
+		if (null == con.getNickName()) {
+			con.sendCommand("431 :No nickname given. send JOIN command first.");
+			return;
+		}
 		if (Channel.wrongName(channelName)) {
 			con.sendCommand("Wrong channel name " + channelName);
 			return;
@@ -217,7 +221,7 @@ public class IRCServer implements Runnable {
 	public void sendServerHello(ClientConnection clientConnection) throws IOException {
 		String nickName = clientConnection.getNickName();
 		clientConnection.setServerHelloSended(true);
-		clientConnection.sendCommand("001 " + nickName + " :Welcome to " + this.getServerName() + ", Multi-Communication server IRC interface.");
+		clientConnection.sendCommand("001 " + nickName + " :Welcome to " + this.getServerName() + ", Multi-Communication server IRC interface. " + clientConnection.getNickName());
 		clientConnection.sendCommand("004 " + nickName + " " + this.getServerName() + " ");
 		clientConnection.sendCommand("375 " + nickName + " :- " + this.getServerName() + " Message of the Day -");
 		clientConnection.sendCommand("372 " + nickName + " :- Hello. Welcome to " + this.getServerName() + ", a test.");
@@ -234,11 +238,11 @@ public class IRCServer implements Runnable {
 	}
 
 	public void dumpUsers() {
-		System.out.println("start////////");
+		Log.log("start////////");
 		for (ClientConnection connection : connectionList) {
 			System.out.println(connection.getUser().getFQUN());
 		}
-		System.out.println("/////////////");
+		Log.log("/////////////");
 
 	}
 

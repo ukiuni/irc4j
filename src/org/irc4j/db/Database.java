@@ -94,7 +94,7 @@ public class Database {
 	}
 
 	public List<Message> loadMessage(String channel, long maxId, int limit) {
-		return loadMessage(channel, limit, "and id < " + maxId);
+		return loadMessage(channel, limit, "and id <= " + maxId);
 	}
 
 	public long loadMaxId(String channel) {

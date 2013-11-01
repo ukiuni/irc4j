@@ -71,7 +71,7 @@ public class ClientConnection implements Runnable, Closeable {
 				}
 			}
 			try {
-				ircServer.removeChannel(getNickName());
+				ircServer.removeConnection(this);
 			} catch (Throwable e) {
 			}
 		}

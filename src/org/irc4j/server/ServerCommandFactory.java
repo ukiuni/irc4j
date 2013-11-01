@@ -13,7 +13,7 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 		} else if (Command.COMMAND_PING.equals(commandString)) {
 			command = new RecievePingCommand();
 		} else if (Command.COMMAND_JOIN.equals(commandString)) {
-			command = new RecieveJoinCommand();
+			command = new ReceiveJoinCommand();
 		} else if (Command.COMMAND_PING.equals(commandString)) {
 			command = new RecievePingCommand();
 		} else if (Command.COMMAND_PONG.equals(commandString)) {

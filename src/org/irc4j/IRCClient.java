@@ -189,8 +189,8 @@ public class IRCClient {
 			public void onServerMessage(int id, String message) {
 				if (waitServerResponseOnConnect) {
 					try {
-						sendUser(nickName, myHost, host, realName);
 						sendNickName(nickName);
+						sendUser(nickName, myHost, host, realName);
 						ready = true;
 					} catch (IOException e) {
 						eList.add(e);
@@ -233,8 +233,8 @@ public class IRCClient {
 			}
 		} else {
 			ready = true;
-			sendUser(nickName, myHost, host, realName);
 			sendNickName(nickName);
+			sendUser(nickName, myHost, host, realName);
 		}
 		removeHandler(startHander);
 
