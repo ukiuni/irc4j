@@ -24,9 +24,9 @@ public class ClientConnection implements Runnable, Closeable {
 	private IRCServer ircServer;
 	private List<ExceptionHandler> exceptionHandlerList = new ArrayList<ExceptionHandler>();
 	private ServerCommandFactory serverCommandFactory;
-	private OutputStream out;
-	private User user;
-	private HashMap<String, ServerChannel> joinedChannelMap;
+	private final OutputStream out;
+	private final User user;
+	private final HashMap<String, ServerChannel> joinedChannelMap;
 	private boolean reading;
 	private BufferedReader readIn;
 	private Thread readingThread;

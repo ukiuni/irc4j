@@ -93,6 +93,9 @@ public class User {
 		if (null == this.nickName) {
 			return false;
 		}
-		return this.nickName.equals(obj);
+		if (!(obj instanceof User)) {
+			return false;
+		}
+		return this.nickName.equals(((User) obj).getNickName());
 	}
 }

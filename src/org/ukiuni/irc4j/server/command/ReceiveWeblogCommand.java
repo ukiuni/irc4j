@@ -26,7 +26,7 @@ public class ReceiveWeblogCommand extends ServerCommand {
 		if (channel == null) {
 			selfClientConnection.sendPrivateCommand("No such channel " + channelName);
 			return;
-		} else if (!channel.getCurrentUserList().contains(selfClientConnection.getUser())) {
+		} else if (!channel.joins(selfClientConnection)) {
 			selfClientConnection.sendPrivateCommand("You are not joined to " + channelName);
 			return;
 		}
