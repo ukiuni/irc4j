@@ -1,14 +1,114 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Create Runnable Jar for Project IRC4j">
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
-    <target name="create_run_jar">
-        <jar destfile="/Users/user/irc4j.jar" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="Main"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="/Users/user/Documents/workspaceJuno2/IRC4j/bin"/>
-        </jar>
-    </target>
+<project basedir=".." default="create_archive" name="Create Runnable Jar for Project IRC4j">
+	<property name="BUILD_CLASS_DIR" value="build/classes" />
+	<property name="TEST_CLASS_DIR" value="build/testClasses" />
+	<property name="target" value="1.6" />
+	<property name="source" value="1.6" />
+	<property file="build/build.number" />
+	<property name="last_version" value="${major.minor}.${last.build.number}" />
+	<property name="version" value="${major.minor}.${next.build.number}" />
+	<path id="JUnit 4.libraryclasspath">
+		<pathelement location="testLibs/junit.jar" />
+		<pathelement location="testLibs/org.hamcrest.core_1.3.0.v201303031735.jar" />
+	</path>
+	<path id="IRC4J.classpath">
+		<pathelement location="${BUILD_CLASS_DIR}" />
+		<path refid="JUnit 4.libraryclasspath" />
+		<pathelement location="libs/h2-1.3.174.jar" />
+		<pathelement location="libs/jsonic-1.2.11.jar" />
+		<pathelement location="libs/lightHttpServer_0.0.12_snapshot.jar" />
+	</path>
+	<path id="IRC4J.test.classpath">
+		<pathelement location="${BUILD_CLASS_DIR}" />
+		<pathelement location="${TEST_CLASS_DIR}" />
+		<path refid="JUnit 4.libraryclasspath" />
+		<pathelement location="libs/h2-1.3.174.jar" />
+		<pathelement location="libs/jsonic-1.2.11.jar" />
+		<pathelement location="libs/lightHttpServer_0.0.12_snapshot.jar" />
+	</path>
+	<target name="clean">
+		<delete dir="${BUILD_CLASS_DIR}" />
+		<delete dir="${TEST_CLASS_DIR}" />
+		<delete>
+			<fileset dir="bin" includes="*.jar" />
+			<fileset dir="build" includes="*.zip" />
+			<fileset dir="build" includes="*.tar.gz" />
+		</delete>
+	</target>
+	<target depends="clean" name="init">
+		<mkdir dir="${BUILD_CLASS_DIR}" />
+		<mkdir dir="${TEST_CLASS_DIR}" />
+		<copy includeemptydirs="false" todir="${BUILD_CLASS_DIR}">
+			<fileset dir="src">
+				<exclude name="**/*.launch" />
+			</fileset>
+		</copy>
+	</target>
+	<target depends="init" name="build-project">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="${BUILD_CLASS_DIR}" includeantruntime="false" source="${source}" target="${target}">
+			<src path="src" />
+			<classpath refid="IRC4J.classpath" />
+		</javac>
+	</target>
+	<target depends="init" name="build-test">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="${TEST_CLASS_DIR}" includeantruntime="false" source="${source}" target="${target}">
+			<src path="test" />
+			<classpath refid="IRC4J.test.classpath" />
+		</javac>
+	</target>
+	<target depends="build-project,build-test" name="test">
+		<mkdir dir="build/testResult" />
+		<junit fork="yes" printsummary="withOutAndErr">
+			<formatter type="xml" />
+			<test name="test.org.irc4j.TestAuthodocs" todir="build/testResult" />
+			<classpath refid="IRC4J.test.classpath" />
+		</junit>
+	</target>
+	<target depends="test,build-project" name="create_jar">
+		<jar destfile="bin/irc4j.${version}.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="Main" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+			<fileset dir="build/classes" />
+		</jar>
+	</target>
+	<target name="increment_build_number">
+		<propertyfile file="build/build.number" comment="Build Number for ANT. Edit not!">
+			<entry key="next.build.number" type="int" operation="+" default="1" />
+		</propertyfile>
+	</target>
+	<target depends="increment_build_number,create_jar" name="create_run_jar" />
+	<target name="create_run_script">
+		<echo file="bin/airs">#!/bin/sh
+binary_path=$(cd $(dirname "$$0"); pwd)
+export WEB_BASE_PATH=$binary_path/../webContents
+java -cp "${binary_path}/irc4j.${version}.jar:$${binary_path}../conf:$${binary_path}/../libs/*" org.ukiuni.irc4j.server.IRCServer
+</echo>
+		<echo file="bin/airs.bat">set basePath=%~dp1
+set WEB_BASE_PATH=%basePath%\..\webContents
+java -cp %basePath%\irc4j.${version}.jar;%basePath%\..\conf;%basePath%\..\libs\*; org.ukiuni.irc4j.server.IRCServer
+</echo>
+		<chmod file="bin/airs" perm="ugo+rx" />
+		<chmod file="bin/airs.bat" perm="ugo+rx" />
+	</target>
+	<target depends="create_run_jar" name="create_archive">
+		<zip destfile="build/airs.${version}.zip" basedir="." excludes="compiled/,testLibs/,src/">
+		</zip>
+		<tar compression="gzip" destfile="build/airs.${version}.tar.gz">
+			<tarfileset dir="." mode="0755">
+				<include name="bin/airs" />
+				<include name="bin/irc4j.${version}.jar" />
+			</tarfileset>
+			<tarfileset dir=".">
+				<include name="bin/airs.bat" />
+				<include name="bin/service/*" />
+				<include name="libs/*" />
+				<include name="conf/*" />
+				<include name="webContents/*" />
+			</tarfileset>
+		</tar>
+	</target>
 </project>
