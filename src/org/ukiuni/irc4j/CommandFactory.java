@@ -25,24 +25,26 @@ package org.ukiuni.irc4j;
 public abstract class CommandFactory<T extends Command> {
 
 	public Command loadCommand(String line) {
-		int lineCursor = 0;
 		String prefix = null;
 		String commandString = null;
 		String commandParametersString = null;
 
 		if (line.startsWith(":")) {
-			lineCursor = line.indexOf(" ");
-			prefix = line.substring(0, lineCursor);
-			lineCursor++;
-		}
-		int commandEndPosition = line.indexOf(" ", lineCursor);
-		if (0 > commandEndPosition) {
-			commandEndPosition = line.length();
-			commandString = line.substring(lineCursor, commandEndPosition);
+			String[] separated = line.substring(1).split(" ", 3);
+			prefix = separated[0];
+			commandString = separated[1];
+			if (separated.length > 1) {
+				commandParametersString = separated[2];
+			}
 		} else {
-			commandString = line.substring(lineCursor, commandEndPosition);
-			lineCursor = commandEndPosition + 1;
-			commandParametersString = line.substring(lineCursor);
+			String[] separated = line.split(" ", 2);
+			commandString = separated[0];
+			if (separated.length > 1) {
+				commandParametersString = separated[1];
+			}
+		}
+		if (null != commandParametersString && commandParametersString.startsWith(":")) {
+			commandParametersString = commandParametersString.substring(1);
 		}
 		T command = createCommandInstance(commandString);
 

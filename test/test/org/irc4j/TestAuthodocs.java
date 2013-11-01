@@ -110,7 +110,7 @@ public class TestAuthodocs {
 		client3.sendJoin("#testChannel");
 		Thread.sleep(1000);
 		client1.sendMessage("#testChannel", "testMessage");
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		assertEquals("#testChannel", resultMap.get("channel2"));
 		assertEquals("client1NickName", resultMap.get("from2"));
 		assertEquals("testMessage", resultMap.get("message2"));
@@ -199,8 +199,9 @@ public class TestAuthodocs {
 		client2.sendJoin("#testChannel");
 		client3.sendJoin("#testChannel");
 
-		Thread.sleep(1000);
+		Thread.sleep(3000);
 		client1.sendWho("#testChannel");
+		Thread.sleep(1000);
 		client3.sendQuit();
 		Thread.sleep(2000);
 		assertEquals(3, ((Integer) resultMap.get("352Count")).intValue());
@@ -254,7 +255,7 @@ public class TestAuthodocs {
 		Thread.sleep(1000);
 
 		client2.sendJoin("#testChannel");
-		client2.write("HISTORY #testChannel");
+		client2.write("HISTORY :#testChannel");
 		Thread.sleep(1000);
 		assertEquals("client2NickName", resultMap.get("channel"));
 		assertEquals("AIR_IRC", resultMap.get("from"));

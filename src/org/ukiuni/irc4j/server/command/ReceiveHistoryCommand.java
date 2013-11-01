@@ -19,9 +19,6 @@ public class ReceiveHistoryCommand extends ServerCommand {
 			return;
 		}
 		String targetChannel = getCommandParameters()[0];
-		if (targetChannel.startsWith(":")) {
-			targetChannel = targetChannel.substring(1);
-		}
 		ServerChannel channel = ircServer.getChannel(targetChannel);
 		if (channel == null) {
 			selfClientConnection.sendPrivateCommand("No such channel " + targetChannel);
