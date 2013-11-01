@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.irc4j.IRCClient;
-import org.irc4j.IRCEventAdapter;
-import org.irc4j.server.IRCServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.ukiuni.irc4j.IRCClient;
+import org.ukiuni.irc4j.IRCEventAdapter;
+import org.ukiuni.irc4j.server.IRCServer;
 
 public class TestAuthodocs {
 	IRCServer ircServer;
@@ -25,10 +25,11 @@ public class TestAuthodocs {
 	}
 
 	@After
-	public void stopServer() throws IOException {
+	public void stopServer() throws IOException, InterruptedException {
 		if (null != ircServer) {
 			ircServer.stop();
 		}
+		Thread.sleep(2000);
 	}
 
 	@Test
@@ -239,6 +240,7 @@ public class TestAuthodocs {
 				resultMap.put("channel", channelName);
 				resultMap.put("from", from);
 				resultMap.put("message", message);
+				System.out.println("+++++++++++++:" + channelName + ":" + from + ":" + message);
 			}
 
 			@Override
@@ -254,10 +256,9 @@ public class TestAuthodocs {
 		client2.sendJoin("#testChannel");
 		client2.write("HISTORY #testChannel");
 		Thread.sleep(1000);
-		assertNull("#testChannel", resultMap.get("channel"));
-		assertNull("client1NickName", resultMap.get("from"));
-		assertNull("testMessage", resultMap.get("message"));
-		assertTrue("serverMessage", ((String) resultMap.get("serverMessage")).endsWith("testMessage"));
+		assertEquals("client2NickName", resultMap.get("channel"));
+		assertEquals("AIR_IRC", resultMap.get("from"));
+		assertTrue(((String) resultMap.get("message")).endsWith("client1NickName: testMessage"));
 		client1.sendQuit();
 		client2.sendQuit();
 	}

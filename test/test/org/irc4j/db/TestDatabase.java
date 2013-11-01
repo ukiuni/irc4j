@@ -3,10 +3,10 @@ package test.org.irc4j.db;
 import java.util.Date;
 import java.util.List;
 
-import org.irc4j.db.Database;
-import org.irc4j.entity.Message;
 import org.junit.Assert;
 import org.junit.Test;
+import org.ukiuni.irc4j.db.Database;
+import org.ukiuni.irc4j.entity.Message;
 
 public class TestDatabase {
 	@Test

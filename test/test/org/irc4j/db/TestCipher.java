@@ -1,8 +1,8 @@
 package test.org.irc4j.db;
 
-import org.irc4j.util.CipherUtil;
 import org.junit.Assert;
 import org.junit.Test;
+import org.ukiuni.irc4j.util.CipherUtil;
 
 public class TestCipher {
 	@Test
