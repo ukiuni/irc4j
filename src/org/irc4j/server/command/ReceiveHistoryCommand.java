@@ -1,9 +1,13 @@
-package org.irc4j.server;
+package org.irc4j.server.command;
 
 import java.util.List;
 
 import org.irc4j.IRCEventHandler;
 import org.irc4j.entity.Message;
+import org.irc4j.server.ClientConnection;
+import org.irc4j.server.IRCServer;
+import org.irc4j.server.ServerChannel;
+import org.irc4j.server.ServerCommand;
 
 public class ReceiveHistoryCommand extends ServerCommand {
 

@@ -1,10 +1,14 @@
-package org.irc4j.server;
+package org.irc4j.server.command;
 
 import java.util.Date;
 import java.util.List;
 
 import org.irc4j.Conf;
 import org.irc4j.IRCEventHandler;
+import org.irc4j.server.ClientConnection;
+import org.irc4j.server.IRCServer;
+import org.irc4j.server.ServerChannel;
+import org.irc4j.server.ServerCommand;
 import org.irc4j.util.CipherUtil;
 
 public class ReceiveWeblogCommand extends ServerCommand {
