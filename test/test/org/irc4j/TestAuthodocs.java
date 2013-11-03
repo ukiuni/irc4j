@@ -121,9 +121,8 @@ public class TestAuthodocs {
 		client2.sendQuit();
 		client3.sendQuit();
 	}
-
 	@Test
-	public void testNotRecieveIfJoinOtherChannel() throws Exception {
+	public void testOtherChannelDontRecieveMessage() throws Exception {
 		final Map<String, Object> resultMap = new HashMap<String, Object>();
 		IRCClient client1 = createClient("client1NickName", "client1RealName");
 		IRCClient client2 = createClient("client2NickName", "client2RealName");
@@ -146,8 +145,53 @@ public class TestAuthodocs {
 		});
 		client1.sendJoin("#testChannel");
 		client2.sendJoin("#testChannel");
-		client3.sendJoin("#otherChannel");
+		client3.sendJoin("#otherTestChannel");
 		Thread.sleep(1000);
+		client1.sendMessage("#testChannel", "testMessage");
+		Thread.sleep(2000);
+		assertEquals("#testChannel", resultMap.get("channel2"));
+		assertEquals("client1NickName", resultMap.get("from2"));
+		assertEquals("testMessage", resultMap.get("message2"));
+		assertNull("#testChannel", resultMap.get("channel3"));
+		assertNull("client1NickName", resultMap.get("from3"));
+		assertNull("testMessage", resultMap.get("message3"));
+		client1.sendQuit();
+		client2.sendQuit();
+		client3.sendQuit();
+	}
+
+	@Test
+	public void testNotRecieveIfJoinOtherChannel() throws Exception {
+		final Map<String, Object> resultMap = new HashMap<String, Object>();
+		IRCClient client1 = createClient("client1NickName", "client1RealName");
+		IRCClient client2 = createClient("client2NickName", "client2RealName");
+		IRCClient client3 = createClient("client3NickName", "client3RealName");
+		client1.addHandler(new IRCEventAdapter() {
+			@Override
+			public void onServerMessage(int id, String message) {
+				resultMap.put("id", id);
+				resultMap.put("message1", message);
+			}
+		});
+		client2.addHandler(new IRCEventAdapter() {
+			@Override
+			public void onMessage(String channelName, String from, String message) {
+				resultMap.put("channel2", channelName);
+				resultMap.put("from2", from);
+				resultMap.put("message2", message);
+			}
+		});
+		client3.addHandler(new IRCEventAdapter() {
+			@Override
+			public void onMessage(String channelName, String from, String message) {
+				resultMap.put("channel3", channelName);
+				resultMap.put("from3", from);
+				resultMap.put("message3", message);
+			}
+		});
+		client1.sendJoin("#testChannel");
+		client2.sendJoin("#testChannel");
+		client3.sendJoin("#otherTestChannel");
 		client1.sendMessage("#testChannel", "testMessage");
 		Thread.sleep(1000);
 		assertEquals("#testChannel", resultMap.get("channel2"));

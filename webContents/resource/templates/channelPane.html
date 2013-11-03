@@ -1,0 +1,13 @@
+<div class="tab-pane fade active in" id="channelPane_{{>channelName}}">
+	<div class="row">
+		<div class="input-group" id="userArea" style="margin-bottom: 20px">
+			<span class="input-group-addon span2"></span> <input type="text" id="messageInput_{{>channelName}}" class="form-control" placeholder="message" /> <span class="input-group-btn">
+				<button class="btn btn-default" type="button" onclick="sendMessage('{{>channelName}}', $('#messageInput_{{>channelName}}').val(), function(){ $('#messageInput_{{>channelName}}').val('')});">Send</button>
+			</span>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-2 well" id="channelPane_nameArea_{{>channelName}}"></div>
+		<div id="channelPane_messageArea_{{>channelName}}" class="col-md-8"></div>
+	</div>
+</div>

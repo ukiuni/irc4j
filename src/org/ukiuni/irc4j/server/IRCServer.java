@@ -146,7 +146,7 @@ public class IRCServer implements Runnable {
 	}
 
 	public synchronized void joinToChannel(final ClientConnection con, String channelName, String password) throws IOException {
-		Log.log("joinToChannel start");
+		Log.log("joinToChannel start " + con.getNickName() + " to " + channelName);
 		if (null == con.getNickName()) {
 			con.sendCommand("431 :No nickname given. send JOIN command first.");
 			return;
@@ -172,8 +172,7 @@ public class IRCServer implements Runnable {
 			con.sendCommand("You are already a member of " + channelName);
 			return;
 		}
-		channel.addConnection(con);
-		channel.send(":" + con.getUser().getFQUN() + " JOIN " + channelName);
+		channel.joinTo(con);
 		if (createdNew) {
 			con.sendCommand("MODE " + channelName + " +nt");
 		}
@@ -186,11 +185,15 @@ public class IRCServer implements Runnable {
 			con.sendCommand("353 " + con.getUser().getNickName() + " = " + channel.getName() + " :" + user.getNickName());
 		}
 		con.sendCommand("366 " + con.getUser().getNickName() + " " + channelName + " :End of /NAMES list");
-		Log.log("joinToChannel end");
+		Log.log("joinToChannel end " + con.getNickName() + " to " + channelName);
 	}
 
 	public ServerChannel getChannel(String channelName) {
 		return channelMap.get(channelName);
+	}
+
+	public boolean hasChannel(String channelName) {
+		return channelMap.containsKey(channelName);
 	}
 
 	public void removeChannel(String name) {
@@ -243,8 +246,13 @@ public class IRCServer implements Runnable {
 
 	public void dumpUsers() {
 		Log.log("start////////");
-		for (ClientConnection connection : connectionList) {
-			System.out.println(connection.getUser().getFQUN());
+		List<ClientConnection> connectionsForDump = new ArrayList<ClientConnection>(connectionList);
+		for (ClientConnection connection : connectionsForDump) {
+			String inChannel = "";
+			for (Channel channel : connection.getJoinedChannels()) {
+				inChannel = channel.getName() + ",";
+			}
+			System.out.println(connection.getUser().getFQUN() + " in " + inChannel);
 		}
 		Log.log("/////////////");
 

@@ -57,12 +57,15 @@ public class Database {
 	}
 
 	public List<Message> loadMessage(String channel, int limit) {
-		List<Message> messageList = loadMessage(channel, limit, "");
-		return messageList;
-
+		return loadMessage(channel, limit, true);
 	}
 
-	private List<Message> loadMessage(String channel, int limit, String where) {
+	public List<Message> loadMessage(String channel, int limit, boolean oldToNew) {
+		List<Message> messageList = loadMessage(channel, limit, "", oldToNew);
+		return messageList;
+	}
+
+	private List<Message> loadMessage(String channel, int limit, String where, boolean oldToNew) {
 		try {
 			String sql = "select id, type, senderFQUN, sender_nick_name, target_channel, message, created_at from message where target_channel = ? " + where + " order by id desc limit ?";
 			PreparedStatement stmt = con.prepareStatement(sql);
@@ -70,7 +73,9 @@ public class Database {
 			stmt.setInt(2, limit);
 			ResultSet rs = stmt.executeQuery();
 			List<Message> messageList = rsToMessage(rs);
-			Collections.reverse(messageList);
+			if (oldToNew) {
+				Collections.reverse(messageList);
+			}
 			return messageList;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -94,11 +99,11 @@ public class Database {
 	}
 
 	public List<Message> loadMessage(String channel, long maxId, int limit) {
-		return loadMessage(channel, limit, "and id <= " + maxId);
+		return loadMessage(channel, limit, "and id <= " + maxId, true);
 	}
 
 	public long loadMaxId(String channel) {
-		List<Message> messageList = loadMessage(channel, 1, "");
+		List<Message> messageList = loadMessage(channel, 1, "", false);
 		return messageList.isEmpty() ? 0 : messageList.get(0).getId();
 	}
 }

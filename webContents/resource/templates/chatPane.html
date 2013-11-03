@@ -1,0 +1,17 @@
+<div class="bs-example" style="margin-top: 20px">
+	<ul class="nav nav-tabs" style="margin-bottom: 15px;">
+		<!-- append tab here -->
+		<li id="tabChannelPlus"><a href="#tabContentChannelPlus" data-toggle="tab">+</a></li>
+	</ul>
+	<div id="tabContent" class="tab-content">
+		<!-- append channel here -->
+		<div class="tab-pane fade" id="tabContentChannelPlus">
+			<label class="control-label">Add channel</label>
+			<div class="input-group" id="channelAddArea" style="margin-bottom: 20px">
+				<span class="input-group-addon span2">#</span> <input type="text" id="channelAddInput" class="form-control" placeholder="channelName" /> <span class="input-group-btn">
+					<button class="btn btn-default" type="button" onclick="addChannel($('#channelAddInput').val());">Add</button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>

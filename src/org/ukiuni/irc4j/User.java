@@ -25,6 +25,7 @@ public class User {
 	private String realName;
 	private String hostName;
 	private String nickName;
+	private String password;
 	private String description;
 	private boolean owner;
 
@@ -97,5 +98,13 @@ public class User {
 			return false;
 		}
 		return this.nickName.equals(((User) obj).getNickName());
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 }

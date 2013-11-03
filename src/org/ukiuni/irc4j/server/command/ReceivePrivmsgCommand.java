@@ -25,7 +25,7 @@ public class ReceivePrivmsgCommand extends ServerCommand {
 				} else if (!channel.joins(selfClientConnection)) {
 					selfClientConnection.sendPrivateCommand("You are not joined to " + target);
 				} else {
-					channel.sendMessage(getCommandString(), selfClientConnection.getUser().getFQUN(), target, message, selfClientConnection);
+					channel.sendMessage(getCommandString(), selfClientConnection.getUser().getFQUN(), message, selfClientConnection);
 				}
 			} else {
 				ClientConnection clientConnection = ircServer.findConnection(target);

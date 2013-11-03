@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.ukiuni.irc4j.Channel;
 import org.ukiuni.irc4j.ExceptionHandler;
 import org.ukiuni.irc4j.Log;
 import org.ukiuni.irc4j.User;
@@ -24,7 +25,7 @@ public class ClientConnection implements Runnable, Closeable {
 	private IRCServer ircServer;
 	private List<ExceptionHandler> exceptionHandlerList = new ArrayList<ExceptionHandler>();
 	private ServerCommandFactory serverCommandFactory;
-	private final OutputStream out;
+	private OutputStream out;
 	private final User user;
 	private final HashMap<String, ServerChannel> joinedChannelMap;
 	private boolean reading;
@@ -34,6 +35,13 @@ public class ClientConnection implements Runnable, Closeable {
 	private Date lastRecievePongDate;
 	private Date lastSendPingDate;
 	private boolean serverHelloSended;
+
+	public ClientConnection(IRCServer ircServer, ExceptionHandler exceptionHandler) throws IOException {
+		this.ircServer = ircServer;
+		this.serverCommandFactory = new ServerCommandFactory();
+		this.user = new User();
+		this.joinedChannelMap = new HashMap<String, ServerChannel>();
+	}
 
 	public ClientConnection(IRCServer ircServer, Socket socket, ExceptionHandler exceptionHandler) throws IOException {
 		this.socket = socket;
@@ -86,35 +94,8 @@ public class ClientConnection implements Runnable, Closeable {
 		}
 	}
 
-	@Override
-	public void close() throws IOException {
-		reading = false;
-		// readIn sometime cant close.
-		// IOUtil.close(readIn);
-		IOUtil.close(socket);
-		try {
-			readingThread.interrupt();
-			readingThread = null;
-		} catch (Throwable e) {
-		}
-	}
-
 	@SuppressWarnings("serial")
 	public class ReadNullException extends Exception {
-	}
-
-	public void sendNotice(String message) throws IOException {
-		send(":" + ircServer.getServerName() + " NOTICE " + user.getNickName() + " :" + message);
-	}
-
-	public synchronized void send(String lowCommand) throws IOException {
-		Log.log("send to [" + user.getNickName() + "]" + lowCommand);
-		try {
-			out.write((lowCommand + "\r\n").getBytes(encode));
-		} catch (UnsupportedEncodingException e) {
-			// never occure
-		}
-		out.flush();
 	}
 
 	public String getNickName() {
@@ -127,22 +108,6 @@ public class ClientConnection implements Runnable, Closeable {
 
 	public Collection<ServerChannel> getJoinedChannels() {
 		return new ArrayList<ServerChannel>(joinedChannelMap.values());
-	}
-
-	public void sendCommand(String command) throws IOException {
-		send(":" + ircServer.getServerName() + " " + command);
-	}
-
-	public void sendPrivateMessage(String type, String senderFQUN, String targetNickName, String message) throws IOException {
-		send(":" + senderFQUN + " " + type + " " + targetNickName + " :" + message);
-	}
-
-	public void sendMessage(String type, String senderFQUN, String targetChannel, String message) throws IOException {
-		send(":" + senderFQUN + " " + type + " " + targetChannel + " :" + message);
-	}
-
-	public void sendPrivateCommand(String command) throws IOException {
-		sendCommand("NOTICE " + getNickName() + " :" + command);
 	}
 
 	public void addExceptionHandler(ExceptionHandler exceptionHandler) {
@@ -170,15 +135,6 @@ public class ClientConnection implements Runnable, Closeable {
 		readingThread.start();
 	}
 
-	public void sendPong(String message) throws IOException {
-		send(":" + ircServer.getServerName() + " PONG " + ircServer.getServerName() + " :" + message);
-	}
-
-	public void sendPing(String message) throws IOException {
-		lastSendPingDate = new Date();
-		send(":" + ircServer.getServerName() + " PING " + ircServer.getServerName() + " :" + message);
-	}
-
 	public Date getLastRecievePongDate() {
 		return lastRecievePongDate;
 	}
@@ -199,11 +155,67 @@ public class ClientConnection implements Runnable, Closeable {
 		this.lastRecievePongDate = new Date();
 	}
 
+	public ServerChannel getJoinedChannel(String channelName) {
+		return joinedChannelMap.get(channelName);
+	}
+
 	public void sendQuit(String message) throws IOException {
 		send(":" + user.getFQUN() + " QUIT :" + message);
 	}
 
-	public ServerChannel getJoinedChannel(String channelName) {
-		return joinedChannelMap.get(channelName);
+	public void sendPong(String message) throws IOException {
+		send(":" + ircServer.getServerName() + " PONG " + ircServer.getServerName() + " :" + message);
+	}
+
+	public void sendPing(String message) throws IOException {
+		lastSendPingDate = new Date();
+		send(":" + ircServer.getServerName() + " PING " + ircServer.getServerName() + " :" + message);
+	}
+
+	@Override
+	public void close() throws IOException {
+		reading = false;
+		// readIn sometime cant close.
+		// IOUtil.close(readIn);
+		IOUtil.close(socket);
+		try {
+			readingThread.interrupt();
+			readingThread = null;
+		} catch (Throwable e) {
+		}
+	}
+
+	public void sendNotice(String message) throws IOException {
+		send(":" + ircServer.getServerName() + " NOTICE " + user.getNickName() + " :" + message);
+	}
+
+	public synchronized void send(String lowCommand) throws IOException {
+		Log.log("send to [" + user.getNickName() + "]" + lowCommand);
+		try {
+			out.write((lowCommand + "\r\n").getBytes(encode));
+		} catch (UnsupportedEncodingException e) {
+			// never occure
+		}
+		out.flush();
+	}
+
+	public void sendCommand(String command) throws IOException {
+		send(":" + ircServer.getServerName() + " " + command);
+	}
+
+	public void sendPrivateMessage(String type, String senderFQUN, String targetNickName, String message) throws IOException {
+		send(":" + senderFQUN + " " + type + " " + targetNickName + " :" + message);
+	}
+
+	public void sendMessage(String type, String senderFQUN, String targetChannel, String message) throws IOException {
+		send(":" + senderFQUN + " " + type + " " + targetChannel + " :" + message);
+	}
+
+	public void sendPrivateCommand(String command) throws IOException {
+		sendCommand("NOTICE " + getNickName() + " :" + command);
+	}
+
+	public void sendJoin(ClientConnection joiner, Channel channel) throws IOException {
+		send(":" + joiner.getUser().getFQUN() + " JOIN " + channel.getName());
 	}
 }

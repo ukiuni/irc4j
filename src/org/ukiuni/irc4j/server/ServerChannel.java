@@ -3,8 +3,10 @@ package org.ukiuni.irc4j.server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.ukiuni.irc4j.Channel;
 import org.ukiuni.irc4j.Log;
@@ -14,7 +16,7 @@ import org.ukiuni.irc4j.entity.Message;
 public class ServerChannel extends Channel {
 
 	private IRCServer ircServer;
-	public List<ClientConnection> joinedConnectionList = new ArrayList<ClientConnection>();
+	public Set<ClientConnection> joinedConnectionList = new HashSet<ClientConnection>();
 	private String password;
 
 	public ServerChannel(IRCServer server, String name) {
@@ -52,6 +54,18 @@ public class ServerChannel extends Channel {
 		}
 	}
 
+	public void sendJoin(ClientConnection joinerConnection) throws IOException {
+		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
+		for (ClientConnection clientConnection : sendClients) {
+			try {
+				clientConnection.sendJoin(joinerConnection, this);
+			} catch (Exception e) {// TODO something do with exception???
+				ircServer.removeConnection(clientConnection.getNickName());
+				Log.log(e);
+			}
+		}
+	}
+
 	public void sendExcepFrom(String lowCommand, ClientConnection exeptClientConnection) throws IOException {
 		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
 		for (ClientConnection clientConnection : sendClients) {
@@ -65,21 +79,21 @@ public class ServerChannel extends Channel {
 		}
 	}
 
-	public void sendMessage(String type, String senderFQUN, String targetChannel, String message, ClientConnection exeptClientConnection) throws IOException {
+	public void sendMessage(String type, String senderFQUN, String message, ClientConnection exeptClientConnection) throws IOException {
 		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
 		Message messageObj = new Message();
 		messageObj.setCreatedAt(new Date());
 		messageObj.setMessage(message);
 		messageObj.setSenderFQUN(senderFQUN);
 		messageObj.setSenderNickName(exeptClientConnection.getNickName());
-		messageObj.setTargetChannel(targetChannel);
+		messageObj.setTargetChannel(getName());
 		messageObj.setType(type);
 		Database.getInstance().regist(messageObj);
 
 		for (ClientConnection clientConnection : sendClients) {
 			try {
 				if (exeptClientConnection != clientConnection) {
-					clientConnection.sendMessage(type, senderFQUN, targetChannel, message);
+					clientConnection.sendMessage(type, senderFQUN, getName(), message);
 				}
 			} catch (Exception e) {// TODO something do with exception???
 				Log.log(e);
@@ -107,7 +121,7 @@ public class ServerChannel extends Channel {
 	}
 
 	public boolean judgePassword(String password) {
-		if (this.password == null) {
+		if (this.password == null || "".equals(this.password)) {
 			return true;
 		}
 		return this.password.equals(password);
@@ -142,6 +156,11 @@ public class ServerChannel extends Channel {
 
 	public long getMessageMaxId() {
 		return Database.getInstance().loadMaxId(getName());
+	}
+
+	public void joinTo(ClientConnection con) throws IOException {
+		addConnection(con);
+		sendJoin(con);
 	}
 
 }
