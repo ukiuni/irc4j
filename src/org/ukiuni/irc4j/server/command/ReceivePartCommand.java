@@ -18,7 +18,7 @@ public class ReceivePartCommand extends ServerCommand {
 			if (channelName == null) {
 				selfClientConnection.sendCommand("You're not a member of the channel " + channelName + ", so you can't part it.");
 			} else {
-				channel.sendPartCommand(selfClientConnection.getUser().getFQUN(), channelName);
+				channel.sendPartCommand(selfClientConnection);
 				channel.removeConnection(selfClientConnection);
 				selfClientConnection.partFromChannel(channelName);
 			}

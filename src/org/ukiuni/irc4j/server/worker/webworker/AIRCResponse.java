@@ -10,7 +10,7 @@ import org.ukiuni.lighthttpserver.response.Response;
 
 public abstract class AIRCResponse extends Response {
 	private String nickname;
-	private ClientConnection accessConnection;
+	private WebWorkerClientConnection accessConnection;
 	protected IRCServer ircServer;
 
 	public AIRCResponse(IRCServer ircServer) {
@@ -34,7 +34,7 @@ public abstract class AIRCResponse extends Response {
 			writeError(out, 403, "security");
 			return;
 		}
-		accessConnection = ircServer.findConnection(nickName);
+		accessConnection = (WebWorkerClientConnection) ircServer.findConnection(nickName);
 		onResponseSecure(out);
 	}
 
@@ -52,7 +52,7 @@ public abstract class AIRCResponse extends Response {
 		this.nickname = nickname;
 	}
 
-	public ClientConnection getAccessConnection() {
+	public WebWorkerClientConnection getAccessConnection() {
 		return accessConnection;
 	}
 

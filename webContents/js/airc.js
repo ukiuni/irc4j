@@ -43,7 +43,7 @@ function renderExternalTemplate(selector, template, data, onSuccessFunction) {
 		var renderd = $.render.lastLoadTemplate(data);
 		$(selector).html(renderd);
 		if (onSuccessFunction) {
-			onSuccessFunction(templateData, renderd);
+			onSuccessFunction($.templates(templateData), renderd);
 		}
 	});
 }

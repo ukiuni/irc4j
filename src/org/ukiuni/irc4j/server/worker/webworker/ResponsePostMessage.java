@@ -24,7 +24,7 @@ public class ResponsePostMessage extends AIRCResponse {
 			return;
 		}
 		ServerChannel channel = ircServer.getChannel(channelName);
-		channel.sendMessage("PRIVMSG", getAccessConnection().getUser().getFQUN(), message, getAccessConnection());
+		channel.sendMessage("PRIVMSG", getAccessConnection(), message);
 		write(out, 201, "{\"status\":\"success\"}", "application/json; charset=utf-8", "UTF-8");
 	}
 }

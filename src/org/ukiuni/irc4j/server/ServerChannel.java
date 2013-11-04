@@ -79,21 +79,21 @@ public class ServerChannel extends Channel {
 		}
 	}
 
-	public void sendMessage(String type, String senderFQUN, String message, ClientConnection exeptClientConnection) throws IOException {
+	public void sendMessage(String type, ClientConnection senderClientConnection, String message) throws IOException {
 		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
 		Message messageObj = new Message();
 		messageObj.setCreatedAt(new Date());
 		messageObj.setMessage(message);
-		messageObj.setSenderFQUN(senderFQUN);
-		messageObj.setSenderNickName(exeptClientConnection.getNickName());
+		messageObj.setSenderFQUN(senderClientConnection.getUser().getFQUN());
+		messageObj.setSenderNickName(senderClientConnection.getNickName());
 		messageObj.setTargetChannel(getName());
 		messageObj.setType(type);
 		Database.getInstance().regist(messageObj);
 
 		for (ClientConnection clientConnection : sendClients) {
 			try {
-				if (exeptClientConnection != clientConnection) {
-					clientConnection.sendMessage(type, senderFQUN, getName(), message);
+				if (senderClientConnection != clientConnection) {
+					clientConnection.sendMessage(type, senderClientConnection, this, message);
 				}
 			} catch (Exception e) {// TODO something do with exception???
 				Log.log(e);
@@ -112,8 +112,16 @@ public class ServerChannel extends Channel {
 		}
 	}
 
-	public void sendPartCommand(String partUserFQCN, String channelName) throws IOException {
-		send(":" + partUserFQCN + " PART " + channelName);
+	public void sendPartCommand(ClientConnection partConnection) throws IOException {
+		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
+		for (ClientConnection clientConnection : sendClients) {
+			try {
+				clientConnection.sendPartCommand(partConnection, this);
+			} catch (Exception e) {// TODO something do with exception???
+				ircServer.removeConnection(clientConnection.getNickName());
+				Log.log(e);
+			}
+		}
 	}
 
 	public void setPassword(String password) {

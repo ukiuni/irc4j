@@ -8,6 +8,7 @@ import org.ukiuni.irc4j.Conf;
 import org.ukiuni.irc4j.Log;
 import org.ukiuni.irc4j.server.IRCServer;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseJoin;
+import org.ukiuni.irc4j.server.worker.webworker.ResponseListenEvent;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLoadMessage;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLogin;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLogs;
@@ -32,6 +33,8 @@ public class WebWorker implements Worker {
 			public Response onRequest(Request request) {
 				if ("/logs".equals(request.getPath())) {
 					return new ResponseLogs();
+				} else if ("/listenEvent".equals(request.getPath())) {
+					return new ResponseListenEvent(ircServer);
 				} else if ("/login".equals(request.getPath())) {
 					return new ResponseLogin(ircServer);
 				} else if ("/channel/join".equals(request.getPath())) {

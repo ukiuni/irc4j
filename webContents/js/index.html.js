@@ -1,5 +1,7 @@
 var sessionKey;
 var sessionId;
+var chatMessageTemplate;
+var myNickName;
 function tryLogin(loginId, password) {
 	if (!loginId) {
 		$("#userArea").addClass("has-error");
@@ -11,10 +13,10 @@ function tryLogin(loginId, password) {
 	}, function(sessionData) {
 		$("#userArea").removeClass("has-error");
 		$("#passwordArea").removeClass("has-error");
-		nickName = sessionData.nickName;
+		myNickName = sessionData.nickName;
 		sessionId = sessionData.sessionId;
 		sessionKey = sessionData.sessionKey;
-		initChatPane(nickName);
+		initChatPane(myNickName);
 	}).error(function(data) {
 		$("#userArea").addClass("has-error");
 		if (data.password) {
@@ -29,24 +31,41 @@ function initChatPane(nickName) {
 	$(window).bind("beforeunload", function() {
 		return "Do you leave from chat?";
 	});
-	//continueListen();
+	continueListen();
 }
 function continueListen() {
 	$.post("/listenEvent", {
 		sessionId : sessionId,
 		sessionKey : sessionKey
 	}, function(data) {
-		for (var i in data) {
-			var user = data.user[i];
-			if ("part" == user.action) {
-				$("#channelPane_"+channelName+"userArea_"+user.nickname).remove();
-			} else if ("join" == user.action) {
-
+		for ( var i in data) {
+			var event = data[i];
+			if ("user.part" == event.type) {
+				$("#channelPane_" + event.channelName + "userArea_" + event.userNickName).remove();
+			} else if ("user.join" == event.type) {
+				// avoid duplicate
+				$("#channelPane_" + event.channelName + "userArea_" + event.userNickName).remove();
+				$("#channelPane_nameArea_" + event.channelName).prepend("<div id=\"channelPane_" + event.channelName + "userArea_" + event.userNickName + "\">" + event.userNickName + "</div>");
+			} else if ("message" == event.type) {
+				appendMessageToChannelPane(event.channelName.substring(1), event.createdAt, event.userNickName, event.message);
+			} else if ("reload" == event.type) {
+				document.location.href = event.url;
 			}
 		}
-	}, "json").complete(function() {
+	}, "json").done(function(data) {
 		continueListen();
-	})
+	}).fail(function(data) {
+		setTimeout(function() {
+			continueListen()
+		}, 30000);
+	});
+}
+function appendMessageToChannelPane(channelName, createdAt, senderNickName, message) {
+	var messageObjforPaint = new Object();
+	messageObjforPaint.createdAt = createdAt;
+	messageObjforPaint.senderNickName = senderNickName;
+	messageObjforPaint.message = message;
+	$("#channelPane_messageArea_" + channelName).prepend(chatMessageTemplate.render(messageObjforPaint));
 }
 function addChannel(channelName) {
 	if (0 == channelName.length || 0 <= channelName.indexOf("#")) {
@@ -64,7 +83,12 @@ function addChannel(channelName) {
 				channelName : channelName
 			});
 			$("#tabContentChannelPlus").before(channelPane);
-			$("#tabChannelPlus").before("<li class=\"active\"><a href=\"#channelPane_" + channelName + "\" data-toggle=\"tab\">" + channelName + "</a></li>");
+			$("#tabChannelPlus").before("<li id=\"tabChannel_" + channelName + "\" class=\"active\"><a href=\"#channelPane_" + channelName + "\" data-toggle=\"tab\">" + channelName + "</a></li>");
+			$(".nav-tabs li").removeClass("active");
+			$(".tab-content div").removeClass("active");
+			$("#tabChannel_" + channelName).addClass("active");
+			$("#channelPane_" + channelName).addClass("active");
+			$("#channelPane_" + channelName).addClass("in");
 			$("#messageInput_" + channelName).keypress(function(e) {
 				if (e.which == 13) {
 					sendMessage(channelName, $('#messageInput_' + channelName).val(), function() {
@@ -80,8 +104,10 @@ function addChannel(channelName) {
 				if (0 == data.length) {
 					return;
 				}
-				$("#channelPane_nameArea_" + channelName).html($.templates("<div id=\"channelPane_"+channelName+"userArea_{{>#data}}\">{{>#data}}</div>").render(data.users));
-				renderExternalTemplate("#channelPane_messageArea_" + channelName, "/resource/templates/chatMessage.html", data.messages);
+				$("#channelPane_nameArea_" + channelName).html($.templates("<div id=\"channelPane_" + channelName + "userArea_{{>#data}}\">{{>#data}}</div>").render(data.users));
+				renderExternalTemplate("#channelPane_messageArea_" + channelName, "/resource/templates/chatMessage.html", data.messages, function(template, renderd) {
+					chatMessageTemplate = template;
+				});
 			}).error(function(data) {
 				$("#channelPane_messageArea_" + channelName).html("error " + data.textStatus);
 			});
@@ -92,6 +118,7 @@ function sendMessage(channelName, message, onSuccessFunction) {
 	if (!message || "" == message) {
 		return;
 	}
+	appendMessageToChannelPane(channelName, new Date().getTime(), myNickName, message);
 	$.post("/channel/post", {
 		channelName : "#" + channelName,
 		message : message,

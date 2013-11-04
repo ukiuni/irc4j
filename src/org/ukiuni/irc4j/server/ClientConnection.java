@@ -207,8 +207,8 @@ public class ClientConnection implements Runnable, Closeable {
 		send(":" + senderFQUN + " " + type + " " + targetNickName + " :" + message);
 	}
 
-	public void sendMessage(String type, String senderFQUN, String targetChannel, String message) throws IOException {
-		send(":" + senderFQUN + " " + type + " " + targetChannel + " :" + message);
+	public void sendMessage(String type, ClientConnection senderConnection, Channel targetChannel, String message) throws IOException {
+		send(":" + senderConnection.getUser().getFQUN() + " " + type + " " + targetChannel.getName() + " :" + message);
 	}
 
 	public void sendPrivateCommand(String command) throws IOException {
@@ -217,5 +217,9 @@ public class ClientConnection implements Runnable, Closeable {
 
 	public void sendJoin(ClientConnection joiner, Channel channel) throws IOException {
 		send(":" + joiner.getUser().getFQUN() + " JOIN " + channel.getName());
+	}
+
+	public void sendPartCommand(ClientConnection partConnection, Channel channel) throws IOException {
+		send(":" + partConnection.getUser().getFQUN() + " PART " + channel.getName());
 	}
 }
