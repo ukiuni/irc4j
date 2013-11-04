@@ -97,6 +97,7 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 	messageObjforPaint.senderNickName = senderNickName;
 	messageObjforPaint.message = message;
 	$("#channelPane_messageArea_" + channelName).prepend(chatMessageTemplate.render(messageObjforPaint));
+	$("#channelPane_messageArea_" + channelName).toLink();
 }
 function addChannel(channelName) {
 	if (0 == channelName.length || 0 <= channelName.indexOf("#")) {
@@ -141,6 +142,7 @@ function addChannel(channelName) {
 				$("#channelPane_nameArea_" + channelName).html($.templates("<div id=\"channelPane_" + channelName + "userArea_{{>#data}}\">{{>#data}}</div>").render(data.users));
 				renderExternalTemplate("#channelPane_messageArea_" + channelName, "/resource/templates/chatMessage.html", data.messages, function(template, renderd) {
 					chatMessageTemplate = template;
+					$("#channelPane_messageArea_" + channelName).toLink();
 				});
 			}).error(function(data) {
 				$("#channelPane_messageArea_" + channelName).html("error " + data.textStatus);
