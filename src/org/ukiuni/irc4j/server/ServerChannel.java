@@ -112,7 +112,7 @@ public class ServerChannel extends Channel {
 		}
 	}
 
-	public void sendPartCommand(ClientConnection partConnection) throws IOException {
+	private void sendPartCommand(ClientConnection partConnection) throws IOException {
 		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
 		for (ClientConnection clientConnection : sendClients) {
 			try {
@@ -136,7 +136,7 @@ public class ServerChannel extends Channel {
 	}
 
 	public void part(ClientConnection clientConnection) throws IOException {
-		this.sendExcepFrom(":" + clientConnection.getUser().getFQUN() + " PART " + this.getName(), clientConnection);
+		this.sendPartCommand(clientConnection);
 		this.removeConnection(clientConnection);
 	}
 

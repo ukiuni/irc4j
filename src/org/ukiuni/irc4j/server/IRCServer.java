@@ -3,6 +3,7 @@ package org.ukiuni.irc4j.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -250,9 +251,9 @@ public class IRCServer implements Runnable {
 		for (ClientConnection connection : connectionsForDump) {
 			String inChannel = "";
 			for (Channel channel : connection.getJoinedChannels()) {
-				inChannel = channel.getName() + ",";
+				inChannel = inChannel + channel.getName() + ",";
 			}
-			System.out.println(connection.getUser().getFQUN() + " in " + inChannel);
+			System.out.println(connection.getUser().getFQUN() + " in " + inChannel + "lastPong = " + (null == connection.getLastRecievePongDate() ? null : new SimpleDateFormat("HH:mm:ss SSS").format(connection.getLastRecievePongDate())));
 		}
 		Log.log("/////////////");
 
