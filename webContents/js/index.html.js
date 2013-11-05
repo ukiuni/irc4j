@@ -69,11 +69,7 @@ function continueListen() {
 					addChannel(channelNameWithoutCharp, appendMessageFunction);
 				}
 			} else if ("rejoin" == event.type) {
-				$.post("/rejoin", {
-					sessionId : sessionId,
-					sessionKey : sessionKey,
-					channelNames : joinedChannels.join(",")
-				});
+				rejoin();
 			} else if ("reload" == event.type) {
 				document.location.href = event.url;
 			}
@@ -81,6 +77,7 @@ function continueListen() {
 	}, "json").done(function(data) {
 		continueListen();
 	}).fail(function(data) {
+		$("#connectionStatus").show(1000);
 		setTimeout(function() {
 			continueListen()
 		}, 30000);
@@ -204,5 +201,14 @@ function openPrivateMessageDialog(targetUser) {
 		$("#privateMessageModal").modal("hide");
 	});
 	$("#privateMessageModal").modal();
+}
+function rejoin() {
+	$.post("/rejoin", {
+		sessionId : sessionId,
+		sessionKey : sessionKey,
+		channelNames : joinedChannels.join(",")
+	}, function() {
+		$("#connectionStatus").hide(1000);
+	});
 }
 renderExternalTemplate("#content", "/resource/templates/login.html");
