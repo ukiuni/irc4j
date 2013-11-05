@@ -109,6 +109,6 @@ public class User {
 	}
 
 	public static boolean isWrongNickName(String nickName) {
-		return (nickName.startsWith("AIRC_CHANNEL_") || nickName.startsWith("#") || nickName.startsWith(":"));
+		return (null == nickName || nickName.startsWith("AIRC_CHANNEL_") || nickName.startsWith("#") || nickName.startsWith(":") || nickName.contains(">") || nickName.contains("<") || nickName.contains("&") || nickName.contains("\""));
 	}
 }

@@ -45,7 +45,6 @@ function continueListen() {
 	}, function(data) {
 		for ( var i in data) {
 			var event = data[i];
-			console.log(event.type + ":" + event.channelName + ":" + event.userNickName);
 			var channelNameWithoutCharp;
 			if (event.channelName && "#" == event.channelName.charAt(0)) {
 				channelNameWithoutCharp = CHANNEL_NAME_PREFIX + event.channelName.substring(1);
@@ -57,7 +56,7 @@ function continueListen() {
 			} else if ("user.join" == event.type) {
 				// avoid duplicate
 				$("#channelPane_" + channelNameWithoutCharp + "userArea_" + event.userNickName).remove();
-				$("#channelPane_nameArea_" + channelNameWithoutCharp).prepend("<div id=\"channelPane_" + channelNameWithoutCharp + "userArea_" + event.userNickName + "\">" + event.userNickName + "</div>");
+				$("#channelPane_nameArea_" + channelNameWithoutCharp).prepend("<div id=\"channelPane_" + channelNameWithoutCharp + "userArea_" + event.userNickName + "\" onclick=\"openPrivateMessageDialog(\'" + event.userNickName + "\')\" >" + event.userNickName + "</div>");
 			} else if ("message" == event.type) {
 				var appendMessageFunction = function() {
 					appendMessageToChannelPane(channelNameWithoutCharp, event.createdAt, event.userNickName, event.message);
@@ -153,7 +152,7 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 				if (0 == data.length) {
 					return;
 				}
-				$("#channelPane_nameArea_" + channelName).html($.templates("<div id=\"channelPane_" + channelName + "userArea_{{>#data}}\">{{>#data}}</div>").render(data.users));
+				$("#channelPane_nameArea_" + channelName).html($.templates("<div id=\"channelPane_" + channelName + "userArea_{{>#data}}\" onclick=\"openPrivateMessageDialog(\'{{>#data}}\')\">{{>#data}}</div>").render(data.users));
 				renderExternalTemplate("#channelPane_messageArea_" + channelName, "/resource/templates/chatMessage.html", data.messages, function(template, renderd) {
 					chatMessageTemplate = template;
 					$("#channelPane_messageArea_" + channelName).toLink();
@@ -183,5 +182,17 @@ function sendMessage(channelName, message, onSuccessFunction) {
 			onSuccessFunction(data);
 		}
 	}, "json");
+}
+function openPrivateMessageDialog(targetUser) {
+	if(document.getElementById("channelPane_messageArea_" + targetUser)){
+		return;
+	}
+	$("#privateModalTitleArea").html("Private Message");
+	$("#privateModalBodyArea").html("Start private chat with " + targetUser + "?");
+	$("#privateModalStartButton").click(function() {
+		addChannel(targetUser);
+		$("#privateMessageModal").modal("hide");
+	});
+	$("#privateMessageModal").modal();
 }
 renderExternalTemplate("#content", "/resource/templates/login.html");
