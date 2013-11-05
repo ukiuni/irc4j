@@ -36,6 +36,14 @@ public class ResponseLogin extends Response {
 		clientConnection.getUser().setPassword(password);
 
 		ircServer.putConnection(clientConnection);
+
+		String channels = getRequest().getParameter("channels");
+		if (null != channels && channels.equals("")) {
+			String[] channelArray = channels.split(",");
+			for (String channelName : channelArray) {
+				ircServer.joinToChannel(clientConnection, channelName);
+			}
+		}
 		String sessionId = UUID.randomUUID().toString();
 		long loginTime = new Date().getTime();
 		String sessionKey = AIRCResponse.createSessionKey(nickName, sessionId, loginTime);

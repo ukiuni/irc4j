@@ -4,6 +4,7 @@ var chatMessageTemplate;
 var channelTabTemplate;
 var myNickName;
 var CHANNEL_NAME_PREFIX = "AIRC_CHANNEL_";
+var joinedChannels = new Array();
 function tryLogin(loginId, password) {
 	if (!loginId) {
 		$("#userArea").addClass("has-error");
@@ -67,6 +68,12 @@ function continueListen() {
 				} else {
 					addChannel(channelNameWithoutCharp, appendMessageFunction);
 				}
+			} else if ("rejoin" == event.type) {
+				$.post("/rejoin", {
+					sessionId : sessionId,
+					sessionKey : sessionKey,
+					channelNames : joinedChannels.join(",")
+				});
 			} else if ("reload" == event.type) {
 				document.location.href = event.url;
 			}
@@ -156,6 +163,9 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 				renderExternalTemplate("#channelPane_messageArea_" + channelName, "/resource/templates/chatMessage.html", data.messages, function(template, renderd) {
 					chatMessageTemplate = template;
 					$("#channelPane_messageArea_" + channelName).toLink();
+					if (channelName.startsWith(CHANNEL_NAME_PREFIX)) {
+						joinedChannels.push("#" + channelName.substring(CHANNEL_NAME_PREFIX.length));
+					}
 					if (onSuccessAddChannelFunction) {
 						onSuccessAddChannelFunction();
 					}
@@ -184,7 +194,7 @@ function sendMessage(channelName, message, onSuccessFunction) {
 	}, "json");
 }
 function openPrivateMessageDialog(targetUser) {
-	if(document.getElementById("channelPane_messageArea_" + targetUser)){
+	if (document.getElementById("channelPane_messageArea_" + targetUser)) {
 		return;
 	}
 	$("#privateModalTitleArea").html("Private Message");

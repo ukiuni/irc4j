@@ -44,6 +44,14 @@ public class Event {
 		return event;
 	}
 
+	public static Event createRejoin() {
+		Event event = new Event();
+		event.setUrl(Conf.getHttpServerURL());
+		event.setType("rejoin");
+		event.setCreatedAt(new Date());
+		return event;
+	}
+
 	private String type;
 	private String channelName;
 	private String userNickName;

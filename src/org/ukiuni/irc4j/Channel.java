@@ -48,7 +48,7 @@ public class Channel {
 	}
 
 	public static boolean wrongName(String channelName) {
-		return !(channelName.startsWith("#") && !channelName.contains(" "));
+		return !(channelName.startsWith("#") && !channelName.contains(" ") && !channelName.contains(">") && !channelName.contains("<") && !channelName.contains("&") && !channelName.contains("\"") && !channelName.contains(","));
 	}
 
 	public void addUserAll(List<User> userList) {
@@ -77,4 +77,16 @@ public class Channel {
 		userList.add(user);
 	}
 
+	@Override
+	public int hashCode() {
+		return getName().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Channel)) {
+			return false;
+		}
+		return getName().equals(((Channel) obj).getName());
+	}
 }
