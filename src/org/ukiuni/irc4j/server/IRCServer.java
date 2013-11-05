@@ -1,6 +1,7 @@
 package org.ukiuni.irc4j.server;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -261,5 +262,9 @@ public class IRCServer implements Runnable {
 
 	public Collection<ClientConnection> getConnectionList() {
 		return Collections.unmodifiableList(connectionList);
+	}
+
+	public String getFQSN() {
+		return getServerName() + "!" + getServerName() + "@" + ((InetSocketAddress) serverSocket.getLocalSocketAddress()).getAddress().getHostAddress();
 	}
 }

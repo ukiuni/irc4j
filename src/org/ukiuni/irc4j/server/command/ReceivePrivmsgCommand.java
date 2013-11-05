@@ -1,5 +1,8 @@
 package org.ukiuni.irc4j.server.command;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.Socket;
 import java.util.List;
 
 import org.ukiuni.irc4j.IRCEventHandler;
@@ -26,6 +29,30 @@ public class ReceivePrivmsgCommand extends ServerCommand {
 					selfClientConnection.sendPrivateCommand("You are not joined to " + target);
 				} else {
 					channel.sendMessage(getCommandString(), selfClientConnection, message);
+				}
+			} else if (target.equals(ircServer.getServerName())) {
+				if (getCommandParametersString().startsWith(ircServer.getServerName() + " :" + new Character((char) 1) + "DCC")) {
+					System.out.println("*********** socket = " + getCommandParameters()[4] + ":" + Integer.valueOf(getCommandParameters()[5]));
+					Socket socket = new Socket("localhost", Integer.valueOf(getCommandParameters()[5]));
+					long fileSize = Long.valueOf(Integer.valueOf(getCommandParameters()[5]));
+					InputStream in = socket.getInputStream();
+					byte[] buffer = new byte[1024];
+					long totalReaded = 0;
+					int readed = in.read(buffer);
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					while (totalReaded < fileSize && readed > 0) {
+						out.write(buffer, 0, readed);
+						totalReaded += readed;
+						if (totalReaded + buffer.length > fileSize) {
+							buffer = new byte[(int) (fileSize - totalReaded)];
+						}
+						readed = in.read(buffer);
+					}
+					socket.close();
+					System.out.println("///////////////////");
+					System.out.println(new String(out.toByteArray()));
+					System.out.println("///////////////////");
+					selfClientConnection.sendPartCommand(ircServer.getFQSN(), "#home");// TODO
 				}
 			} else {
 				ClientConnection clientConnection = ircServer.findConnection(target);

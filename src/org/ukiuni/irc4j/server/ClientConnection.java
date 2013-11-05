@@ -216,10 +216,18 @@ public class ClientConnection implements Runnable, Closeable {
 	}
 
 	public void sendJoin(ClientConnection joiner, Channel channel) throws IOException {
-		send(":" + joiner.getUser().getFQUN() + " JOIN " + channel.getName());
+		sendJoin(joiner.getUser().getFQUN(), channel.getName());
+	}
+
+	public void sendJoin(String userFQCN, String channelName) throws IOException {
+		send(":" + userFQCN + " JOIN " + channelName);
 	}
 
 	public void sendPartCommand(ClientConnection partConnection, Channel channel) throws IOException {
-		send(":" + partConnection.getUser().getFQUN() + " PART " + channel.getName());
+		sendPartCommand(partConnection.getUser().getFQUN(), channel.getName());
+	}
+
+	public void sendPartCommand(String userFQCN, String channelName) throws IOException {
+		send(":" + userFQCN + " PART " + channelName);
 	}
 }

@@ -13,7 +13,7 @@ public class ReceiveNickCommand extends ServerCommand {
 	public void execute(IRCServer ircServer, ClientConnection selfClientConnection, List<IRCEventHandler> handlers) throws Throwable {
 		ircServer.dumpUsers();
 		String newNickName = getCommandParameters()[0];
-		if ((!newNickName.equals(selfClientConnection.getNickName())) && ircServer.hasConnection(newNickName)) {
+		if ((!newNickName.equals(selfClientConnection.getNickName())) && ircServer.hasConnection(newNickName) || newNickName.equals(ircServer.getServerName())) {
 			selfClientConnection.sendCommand("433 " + selfClientConnection.getNickName() + " :nickname " + newNickName + " aleady exists.");
 			return;
 		}

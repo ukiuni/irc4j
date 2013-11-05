@@ -2,6 +2,7 @@ package org.ukiuni.irc4j.server;
 
 import org.ukiuni.irc4j.Command;
 import org.ukiuni.irc4j.CommandFactory;
+import org.ukiuni.irc4j.server.command.ReceiveFileUploadCommand;
 import org.ukiuni.irc4j.server.command.ReceiveHistoryCommand;
 import org.ukiuni.irc4j.server.command.ReceiveJoinCommand;
 import org.ukiuni.irc4j.server.command.ReceiveModeCommand;
@@ -21,7 +22,9 @@ import org.ukiuni.irc4j.server.command.ReceiveWhoCommand;
 public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 	public ServerCommand createCommandInstance(String commandString) {
 		ServerCommand command = null;
-		if (Command.COMMAND_NICK.equals(commandString)) {
+		if (Command.COMMAND_PRIVMSG.equals(commandString)) {
+			command = new ReceivePrivmsgCommand();
+		} else if (Command.COMMAND_NICK.equals(commandString)) {
 			command = new ReceiveNickCommand();
 		} else if (Command.COMMAND_USER.equals(commandString)) {
 			command = new ReceiveUserCommand();
@@ -43,8 +46,6 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceivePartCommand();
 		} else if (Command.COMMAND_QUIT.equals(commandString)) {
 			command = new ReceiveQuitCommand();
-		} else if (Command.COMMAND_PRIVMSG.equals(commandString)) {
-			command = new ReceivePrivmsgCommand();
 		} else if (Command.COMMAND_TOPIC.equals(commandString)) {
 			command = new ReceiveTopicCommand();
 		} else if (Command.COMMAND_NOTICE.equals(commandString)) {
@@ -53,6 +54,8 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceiveHistoryCommand();
 		} else if (Command.COMMAND_WEBLOG.equals(commandString)) {
 			command = new ReceiveWeblogCommand();
+		} else if (Command.COMMAND_FILEUPLOAD.equals(commandString)) {
+			command = new ReceiveFileUploadCommand();
 		} else if (commandString.matches("^[4][0-9]{2}$")) {
 			// command = new ServerErrorCommand();
 		} else if (commandString.matches("^[23][0-9]{2}$")) {
