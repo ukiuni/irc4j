@@ -16,7 +16,7 @@
 		<path refid="JUnit 4.libraryclasspath" />
 		<pathelement location="libs/h2-1.3.174.jar" />
 		<pathelement location="libs/jsonic-1.2.11.jar" />
-		<pathelement location="libs/lightHttpServer_0.0.12_snapshot.jar" />
+		<pathelement location="libs/lightHttpServer_0.0.14_snapshot.jar" />
 	</path>
 	<path id="IRC4J.test.classpath">
 		<pathelement location="${BUILD_CLASS_DIR}" />
@@ -84,8 +84,8 @@
 	<target name="create_run_script">
 		<echo file="bin/airs">#!/bin/sh
 binary_path=$(cd $(dirname "$$0"); pwd)
-export WEB_BASE_PATH=$binary_path/../webContents
-java -cp "${binary_path}/irc4j.${version}.jar:$${binary_path}../conf:$${binary_path}/../libs/*" org.ukiuni.irc4j.server.IRCServer
+export WEB_BASE_PATH=${binary_path}/../webContents
+java -cp "${binary_path}/irc4j.${version}.jar:$${binary_path}/../conf:$${binary_path}/../libs/*" org.ukiuni.irc4j.server.IRCServer
 </echo>
 		<echo file="bin/airs.bat">set basePath=%~dp1
 set WEB_BASE_PATH=%basePath%\..\webContents
@@ -94,7 +94,7 @@ java -cp %basePath%\irc4j.${version}.jar;%basePath%\..\conf;%basePath%\..\libs\*
 		<chmod file="bin/airs" perm="ugo+rx" />
 		<chmod file="bin/airs.bat" perm="ugo+rx" />
 	</target>
-	<target depends="create_run_jar" name="create_archive">
+	<target depends="create_run_jar,create_run_script" name="create_archive">
 		<zip destfile="build/airs.${version}.zip" basedir="." excludes="compiled/,testLibs/,src/">
 		</zip>
 		<tar compression="gzip" destfile="build/airs.${version}.tar.gz">
