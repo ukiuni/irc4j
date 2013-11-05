@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ukiuni.irc4j.Channel;
+import org.ukiuni.irc4j.Conf;
 import org.ukiuni.irc4j.ExceptionHandler;
 import org.ukiuni.irc4j.Log;
 import org.ukiuni.irc4j.User;
@@ -232,9 +233,9 @@ public class IRCServer implements Runnable {
 		clientConnection.sendCommand("001 " + nickName + " :Welcome to " + this.getServerName() + ", Multi-Communication server IRC interface. " + clientConnection.getNickName());
 		clientConnection.sendCommand("004 " + nickName + " " + this.getServerName() + " ");
 		clientConnection.sendCommand("375 " + nickName + " :- " + this.getServerName() + " Message of the Day -");
-		clientConnection.sendCommand("372 " + nickName + " :- Hello. Welcome to " + this.getServerName() + ", a test.");
-		clientConnection.sendCommand("372 " + nickName + " :- forsome " + "for more in.");
-		clientConnection.sendCommand("376 " + nickName + " :End of MOTD command. is what");
+		clientConnection.sendCommand("372 " + nickName + " :- Hello. Welcome to " + this.getServerName() + ".");
+		clientConnection.sendCommand("372 " + nickName + " :- Web interface url is " + Conf.getHttpServerURL() + " for more in.");
+		clientConnection.sendCommand("376 " + nickName + " :End of /MOTD command. is what");
 	}
 
 	public void putConnection(ClientConnection clientConnection) {
