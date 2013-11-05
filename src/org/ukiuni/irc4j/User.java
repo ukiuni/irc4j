@@ -107,4 +107,8 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	public static boolean isWrongNickName(String nickName) {
+		return (nickName.startsWith("AIRC_CHANNEL_") || nickName.startsWith("#") || nickName.startsWith(":"));
+	}
 }

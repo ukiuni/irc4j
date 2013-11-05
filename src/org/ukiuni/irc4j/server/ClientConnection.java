@@ -203,8 +203,8 @@ public class ClientConnection implements Runnable, Closeable {
 		send(":" + ircServer.getServerName() + " " + command);
 	}
 
-	public void sendPrivateMessage(String type, String senderFQUN, String targetNickName, String message) throws IOException {
-		send(":" + senderFQUN + " " + type + " " + targetNickName + " :" + message);
+	public void sendPrivateMessage(String type, ClientConnection senderClientConnection, String message) throws IOException {
+		send(":" + senderClientConnection.getUser().getFQUN() + " " + type + " " + getNickName() + " :" + message);
 	}
 
 	public void sendMessage(String type, ClientConnection senderConnection, Channel targetChannel, String message) throws IOException {

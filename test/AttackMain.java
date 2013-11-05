@@ -8,8 +8,8 @@ public class AttackMain {
 	public static void main(String[] args) throws Exception {
 		List<IRCClient> clientList = new ArrayList<IRCClient>();
 
-		for (int j = 0; j < 30; j++) {
-			for (int i = 0; i < 30; i++) {
+		for (int j = 0; j < 3; j++) {
+			for (int i = 0; i < 200; i++) {
 				IRCClient client = createClient("client" + j + "%" + i + "NickName", "client" + i + "RealName");
 				clientList.add(client);
 			}
@@ -17,19 +17,20 @@ public class AttackMain {
 			for (IRCClient ircClient : clientList) {
 				try {
 					ircClient.sendJoin("#testChannel");
-					ircClient.sendJoin("#gasgas");
+					// ircClient.sendJoin("#gasgas");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-			Thread.sleep(1000);
+			Thread.sleep(3000);
 			for (final IRCClient ircClient : clientList) {
 				new Thread() {
 					public void run() {
-						for (int i = 0; i < 3; i++) {
+						for (int i = 0; i < 3000; i++) {
 							try {
 								ircClient.sendMessage("#testChannel", "I am " + ircClient.getNickName() + " and index " + i);
-							} catch (IOException e) {
+								Thread.sleep(500);
+							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}

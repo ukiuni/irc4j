@@ -31,23 +31,26 @@ public class WebWorkerClientConnection extends ClientConnection {
 
 	@Override
 	public void sendPartCommand(ClientConnection partConnection, Channel channel) throws IOException {
-		eventList.add(Event.createPart(channel.getName(), partConnection.getNickName()));
-		synchronized (this) {
-			notifyAll();
-		}
+		send(Event.createPart(channel.getName(), partConnection.getNickName()));
 	}
 
 	@Override
 	public void sendJoin(ClientConnection joiner, Channel channel) throws IOException {
-		eventList.add(Event.createJoin(channel.getName(), joiner.getNickName()));
-		synchronized (this) {
-			notifyAll();
-		}
+		send(Event.createJoin(channel.getName(), joiner.getNickName()));
 	}
 
 	@Override
 	public void sendMessage(String type, ClientConnection senderConnection, Channel channel, String message) throws IOException {
-		eventList.add(Event.createMessage(channel.getName(), senderConnection.getNickName(), message));
+		send(Event.createMessage(channel.getName(), senderConnection.getNickName(), message));
+	}
+
+	@Override
+	public void sendPrivateMessage(String type, ClientConnection senderClientConnection, String message) throws IOException {
+		send(Event.createMessage(senderClientConnection.getNickName(), senderClientConnection.getNickName(), message));
+	}
+
+	private void send(Event event) {
+		eventList.add(event);
 		synchronized (this) {
 			notifyAll();
 		}
