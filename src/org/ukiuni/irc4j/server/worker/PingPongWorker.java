@@ -15,7 +15,7 @@ import org.ukiuni.irc4j.server.IRCServer;
 
 public class PingPongWorker extends TimerTask implements Worker {
 	private IRCServer ircServer;
-	private static final int PONG_WAIT_TIME = 30000;
+	private static final int PONG_WAIT_TIME = 60000;
 	private static final int PERIOD = 3000;
 	private Timer timer;
 

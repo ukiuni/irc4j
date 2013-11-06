@@ -59,7 +59,7 @@ public class ReceivePrivmsgCommand extends ServerCommand {
 				if (clientConnection == null) {
 					selfClientConnection.sendPrivateCommand("The user " + target + " is not online.");
 				} else {
-					clientConnection.sendPrivateMessage(getCommandString(), selfClientConnection.getUser().getFQUN(), target, message);
+					clientConnection.sendPrivateMessage(getCommandString(), selfClientConnection, message);
 				}
 			}
 		}

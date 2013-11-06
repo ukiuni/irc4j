@@ -56,7 +56,12 @@ function loadTemplate(template, onSuccessFunction) {
 }
 $.fn.extend({
 	toLink : function() {
-		$(this).html($(this).html().replace(/((http|https|ftp):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g,'<a href="$1" target="_blank">$1</a>'));
+		$(this).html($(this).html().replace(/((http|https|ftp):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g, '<a href="$1" target="_blank">$1</a>'));
 	}
 });
+if (typeof String.prototype.startsWith != 'function') {
+	String.prototype.startsWith = function(str) {
+		return 0 == this.indexOf(str);
+	}
+}
 renderExternalTemplate("#header", "/resource/templates/header.html");

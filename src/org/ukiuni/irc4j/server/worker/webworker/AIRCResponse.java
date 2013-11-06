@@ -3,13 +3,12 @@ package org.ukiuni.irc4j.server.worker.webworker;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.ukiuni.irc4j.server.ClientConnection;
 import org.ukiuni.irc4j.server.IRCServer;
 import org.ukiuni.irc4j.util.CipherUtil;
 import org.ukiuni.lighthttpserver.response.Response;
 
 public abstract class AIRCResponse extends Response {
-	private String nickname;
+	private String nickName;
 	private WebWorkerClientConnection accessConnection;
 	protected IRCServer ircServer;
 
@@ -27,7 +26,7 @@ public abstract class AIRCResponse extends Response {
 		}
 		String decorded = CipherUtil.decode(sessionKey);
 		String[] decordedSprit = decorded.split(" ");
-		String nickName = decordedSprit[0];
+		nickName = decordedSprit[0];
 		String encordedSessionKey = decordedSprit[1];
 		String loginTime = decordedSprit[2];
 		if (!sessionId.equals(encordedSessionKey)) {
@@ -38,19 +37,19 @@ public abstract class AIRCResponse extends Response {
 		onResponseSecure(out);
 	}
 
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+
 	public void writeError(OutputStream out, int status, String message) throws IOException {
 		write(out, 403, "{\"error\":\"" + message + "\"}", "application/json; charset=utf-8", "UTF-8");
 	}
 
 	public abstract void onResponseSecure(OutputStream out) throws Throwable;
-
-	public String getNickname() {
-		return nickname;
-	}
-
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
-	}
 
 	public WebWorkerClientConnection getAccessConnection() {
 		return accessConnection;

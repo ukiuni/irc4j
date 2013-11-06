@@ -1,0 +1,20 @@
+#!/bin/bash  
+# description: AIRS Start Stop Restart  
+# processname: airs  
+# chkconfig: 234 20 80  
+AIRS_HOME=/usr/local/airs 
+  
+  
+case $1 in  
+start)  
+sudo sh $AIRS_HOME/bin/airs
+;;   
+stop)     
+sudo sh kill ps -ef | grep airc | egrep -v grep | awk '{print $2}'
+;;   
+restart)  
+sudo sh $AIRS_HOME/bin/airs
+sudo sh kill ps -ef | grep airc | egrep -v grep | awk '{print $2}'
+;;   
+esac      
+exit 0 

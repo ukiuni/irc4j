@@ -20,7 +20,7 @@ public class ResponseListenEvent extends AIRCResponse {
 	public void onResponseSecure(OutputStream out) throws Throwable {
 		WebWorkerClientConnection connection = getAccessConnection();
 		if (null == connection) {
-			write(out, 200, JSON.encode(Arrays.asList(Event.createReload())), "application/json; charset=utf-8", "UTF-8");
+			write(out, 200, JSON.encode(Arrays.asList(Event.createRejoin())), "application/json; charset=utf-8", "UTF-8");
 			return;
 		}
 		connection.recievePong();

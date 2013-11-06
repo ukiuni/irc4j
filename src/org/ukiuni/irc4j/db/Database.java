@@ -102,6 +102,14 @@ public class Database {
 		return loadMessage(channel, limit, "and id <= " + maxId, true);
 	}
 
+	public List<Message> loadMessageOlderThan(String channel, long maxId, int limit) {
+		return loadMessage(channel, limit, "and id < " + maxId, false);
+	}
+	
+	public List<Message> loadMessageNewerThan(String channel, long maxId, int limit) {
+		return loadMessage(channel, limit, "and id > " + maxId, false);
+	}
+
 	public long loadMaxId(String channel) {
 		List<Message> messageList = loadMessage(channel, 1, "", false);
 		return messageList.isEmpty() ? 0 : messageList.get(0).getId();

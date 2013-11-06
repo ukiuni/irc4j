@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import net.arnx.jsonic.JSON;
 
+import org.ukiuni.irc4j.User;
 import org.ukiuni.irc4j.server.IRCServer;
 import org.ukiuni.lighthttpserver.response.Response;
 
@@ -22,8 +23,8 @@ public class ResponseLogin extends Response {
 	public void onResponse(OutputStream out) throws Throwable {
 		String nickName = getRequest().getParameter("nickName");
 		String password = getRequest().getParameter("password");
-		if (null == nickName || ircServer.hasConnection(nickName)) {
-			write(out, 409, "{\"" + nickName + "\", \"isduplicate\"}", "application/json; charset=utf-8", "UTF-8");
+		if (null == nickName || User.isWrongNickName(nickName) || ircServer.hasConnection(nickName)) {
+			write(out, 409, "{\"error\":\"" + nickName + " is wrone or duplicate\"}", "application/json; charset=utf-8", "UTF-8");
 			return;
 		}
 		WebWorkerClientConnection clientConnection = new WebWorkerClientConnection(ircServer);
@@ -35,6 +36,14 @@ public class ResponseLogin extends Response {
 		clientConnection.getUser().setPassword(password);
 
 		ircServer.putConnection(clientConnection);
+
+		String channels = getRequest().getParameter("channels");
+		if (null != channels && channels.equals("")) {
+			String[] channelArray = channels.split(",");
+			for (String channelName : channelArray) {
+				ircServer.joinToChannel(clientConnection, channelName);
+			}
+		}
 		String sessionId = UUID.randomUUID().toString();
 		long loginTime = new Date().getTime();
 		String sessionKey = AIRCResponse.createSessionKey(nickName, sessionId, loginTime);

@@ -81,15 +81,16 @@ public class ServerChannel extends Channel {
 
 	public void sendMessage(String type, ClientConnection senderClientConnection, String message) throws IOException {
 		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
-		Message messageObj = new Message();
-		messageObj.setCreatedAt(new Date());
-		messageObj.setMessage(message);
-		messageObj.setSenderFQUN(senderClientConnection.getUser().getFQUN());
-		messageObj.setSenderNickName(senderClientConnection.getNickName());
-		messageObj.setTargetChannel(getName());
-		messageObj.setType(type);
-		Database.getInstance().regist(messageObj);
-
+		{
+			Message messageObj = new Message();
+			messageObj.setCreatedAt(new Date());
+			messageObj.setMessage(message);
+			messageObj.setSenderFQUN(senderClientConnection.getUser().getFQUN());
+			messageObj.setSenderNickName(senderClientConnection.getNickName());
+			messageObj.setTargetChannel(getName());
+			messageObj.setType(type);
+			Database.getInstance().regist(messageObj);
+		}
 		for (ClientConnection clientConnection : sendClients) {
 			try {
 				if (senderClientConnection != clientConnection) {

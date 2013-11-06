@@ -2,6 +2,8 @@ package org.ukiuni.irc4j.server.worker.webworker;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,23 +26,58 @@ public class ResponseLoadMessage extends AIRCResponse {
 	public void onResponseSecure(OutputStream out) throws Throwable {
 		String channelName = getRequest().getParameter("channelName");
 		String limitString = getRequest().getParameter("limit");
-		if (null == channelName || !ircServer.hasChannel(channelName)) {
-			writeError(out, 404, "channelNotFound");
-			return;
-		}
+
 		int limit;
 		try {
 			limit = Integer.valueOf(limitString);
 		} catch (NumberFormatException e) {
 			limit = 10;
 		}
-		ServerChannel channel = ircServer.getChannel(channelName);
-		List<User> userList = channel.getCurrentUserList();
-		List<String> userNameList = new ArrayList<String>(userList.size());
-		for (User user : userList) {
-			userNameList.add(user.getNickName());
+		if (null != getRequest().getParameter("olderThan")) {
+			try {
+				long olderThan = Long.valueOf(getRequest().getParameter("olderThan"));
+				List<Message> messages = Database.getInstance().loadMessageOlderThan(channelName, olderThan, limit);
+				Map<String, Object> responseMap = new HashMap<String, Object>();
+				responseMap.put("users", Collections.emptyList());
+				responseMap.put("messages", messages);
+				write(out, 200, JSON.encode(responseMap), "application/json; charset=utf-8", "UTF-8");
+			} catch (NumberFormatException e) {
+				writeError(out, 404, "olderThan parameter must be number");
+			}
+			return;
+		} else if (null != getRequest().getParameter("newerThan")) {
+			try {
+				long newerThan = Long.valueOf(getRequest().getParameter("newerThan"));
+				List<Message> messages = Database.getInstance().loadMessageNewerThan(channelName, newerThan, limit);
+				Map<String, Object> responseMap = new HashMap<String, Object>();
+				responseMap.put("users", Collections.emptyList());
+				responseMap.put("messages", messages);
+				write(out, 200, JSON.encode(responseMap), "application/json; charset=utf-8", "UTF-8");
+			} catch (NumberFormatException e) {
+				writeError(out, 404, "newerThan parameter must be number");
+			}
+			return;
+
 		}
-		List<Message> messages = Database.getInstance().loadMessage(channelName, limit, false);
+		List<Message> messages;
+		List<String> userNameList;
+		if (channelName.startsWith("#")) {
+			if (null == channelName || !ircServer.hasChannel(channelName)) {
+				writeError(out, 404, "channelNotFound");
+				return;
+			}
+			ServerChannel channel = ircServer.getChannel(channelName);
+			List<User> userList = channel.getCurrentUserList();
+			userNameList = new ArrayList<String>(userList.size());
+			for (User user : userList) {
+				userNameList.add(user.getNickName());
+			}
+			messages = Database.getInstance().loadMessage(channelName, limit, false);
+		} else {
+			// TODO roadPrivate message? is still regist;
+			messages = Collections.emptyList();
+			userNameList = Arrays.asList(channelName);
+		}
 		Map<String, Object> responseMap = new HashMap<String, Object>();
 		responseMap.put("users", userNameList);
 		responseMap.put("messages", messages);

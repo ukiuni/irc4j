@@ -9,9 +9,28 @@
 			<label class="control-label">Add channel</label>
 			<div class="input-group" id="channelAddArea" style="margin-bottom: 20px">
 				<span class="input-group-addon span2">#</span> <input type="text" id="channelAddInput" class="form-control" placeholder="channelName" /> <span class="input-group-btn">
-					<button class="btn btn-default" type="button" onclick="addChannel($('#channelAddInput').val());">Add</button>
+					<button class="btn btn-default" type="button" onclick="addChannel(CHANNEL_NAME_PREFIX + $('#channelAddInput').val());">Add</button>
 				</span>
 			</div>
 		</div>
 	</div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="privateMessageModal" tabindex="-1" role="dialog" aria-labelledby="privateModalTitleArea" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="privateModalTitleArea"></h4>
+			</div>
+			<div class="modal-body" id="privateModalBodyArea"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" id="privateModalStartButton">Start</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

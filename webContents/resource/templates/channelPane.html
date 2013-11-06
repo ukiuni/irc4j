@@ -10,7 +10,16 @@
 		<div class="col-sm-3 breadcrumb hidden-sm hidden-xs" id="channelPane_nameArea_{{>channelName}}"></div>
 		<div id="channelPane_messageArea_{{>channelName}}" class="col-sm-9"></div>
 	</div>
-	<div class="row" style="margin-top:20px">
-		<div id="channelPane_messageArea_{{>channelName}}"><ul class="breadcrumb"><li>{{>channelName}}</li></ul></div>
+	<div class="row" style="display: none" id="channelPane_loadNextButtonRow_{{>channelName}}">
+		<div class="col-sm-9 col-sm-offset-3">
+			<button type="button" class="btn btn-default" style="width: 100%;" onclick="loadOlderMessage('{{>channelName}}')">Load Next</button>
+		</div>
+	</div>
+	<div class="row" style="margin-top: 20px">
+		<div id="channelPane_messageArea_{{>channelName}}">
+			<ul class="breadcrumb">
+				<li>{{>channelName}}</li>
+			</ul>
+		</div>
 	</div>
 </div>
