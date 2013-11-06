@@ -33,6 +33,32 @@ public class ResponseLoadMessage extends AIRCResponse {
 		} catch (NumberFormatException e) {
 			limit = 10;
 		}
+		if (null != getRequest().getParameter("olderThan")) {
+			try {
+				long olderThan = Long.valueOf(getRequest().getParameter("olderThan"));
+				List<Message> messages = Database.getInstance().loadMessageOlderThan(channelName, olderThan, limit);
+				Map<String, Object> responseMap = new HashMap<String, Object>();
+				responseMap.put("users", Collections.emptyList());
+				responseMap.put("messages", messages);
+				write(out, 200, JSON.encode(responseMap), "application/json; charset=utf-8", "UTF-8");
+			} catch (NumberFormatException e) {
+				writeError(out, 404, "olderThan parameter must be number");
+			}
+			return;
+		} else if (null != getRequest().getParameter("newerThan")) {
+			try {
+				long newerThan = Long.valueOf(getRequest().getParameter("newerThan"));
+				List<Message> messages = Database.getInstance().loadMessageNewerThan(channelName, newerThan, limit);
+				Map<String, Object> responseMap = new HashMap<String, Object>();
+				responseMap.put("users", Collections.emptyList());
+				responseMap.put("messages", messages);
+				write(out, 200, JSON.encode(responseMap), "application/json; charset=utf-8", "UTF-8");
+			} catch (NumberFormatException e) {
+				writeError(out, 404, "newerThan parameter must be number");
+			}
+			return;
+
+		}
 		List<Message> messages;
 		List<String> userNameList;
 		if (channelName.startsWith("#")) {

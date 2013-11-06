@@ -5,6 +5,8 @@ var channelTabTemplate;
 var myNickName;
 var CHANNEL_NAME_PREFIX = "AIRC_CHANNEL_";
 var joinedChannels = new Array();
+var minMessageIdArray = new Array();
+var maxMessageIdArray = new Array();
 function tryLogin(loginId, password) {
 	if (!loginId) {
 		$("#userArea").addClass("has-error");
@@ -157,6 +159,10 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 					return;
 				}
 				$("#channelPane_nameArea_" + channelName).html($.templates("<div id=\"channelPane_" + channelName + "userArea_{{>#data}}\" onclick=\"openPrivateMessageDialog(\'{{>#data}}\')\">{{>#data}}</div>").render(data.users));
+				for ( var i in data.messages) {
+					var message = data.messages[i];
+					setMaxAndMin(channelName, message);
+				}
 				renderExternalTemplate("#channelPane_messageArea_" + channelName, "/resource/templates/chatMessage.html", data.messages, function(template, renderd) {
 					chatMessageTemplate = template;
 					$("#channelPane_messageArea_" + channelName).toLink();
@@ -166,12 +172,23 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 					if (onSuccessAddChannelFunction) {
 						onSuccessAddChannelFunction();
 					}
+					if (0 < data.messages.length) {
+						$("#channelPane_loadNextButtonRow_" + channelName).show();
+					}
 				});
 			}).error(function(data) {
 				$("#channelPane_messageArea_" + channelName).html("error " + data.textStatus);
 			});
 		});
 	}, "json");
+}
+function setMaxAndMin(channelName, message){
+	if (!minMessageIdArray[channelName] || minMessageIdArray[channelName] > message.id) {
+		minMessageIdArray[channelName] = message.id;
+	}
+	if (!maxMessageIdArray[channelName] || maxMessageIdArray[channelName] < message.id) {
+		maxMessageIdArray[channelName] = message.id;
+	}
 }
 function sendMessage(channelName, message, onSuccessFunction) {
 	if (!message || "" == message) {
@@ -213,5 +230,24 @@ function rejoin() {
 	}, function() {
 		$("#connectionStatus").hide(1000);
 	});
+}
+function loadOlderMessage(channelName) {
+	var loadChannelName = (channelName.startsWith(CHANNEL_NAME_PREFIX)) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName;
+	$.post("/channel/message", {
+		sessionId : sessionId,
+		sessionKey : sessionKey,
+		channelName : loadChannelName,
+		olderThan : minMessageIdArray[channelName]
+	}, function(data) {
+		for ( var i in data.messages) {
+			var message = data.messages[i];
+			setMaxAndMin(channelName, message);
+			$("#channelPane_messageArea_" + channelName).append(chatMessageTemplate.render(message));
+			$("#channelPane_messageArea_" + channelName).toLink();
+		}
+		if (0 == data.messages.length) {
+			$("#channelPane_loadNextButton_" + channelName).hide(1000);
+		}
+	}, "json");
 }
 renderExternalTemplate("#content", "/resource/templates/login.html");
