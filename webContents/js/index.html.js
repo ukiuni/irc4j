@@ -63,7 +63,7 @@ function continueListen() {
 					appendMessageToChannelPane(channelNameWithoutCharp, event.createdAt, event.userNickName, event.message);
 					incrementsBadge(channelNameWithoutCharp);
 				}
-				if (document.getElementById("channelPane_messageArea_" + channelNameWithoutCharp)) {
+				if (document.getElementById("channelPane_" + channelNameWithoutCharp)) {
 					appendMessageFunction();
 				} else {
 					addChannel(channelNameWithoutCharp, appendMessageFunction);
@@ -191,12 +191,15 @@ function sendMessage(channelName, message, onSuccessFunction) {
 	}, "json");
 }
 function openPrivateMessageDialog(targetUser) {
-	if (document.getElementById("channelPane_messageArea_" + targetUser)) {
+	if (document.getElementById("channelPane_" + targetUser) || myNickName == targetUser) {
 		return;
 	}
 	$("#privateModalTitleArea").html("Private Message");
 	$("#privateModalBodyArea").html("Start private chat with " + targetUser + "?");
 	$("#privateModalStartButton").click(function() {
+		if (document.getElementById("channelPane_" + targetUser)) {
+			return;
+		}
 		addChannel(targetUser);
 		$("#privateMessageModal").modal("hide");
 	});
