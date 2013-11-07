@@ -255,4 +255,21 @@ function loadOlderMessage(channelName) {
 		}
 	}, "json");
 }
+function partFromChannel(channelName) {
+	var loadChannelName = (channelName.startsWith(CHANNEL_NAME_PREFIX)) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName;
+
+	var channelTabsArea = $("#channelTabsArea").children(":first");
+	channelTabsArea.addClass("active");
+	var channelMessagesArea = $("#tabContent").children(":first");
+	channelMessagesArea.addClass("active");
+	channelMessagesArea.addClass("in");
+	
+	$("#channelPane_" + channelName).remove();
+	$("#tabChannel_" + channelName).remove();
+	$.post("/channel/part", {
+		sessionId : sessionId,
+		sessionKey : sessionKey,
+		channelName : loadChannelName
+	});
+}
 renderExternalTemplate("#content", "/resource/templates/login.html");

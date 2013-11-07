@@ -18,7 +18,14 @@
 	<div class="row" style="margin-top: 20px">
 		<div id="channelPane_messageArea_{{>channelName}}">
 			<ul class="breadcrumb">
-				<li>{{>displayChannelName}}</li>
+				<div class="row">
+					<div class="col-sm-9">
+						{{>displayChannelName}}
+					</div>
+					<div class="col-sm-3 text-right">
+						<button type="button" class="btn btn-default btn-sm" onclick="partFromChannel('{{>channelName}}')">Part</button>
+					</div>
+				</div>
 			</ul>
 		</div>
 	</div>

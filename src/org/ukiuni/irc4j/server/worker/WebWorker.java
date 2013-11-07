@@ -12,6 +12,7 @@ import org.ukiuni.irc4j.server.worker.webworker.ResponseListenEvent;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLoadMessage;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLogin;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLogs;
+import org.ukiuni.irc4j.server.worker.webworker.ResponsePart;
 import org.ukiuni.irc4j.server.worker.webworker.ResponsePostMessage;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseRejoin;
 import org.ukiuni.lighthttpserver.HttpServer;
@@ -36,14 +37,16 @@ public class WebWorker implements Worker {
 					return new ResponseLogs();
 				} else if ("/listenEvent".equals(request.getPath())) {
 					return new ResponseListenEvent(ircServer);
+				} else if ("/channel/post".equals(request.getPath())) {
+					return new ResponsePostMessage(ircServer);
 				} else if ("/rejoin".equals(request.getPath())) {
 					return new ResponseRejoin(ircServer);
 				} else if ("/login".equals(request.getPath())) {
 					return new ResponseLogin(ircServer);
 				} else if ("/channel/join".equals(request.getPath())) {
 					return new ResponseJoin(ircServer);
-				} else if ("/channel/post".equals(request.getPath())) {
-					return new ResponsePostMessage(ircServer);
+				} else if ("/channel/part".equals(request.getPath())) {
+					return new ResponsePart(ircServer);
 				} else if ("/channel/message".equals(request.getPath())) {
 					return new ResponseLoadMessage(ircServer);
 				}
