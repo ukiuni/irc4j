@@ -246,7 +246,7 @@ function loadOlderMessage(channelName) {
 			$("#channelPane_messageArea_" + channelName).toLink();
 		}
 		if (0 == data.messages.length) {
-			$("#channelPane_loadNextButton_" + channelName).hide(1000);
+			$("#channelPane_loadNextButtonRow_" + channelName).hide();
 		}
 	}, "json");
 }
