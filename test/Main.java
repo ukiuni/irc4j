@@ -56,10 +56,9 @@ public class Main {
 		// some irc server wait some second for complete message;
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		String line;
-		while(!"".equals(line = in.readLine())){
+		while (!"".equals(line = in.readLine())) {
 			ircClient.sendMessage(channel, line);
 		}
 		ircClient.sendQuit();
-		
 	}
 }

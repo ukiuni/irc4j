@@ -69,18 +69,14 @@ public class ClientConnection implements Runnable, Closeable {
 					rizeException(e);
 				}
 			}
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			rizeException(e);
 		} finally {
-			for (ServerChannel channel : joinedChannelMap.values()) {
+			if (ircServer.hasConnection(getNickName())) {
 				try {
-					channel.part(this);
-				} catch (Throwable e) {
+					ircServer.removeConnection(this);
+				} catch (Throwable ex) {
 				}
-			}
-			try {
-				ircServer.removeConnection(this);
-			} catch (Throwable e) {
 			}
 		}
 		rizeException(new ReadNullException());
