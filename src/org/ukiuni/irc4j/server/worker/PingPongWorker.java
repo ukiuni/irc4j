@@ -24,8 +24,12 @@ public class PingPongWorker extends TimerTask implements Worker {
 		try {
 			Log.log(this + " run");
 			List<ClientConnection> doPingConnectionList = new ArrayList<ClientConnection>(this.ircServer.getConnectionList());
+			Calendar waitTimeAgoCalendar = Calendar.getInstance();
+			Date waitTimeAgo = waitTimeAgoCalendar.getTime();
+			waitTimeAgoCalendar.add(Calendar.SECOND, PONG_WAIT_TIME * -1);
 			for (ClientConnection clientConnection : doPingConnectionList) {
 				try {
+					if(null == clientConnection.getLastRecievePongDate() || waitTimeAgoCalendar.before(waitTimeAgoCalendar))
 					clientConnection.sendPing("hello");
 				} catch (IOException e) {
 					this.ircServer.removeConnection(clientConnection.getNickName());
@@ -35,9 +39,9 @@ public class PingPongWorker extends TimerTask implements Worker {
 				Thread.sleep(PONG_WAIT_TIME);
 			} catch (InterruptedException e) {
 			}
-			Calendar waitTimeAgoCalendar = Calendar.getInstance();
+			waitTimeAgoCalendar = Calendar.getInstance();
 			waitTimeAgoCalendar.add(Calendar.MILLISECOND, PONG_WAIT_TIME * -1);
-			Date waitTimeAgo = waitTimeAgoCalendar.getTime();
+			waitTimeAgo = waitTimeAgoCalendar.getTime();
 			List<ClientConnection> checkPongList = new ArrayList<ClientConnection>(this.ircServer.getConnectionList());
 			for (ClientConnection clientConnection : checkPongList) {
 				Date lastPongDate = clientConnection.getLastRecievePongDate();
