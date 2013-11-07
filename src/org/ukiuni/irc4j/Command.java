@@ -42,6 +42,7 @@ public abstract class Command {
 	public static final String COMMAND_WEBLOG = "WLOG";
 	public static final String COMMAND_INVITE = "INVITE";
 	public static final String COMMAND_LIST = "LIST";
+	public static final String COMMAND_WHOIS = "WHOIS";
 	private String line;
 	private String prefix;
 	private String command;

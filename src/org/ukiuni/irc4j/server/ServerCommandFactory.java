@@ -19,6 +19,7 @@ import org.ukiuni.irc4j.server.command.ReceiveUserCommand;
 import org.ukiuni.irc4j.server.command.ReceiveUserHostCommand;
 import org.ukiuni.irc4j.server.command.ReceiveWeblogCommand;
 import org.ukiuni.irc4j.server.command.ReceiveWhoCommand;
+import org.ukiuni.irc4j.server.command.ReceiveWhoisCommand;
 
 public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 	public ServerCommand createCommandInstance(String commandString) {
@@ -57,6 +58,8 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceiveHistoryCommand();
 		} else if (Command.COMMAND_LIST.equals(commandString)) {
 			command = new ReceiveListCommand();
+		} else if (Command.COMMAND_WHOIS.equals(commandString)) {
+			command = new ReceiveWhoisCommand();
 		} else if (Command.COMMAND_WEBLOG.equals(commandString)) {
 			command = new ReceiveWeblogCommand();
 		} else if (commandString.matches("^[4][0-9]{2}$")) {
