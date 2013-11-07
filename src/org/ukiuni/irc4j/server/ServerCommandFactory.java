@@ -5,6 +5,7 @@ import org.ukiuni.irc4j.CommandFactory;
 import org.ukiuni.irc4j.server.command.ReceiveHistoryCommand;
 import org.ukiuni.irc4j.server.command.ReceiveInviteCommand;
 import org.ukiuni.irc4j.server.command.ReceiveJoinCommand;
+import org.ukiuni.irc4j.server.command.ReceiveListCommand;
 import org.ukiuni.irc4j.server.command.ReceiveModeCommand;
 import org.ukiuni.irc4j.server.command.ReceiveNickCommand;
 import org.ukiuni.irc4j.server.command.ReceiveNoticeCommand;
@@ -54,6 +55,8 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceiveNoticeCommand();
 		} else if (Command.COMMAND_HISTORY.equals(commandString)) {
 			command = new ReceiveHistoryCommand();
+		} else if (Command.COMMAND_LIST.equals(commandString)) {
+			command = new ReceiveListCommand();
 		} else if (Command.COMMAND_WEBLOG.equals(commandString)) {
 			command = new ReceiveWeblogCommand();
 		} else if (commandString.matches("^[4][0-9]{2}$")) {

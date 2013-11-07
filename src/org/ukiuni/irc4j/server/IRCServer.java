@@ -263,4 +263,8 @@ public class IRCServer implements Runnable {
 	public Collection<ClientConnection> getConnectionList() {
 		return Collections.unmodifiableList(connectionList);
 	}
+
+	public List<ServerChannel> getChannelList() {
+		return new ArrayList<ServerChannel>(channelMap.values());
+	}
 }
