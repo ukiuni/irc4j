@@ -35,6 +35,7 @@ public class ClientConnection implements Runnable, Closeable {
 	private Date lastRecievePongDate;
 	private Date lastSendPingDate;
 	private boolean serverHelloSended;
+	private ServerChannel currentFileUploadChannel;
 
 	public ClientConnection(IRCServer ircServer, ExceptionHandler exceptionHandler) throws IOException {
 		this.ircServer = ircServer;
@@ -230,4 +231,14 @@ public class ClientConnection implements Runnable, Closeable {
 	public void sendPartCommand(String userFQCN, String channelName) throws IOException {
 		send(":" + userFQCN + " PART " + channelName);
 	}
+
+	public ServerChannel getCurrentFileUploadChannel() {
+		return currentFileUploadChannel;
+	}
+
+	public void setCurrentFileUploadChannel(ServerChannel currentFileUploadChannel) {
+		this.currentFileUploadChannel = currentFileUploadChannel;
+	}
+
+
 }

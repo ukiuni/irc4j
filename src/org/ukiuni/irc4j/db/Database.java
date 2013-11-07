@@ -30,7 +30,7 @@ public class Database {
 
 	public Database() {
 		try {
-			this.con = DriverManager.getConnection("jdbc:h2:file:~/.jairc");
+			this.con = DriverManager.getConnection("jdbc:h2:file:" + System.getProperty("user.home") + "/.jairc");
 			Statement st = this.con.createStatement();
 			try {
 				st.executeQuery("select * from message limit 1");
@@ -105,7 +105,7 @@ public class Database {
 	public List<Message> loadMessageOlderThan(String channel, long maxId, int limit) {
 		return loadMessage(channel, limit, "and id < " + maxId, false);
 	}
-	
+
 	public List<Message> loadMessageNewerThan(String channel, long maxId, int limit) {
 		return loadMessage(channel, limit, "and id > " + maxId, false);
 	}

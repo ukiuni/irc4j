@@ -1,15 +1,19 @@
 package org.ukiuni.irc4j.server.command;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
 
+import org.ukiuni.irc4j.Conf;
 import org.ukiuni.irc4j.IRCEventHandler;
 import org.ukiuni.irc4j.server.ClientConnection;
 import org.ukiuni.irc4j.server.IRCServer;
 import org.ukiuni.irc4j.server.ServerChannel;
 import org.ukiuni.irc4j.server.ServerCommand;
+import org.ukiuni.irc4j.storage.Storage;
+import org.ukiuni.irc4j.storage.Storage.WriteHandle;
+import org.ukiuni.lighthttpserver.util.FileUtil;
 
 public class ReceivePrivmsgCommand extends ServerCommand {
 
@@ -31,15 +35,18 @@ public class ReceivePrivmsgCommand extends ServerCommand {
 					channel.sendMessage(getCommandString(), selfClientConnection, message);
 				}
 			} else if (target.equals(ircServer.getServerName())) {
-				if (getCommandParametersString().startsWith(ircServer.getServerName() + " :" + new Character((char) 1) + "DCC")) {
-					System.out.println("*********** socket = " + getCommandParameters()[4] + ":" + Integer.valueOf(getCommandParameters()[5]));
-					Socket socket = new Socket("localhost", Integer.valueOf(getCommandParameters()[5]));
-					long fileSize = Long.valueOf(Integer.valueOf(getCommandParameters()[5]));
+				String parameterString = getCommandParametersString().replace(new String(new char[] { new Character((char) 1).charValue() }), "");
+				if (parameterString.startsWith(ircServer.getServerName() + " :DCC")) {
+					String[] param = parameterString.split(" ");
+					System.out.println("/////////////////// socket = " + param[4] + ":" + Integer.valueOf(param[5]));
+					Socket socket = new Socket("localhost", Integer.valueOf(param[5]));
+					long fileSize = Long.valueOf(Integer.valueOf(param[6]));
 					InputStream in = socket.getInputStream();
 					byte[] buffer = new byte[1024];
 					long totalReaded = 0;
 					int readed = in.read(buffer);
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					WriteHandle writeHandle = Storage.getInstance().createWriteHandle(param[3], FileUtil.getMimeType(param[6]));
+					OutputStream out = writeHandle.getOutputStream();
 					while (totalReaded < fileSize && readed > 0) {
 						out.write(buffer, 0, readed);
 						totalReaded += readed;
@@ -49,10 +56,15 @@ public class ReceivePrivmsgCommand extends ServerCommand {
 						readed = in.read(buffer);
 					}
 					socket.close();
-					System.out.println("///////////////////");
-					System.out.println(new String(out.toByteArray()));
-					System.out.println("///////////////////");
-					selfClientConnection.sendPartCommand(ircServer.getFQSN(), "#home");// TODO
+					out.close();
+					writeHandle.save();
+					System.out.println("/////////////////// upload complete");
+					ServerChannel channel = selfClientConnection.getCurrentFileUploadChannel();
+					selfClientConnection.setCurrentFileUploadChannel(null);
+					String responseMessage = "file upload to " + Conf.getHttpServerURL() + "/file?k=" + writeHandle.getKey();
+					channel.sendMessage("PRIVMSG", selfClientConnection, responseMessage);
+					selfClientConnection.sendMessage("PRIVMSG", selfClientConnection, channel, responseMessage);
+					selfClientConnection.sendPartCommand(ircServer.getFQSN(), channel.getName());// TODO
 				}
 			} else {
 				ClientConnection clientConnection = ircServer.findConnection(target);

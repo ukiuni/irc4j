@@ -23,7 +23,7 @@ public class ReceiveFileUploadCommand extends ServerCommand {
 			selfClientConnection.sendPrivateCommand(e.getMessage());
 			return;
 		}
-
+		selfClientConnection.setCurrentFileUploadChannel(channel);
 		selfClientConnection.sendJoin(ircServer.getFQSN(), channel.getName());
 		selfClientConnection.sendPrivateCommand("send file with DCC to " + ircServer.getServerName());
 	}

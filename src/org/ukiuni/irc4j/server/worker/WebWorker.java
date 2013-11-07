@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import org.ukiuni.irc4j.Conf;
 import org.ukiuni.irc4j.Log;
 import org.ukiuni.irc4j.server.IRCServer;
+import org.ukiuni.irc4j.server.worker.webworker.ResponseFile;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseJoin;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseListenEvent;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLoadMessage;
@@ -36,6 +37,8 @@ public class WebWorker implements Worker {
 					return new ResponseLogs();
 				} else if ("/listenEvent".equals(request.getPath())) {
 					return new ResponseListenEvent(ircServer);
+				} else if ("/file".equals(request.getPath())) {
+					return new ResponseFile();
 				} else if ("/rejoin".equals(request.getPath())) {
 					return new ResponseRejoin(ircServer);
 				} else if ("/login".equals(request.getPath())) {
