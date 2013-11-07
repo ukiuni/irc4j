@@ -40,6 +40,7 @@ public abstract class Command {
 	public static final String COMMAND_TOPIC = "TOPIC";
 	public static final String COMMAND_HISTORY = "HISTORY";
 	public static final String COMMAND_WEBLOG = "WLOG";
+	public static final String COMMAND_INVITE = "INVITE";
 	private String line;
 	private String prefix;
 	private String command;

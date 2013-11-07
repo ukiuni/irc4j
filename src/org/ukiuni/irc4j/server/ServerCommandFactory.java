@@ -3,6 +3,7 @@ package org.ukiuni.irc4j.server;
 import org.ukiuni.irc4j.Command;
 import org.ukiuni.irc4j.CommandFactory;
 import org.ukiuni.irc4j.server.command.ReceiveHistoryCommand;
+import org.ukiuni.irc4j.server.command.ReceiveInviteCommand;
 import org.ukiuni.irc4j.server.command.ReceiveJoinCommand;
 import org.ukiuni.irc4j.server.command.ReceiveModeCommand;
 import org.ukiuni.irc4j.server.command.ReceiveNickCommand;
@@ -35,16 +36,18 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceivePongCommand();
 		} else if (Command.COMMAND_WHO.equals(commandString)) {
 			command = new ReceiveWhoCommand();
+		} else if (Command.COMMAND_PRIVMSG.equals(commandString)) {
+			command = new ReceivePrivmsgCommand();
 		} else if (Command.COMMAND_USERHOST.equals(commandString)) {
 			command = new ReceiveUserHostCommand();
+		} else if (Command.COMMAND_INVITE.equals(commandString)) {
+			command = new ReceiveInviteCommand();
 		} else if (Command.COMMAND_MODE.equals(commandString)) {
 			command = new ReceiveModeCommand();
 		} else if (Command.COMMAND_PART.equals(commandString)) {
 			command = new ReceivePartCommand();
 		} else if (Command.COMMAND_QUIT.equals(commandString)) {
 			command = new ReceiveQuitCommand();
-		} else if (Command.COMMAND_PRIVMSG.equals(commandString)) {
-			command = new ReceivePrivmsgCommand();
 		} else if (Command.COMMAND_TOPIC.equals(commandString)) {
 			command = new ReceiveTopicCommand();
 		} else if (Command.COMMAND_NOTICE.equals(commandString)) {

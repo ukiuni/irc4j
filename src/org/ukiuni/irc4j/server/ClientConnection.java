@@ -218,4 +218,8 @@ public class ClientConnection implements Runnable, Closeable {
 	public void sendPartCommand(ClientConnection partConnection, Channel channel) throws IOException {
 		send(":" + partConnection.getUser().getFQUN() + " PART " + channel.getName());
 	}
+
+	public void sendInvite(ClientConnection inviter, Channel channel) throws IOException {
+		send(":" + inviter.getNickName() + " INVITE " + getNickName() + " " + channel.getName());
+	}
 }
