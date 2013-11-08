@@ -38,7 +38,7 @@ public class WebWorker implements Worker {
 					return new ResponseLogs();
 				} else if ("/listenEvent".equals(request.getPath())) {
 					return new ResponseListenEvent(ircServer);
-				} else if ("/file".equals(request.getPath())) {
+				} else if (request.getPath().startsWith("/file/") && !request.getPath().contains("../")) {
 					return new ResponseFile();
 				} else if ("/channel/post".equals(request.getPath())) {
 					return new ResponsePostMessage(ircServer);
@@ -72,5 +72,4 @@ public class WebWorker implements Worker {
 			e.printStackTrace();
 		}
 	}
-
 }

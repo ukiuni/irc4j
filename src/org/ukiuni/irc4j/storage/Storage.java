@@ -59,12 +59,19 @@ public class Storage {
 			public long getContentLength() {
 				return file.length();
 			}
+
+			@Override
+			public String getName() {
+				return file.getName();
+			}
 		};
 	}
 
 	public WriteHandle createWriteHandle(final String name, final String contentType) {
 		final String uuid = UUID.randomUUID().toString().replace("-", "");
-		final File file = new File(storageDirectory, uuid);
+		final File uploadDir = new File(storageDirectory, uuid);
+		uploadDir.mkdirs();
+		final File file = new File(uploadDir, name);
 		return new WriteHandle() {
 			OutputStream out;
 
@@ -85,7 +92,7 @@ public class Storage {
 
 			@Override
 			public String getKey() {
-				return uuid;
+				return uuid + "/" + name;
 			}
 		};
 	}
@@ -108,6 +115,8 @@ public class Storage {
 		public long getContentLength();
 
 		public String getContentType();
+
+		public String getName();
 	}
 
 	public boolean exists(String key) {

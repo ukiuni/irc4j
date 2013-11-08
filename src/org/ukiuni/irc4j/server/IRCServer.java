@@ -255,7 +255,7 @@ public class IRCServer implements Runnable {
 			for (Channel channel : connection.getJoinedChannels()) {
 				inChannel = inChannel + channel.getName() + ",";
 			}
-			System.out.println(connection.getUser().getFQUN() + " in " + inChannel + "lastPong = " + (null == connection.getLastRecievePongDate() ? null : new SimpleDateFormat("HH:mm:ss SSS").format(connection.getLastRecievePongDate())));
+			Log.log(connection.getUser().getFQUN() + " in " + inChannel + "lastPong = " + (null == connection.getLastRecievePongDate() ? null : new SimpleDateFormat("HH:mm:ss SSS").format(connection.getLastRecievePongDate())));
 		}
 		Log.log("/////////////");
 

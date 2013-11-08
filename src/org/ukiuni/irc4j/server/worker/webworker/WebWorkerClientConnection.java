@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.ukiuni.irc4j.Channel;
+import org.ukiuni.irc4j.Log;
 import org.ukiuni.irc4j.server.ClientConnection;
 import org.ukiuni.irc4j.server.Event;
 import org.ukiuni.irc4j.server.IRCServer;
@@ -20,7 +21,7 @@ public class WebWorkerClientConnection extends ClientConnection {
 
 	@Override
 	public synchronized void send(String lowCommand) throws IOException {
-		System.out.println("********WebWorkerClientConnection#send > " + lowCommand);
+		Log.log("********WebWorkerClientConnection#send > " + lowCommand);
 	}
 
 	public List<Event> removeAllEvent() {
