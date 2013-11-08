@@ -268,4 +268,8 @@ public class IRCServer implements Runnable {
 	public String getFQSN() {
 		return getServerName() + "!" + getServerName() + "@" + ((InetSocketAddress) serverSocket.getLocalSocketAddress()).getAddress().getHostAddress();
 	}
+
+	public List<ServerChannel> getChannelList() {
+		return new ArrayList<ServerChannel>(channelMap.values());
+	}
 }

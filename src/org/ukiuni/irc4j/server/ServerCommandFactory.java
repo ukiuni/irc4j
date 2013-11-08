@@ -4,7 +4,9 @@ import org.ukiuni.irc4j.Command;
 import org.ukiuni.irc4j.CommandFactory;
 import org.ukiuni.irc4j.server.command.ReceiveFileUploadCommand;
 import org.ukiuni.irc4j.server.command.ReceiveHistoryCommand;
+import org.ukiuni.irc4j.server.command.ReceiveInviteCommand;
 import org.ukiuni.irc4j.server.command.ReceiveJoinCommand;
+import org.ukiuni.irc4j.server.command.ReceiveListCommand;
 import org.ukiuni.irc4j.server.command.ReceiveModeCommand;
 import org.ukiuni.irc4j.server.command.ReceiveNickCommand;
 import org.ukiuni.irc4j.server.command.ReceiveNoticeCommand;
@@ -18,6 +20,7 @@ import org.ukiuni.irc4j.server.command.ReceiveUserCommand;
 import org.ukiuni.irc4j.server.command.ReceiveUserHostCommand;
 import org.ukiuni.irc4j.server.command.ReceiveWeblogCommand;
 import org.ukiuni.irc4j.server.command.ReceiveWhoCommand;
+import org.ukiuni.irc4j.server.command.ReceiveWhoisCommand;
 
 public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 	public ServerCommand createCommandInstance(String commandString) {
@@ -38,8 +41,12 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceivePongCommand();
 		} else if (Command.COMMAND_WHO.equals(commandString)) {
 			command = new ReceiveWhoCommand();
+		} else if (Command.COMMAND_PRIVMSG.equals(commandString)) {
+			command = new ReceivePrivmsgCommand();
 		} else if (Command.COMMAND_USERHOST.equals(commandString)) {
 			command = new ReceiveUserHostCommand();
+		} else if (Command.COMMAND_INVITE.equals(commandString)) {
+			command = new ReceiveInviteCommand();
 		} else if (Command.COMMAND_MODE.equals(commandString)) {
 			command = new ReceiveModeCommand();
 		} else if (Command.COMMAND_PART.equals(commandString)) {
@@ -52,6 +59,10 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceiveNoticeCommand();
 		} else if (Command.COMMAND_HISTORY.equals(commandString)) {
 			command = new ReceiveHistoryCommand();
+		} else if (Command.COMMAND_LIST.equals(commandString)) {
+			command = new ReceiveListCommand();
+		} else if (Command.COMMAND_WHOIS.equals(commandString)) {
+			command = new ReceiveWhoisCommand();
 		} else if (Command.COMMAND_WEBLOG.equals(commandString)) {
 			command = new ReceiveWeblogCommand();
 		} else if (Command.COMMAND_FILEUPLOAD.equals(commandString)) {

@@ -16,7 +16,7 @@ public class ReceiveUserCommand extends ServerCommand {
 			selfClientConnection.getUser().setDescription(getCommandParameters()[3]);
 		}
 		selfClientConnection.getUser().setName(userName);
-		if (!selfClientConnection.isServerHelloSended()) {
+		if (null != selfClientConnection.getNickName() && !selfClientConnection.isServerHelloSended()) {
 			ircServer.sendServerHello(selfClientConnection);
 		}
 	}

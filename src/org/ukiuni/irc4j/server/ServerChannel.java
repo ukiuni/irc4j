@@ -119,7 +119,6 @@ public class ServerChannel extends Channel {
 			try {
 				clientConnection.sendPartCommand(partConnection, this);
 			} catch (Exception e) {// TODO something do with exception???
-				ircServer.removeConnection(clientConnection.getNickName());
 				Log.log(e);
 			}
 		}

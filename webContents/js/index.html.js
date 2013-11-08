@@ -119,6 +119,10 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 		$("#channelAddArea").addClass("has-error");
 		return;
 	}
+	if (document.getElementById("channelPane_" + channelName)) {
+		$("#channelAddArea").addClass("has-error");
+		return;
+	}
 	var loadChannelName = channelName.startsWith(CHANNEL_NAME_PREFIX) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName;
 	$.post("/channel/join", {
 		channelName : loadChannelName,
@@ -128,7 +132,8 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 		$("#channelAddInput").val("");
 		loadTemplate("/resource/templates/channelPane.html", function(template) {
 			var channelPane = template.render({
-				channelName : channelName
+				channelName : channelName,
+				displayChannelName : channelName.startsWith(CHANNEL_NAME_PREFIX) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName
 			});
 			$("#tabContentChannelPlus").before(channelPane);
 			$("#tabChannelPlus").before(channelTabTemplate.render({
@@ -182,7 +187,7 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 		});
 	}, "json");
 }
-function setMaxAndMin(channelName, message){
+function setMaxAndMin(channelName, message) {
 	if (!minMessageIdArray[channelName] || minMessageIdArray[channelName] > message.id) {
 		minMessageIdArray[channelName] = message.id;
 	}
@@ -246,8 +251,25 @@ function loadOlderMessage(channelName) {
 			$("#channelPane_messageArea_" + channelName).toLink();
 		}
 		if (0 == data.messages.length) {
-			$("#channelPane_loadNextButton_" + channelName).hide(1000);
+			$("#channelPane_loadNextButtonRow_" + channelName).hide();
 		}
 	}, "json");
+}
+function partFromChannel(channelName) {
+	var loadChannelName = (channelName.startsWith(CHANNEL_NAME_PREFIX)) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName;
+
+	var channelTabsArea = $("#channelTabsArea").children(":first");
+	channelTabsArea.addClass("active");
+	var channelMessagesArea = $("#tabContent").children(":first");
+	channelMessagesArea.addClass("active");
+	channelMessagesArea.addClass("in");
+	
+	$("#channelPane_" + channelName).remove();
+	$("#tabChannel_" + channelName).remove();
+	$.post("/channel/part", {
+		sessionId : sessionId,
+		sessionKey : sessionKey,
+		channelName : loadChannelName
+	});
 }
 renderExternalTemplate("#content", "/resource/templates/login.html");

@@ -12,6 +12,7 @@ public class ReceivePingCommand extends ServerCommand {
 	@Override
 	public void execute(IRCServer ircServer, ClientConnection selfClientConnection, List<IRCEventHandler> handlers) throws Throwable {
 		selfClientConnection.sendPong(getCommandParameters()[0]);
+		//caz xchat never send pong.
+		selfClientConnection.recievePong();
 	}
-
 }

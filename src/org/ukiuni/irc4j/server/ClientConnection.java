@@ -70,18 +70,14 @@ public class ClientConnection implements Runnable, Closeable {
 					rizeException(e);
 				}
 			}
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			rizeException(e);
 		} finally {
-			for (ServerChannel channel : joinedChannelMap.values()) {
+			if (ircServer.hasConnection(getNickName())) {
 				try {
-					channel.part(this);
-				} catch (Throwable e) {
+					ircServer.removeConnection(this);
+				} catch (Throwable ex) {
 				}
-			}
-			try {
-				ircServer.removeConnection(this);
-			} catch (Throwable e) {
 			}
 		}
 		rizeException(new ReadNullException());
@@ -240,5 +236,7 @@ public class ClientConnection implements Runnable, Closeable {
 		this.currentFileUploadChannel = currentFileUploadChannel;
 	}
 
-
+	public void sendInvite(ClientConnection inviter, Channel channel) throws IOException {
+		send(":" + inviter.getNickName() + " INVITE " + getNickName() + " " + channel.getName());
+	}
 }

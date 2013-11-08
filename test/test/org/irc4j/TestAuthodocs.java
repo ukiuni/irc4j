@@ -121,6 +121,7 @@ public class TestAuthodocs {
 		client2.sendQuit();
 		client3.sendQuit();
 	}
+
 	@Test
 	public void testOtherChannelDontRecieveMessage() throws Exception {
 		final Map<String, Object> resultMap = new HashMap<String, Object>();
@@ -308,4 +309,31 @@ public class TestAuthodocs {
 		client2.sendQuit();
 	}
 
+	@Test
+	public void testInvite() throws Exception {
+		final Map<String, Object> resultMap = new HashMap<String, Object>();
+		IRCClient client1 = createClient("client1NickName", "client1RealName");
+		IRCClient client2 = createClient("client2NickName", "client2RealName");
+		client2.addHandler(new IRCEventAdapter() {
+			@Override
+			public void onMessage(String channelName, String from, String message) {
+				resultMap.put("channel", channelName);
+				resultMap.put("from", from);
+				resultMap.put("message", message);
+				System.out.println("+++++++++++++:" + channelName + ":" + from + ":" + message);
+			}
+
+			@Override
+			public void onServerMessage(int id, String message) {
+				resultMap.put("serverMessage", message);
+			}
+		});
+		client1.sendJoin("#testChannel");
+		Thread.sleep(1000);
+		client1.write("INVITE client2NickName #testChannel");
+		Thread.sleep(1000);
+		assertEquals(":client1NickName INVITE client2NickName #testChannel", resultMap.get("serverMessage"));;
+		client1.sendQuit();
+		client2.sendQuit();
+	}
 }

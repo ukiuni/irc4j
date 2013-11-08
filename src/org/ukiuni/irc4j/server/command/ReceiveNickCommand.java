@@ -19,6 +19,7 @@ public class ReceiveNickCommand extends ServerCommand {
 		}
 		if (User.isWrongNickName(newNickName)) {
 			selfClientConnection.sendCommand("432 " + selfClientConnection.getNickName() + " :nickname " + newNickName + " has wrong char.");
+			return;
 		}
 		String oldNickName = selfClientConnection.getNickName();
 
@@ -29,5 +30,8 @@ public class ReceiveNickCommand extends ServerCommand {
 			ircServer.sendToSameChannelUser(selfClientConnection, newNickCommand);
 		}
 		ircServer.putConnection(selfClientConnection);
+		if (!selfClientConnection.isServerHelloSended()) {
+			ircServer.sendServerHello(selfClientConnection);
+		}
 	}
 }

@@ -56,7 +56,7 @@ function loadTemplate(template, onSuccessFunction) {
 }
 $.fn.extend({
 	toLink : function() {
-		$(this).html($(this).html().replace(/((http|https|ftp):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g, '<a href="$1" target="_blank">$1</a>'));
+		$(this).html($(this).html().replace(/((http|https|ftp|NOTES):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g, '<a href="$1" target="_blank">$1</a>'));
 	}
 });
 if (typeof String.prototype.startsWith != 'function') {
