@@ -13,6 +13,14 @@ public class Conf {
 		}
 	}
 
+	public static int getIrcServerPort() {
+		try {
+			return Integer.valueOf(prop.getProperty("irc.server.port"));
+		} catch (Throwable e) {
+			return 6667;
+		}
+	}
+	
 	public static int getHttpServerPort() {
 		try {
 			return Integer.valueOf(prop.getProperty("http.server.port"));

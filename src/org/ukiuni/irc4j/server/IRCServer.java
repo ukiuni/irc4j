@@ -25,7 +25,7 @@ import org.ukiuni.irc4j.util.IOUtil;
 public class IRCServer implements Runnable {
 	private List<ClientConnection> connectionList = new ArrayList<ClientConnection>();
 	private Map<String, ServerChannel> channelMap = new HashMap<String, ServerChannel>();
-	private int portNum = 6667;
+	private int portNum = Conf.getIrcServerPort();
 	private ServerSocket serverSocket;
 	private boolean isRunning;
 	private Thread runningThread;
