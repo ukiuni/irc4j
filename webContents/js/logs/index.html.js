@@ -7,7 +7,9 @@ if (location.hash) {
 			}
 			$("#leadArea").html($("#leadTemplate").render(data));
 			$("#infoArea").html($("#infoTemplate").render(data));
-			$("#logArea").html($("#logTemplate").render(data.logs));
+			var logArea = $("#logArea");
+			logArea.html($("#logTemplate").render(data.logs));
+			logArea.toLink();
 			prettyPrint();
 		}).error(function(data) {
 			$("#logArea").html("error " + data.textStatus);
