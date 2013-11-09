@@ -3,6 +3,7 @@
 		<div class="input-group" id="userArea" style="margin-bottom: 20px">
 			<span class="input-group-addon span2"></span> <input type="text" id="messageInput_{{>channelName}}" class="form-control" placeholder="message" /> <span class="input-group-btn">
 				<button class="btn btn-default" type="button" onclick="sendMessage('{{>channelName}}', $('#messageInput_{{>channelName}}').val(), function(){ $('#messageInput_{{>channelName}}').val('')});">Send</button>
+				<button class="btn btn-default" type="button" onclick="uploadFile('{{>channelName}}', this);">Upload File</button>
 			</span>
 		</div>
 	</div>
@@ -19,9 +20,7 @@
 		<div id="channelPane_messageArea_{{>channelName}}">
 			<ul class="breadcrumb">
 				<div class="row">
-					<div class="col-sm-9">
-						{{>displayChannelName}}
-					</div>
+					<div class="col-sm-9">{{>displayChannelName}}</div>
 					<div class="col-sm-3 text-right">
 						<button type="button" class="btn btn-default btn-sm" onclick="partFromChannel('{{>channelName}}')">Part</button>
 					</div>

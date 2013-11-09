@@ -111,8 +111,9 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 	messageObjforPaint.createdAt = createdAt;
 	messageObjforPaint.senderNickName = senderNickName;
 	messageObjforPaint.message = message;
-	$("#channelPane_messageArea_" + channelName).prepend(chatMessageTemplate.render(messageObjforPaint));
-	$("#channelPane_messageArea_" + channelName).toLink();
+	var newChatMessagePane = chatMessageTemplate.render(messageObjforPaint);
+	newChatMessagePane = replaceToLink(newChatMessagePane);
+	$("#channelPane_messageArea_" + channelName).prepend(newChatMessagePane);
 }
 function addChannel(channelName, onSuccessAddChannelFunction) {
 	if (0 == channelName.length || 0 <= channelName.indexOf("#")) {
@@ -212,6 +213,64 @@ function sendMessage(channelName, message, onSuccessFunction) {
 		}
 	}, "json");
 }
+function uploadFile(channelName, uploadButtonOrg) {
+	var uploadButton = $(uploadButtonOrg);
+	uploadButton.addClass("disabled");
+	var form = document.createElement("form");
+	form.action = "/channel/sendFile";
+	form.style.display = "none";
+	form.method = "post";
+	form.enctype = "multipart/form-data";
+	var fileInput = document.createElement("input");
+	fileInput.type = "file";
+	fileInput.name = "file";
+	form.appendChild(fileInput);
+	var channelNameInput = document.createElement("input");
+	channelNameInput.type = "hidden";
+	channelNameInput.name = "channelName";
+	channelNameInput.value = (channelName.startsWith(CHANNEL_NAME_PREFIX)) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName;
+	form.appendChild(channelNameInput);
+	var sessionIdInput = document.createElement("input");
+	sessionIdInput.type = "hidden";
+	sessionIdInput.name = "sessionId";
+	sessionIdInput.value = sessionId;
+	form.appendChild(sessionIdInput);
+	var sessionKeyInput = document.createElement("input");
+	sessionKeyInput.type = "hidden";
+	sessionKeyInput.name = "sessionKey";
+	sessionKeyInput.value = sessionKey;
+	form.appendChild(sessionKeyInput);
+
+	jFileInput = $(fileInput);
+	jFileInput.change(function() {
+		console.log("changed");
+		$(form).ajaxForm({
+			beforeSend : function() {
+				var percentVal = '0%';
+				uploadButton.html(percentVal);
+				console.log("beforeSend");
+			},
+			uploadProgress : function(event, position, total, percentComplete) {
+				var percentVal = percentComplete + '%';
+				uploadButton.html(percentVal);
+				console.log("uploadProgress " + percentVal);
+			},
+			success : function() {
+				var percentVal = '100%';
+				uploadButton.html(percentVal);
+				console.log("success " + percentVal);
+			},
+			complete : function(xhr) {
+				uploadButton.removeClass("disabled");
+				setTimeout(function() {
+					uploadButton.html("Upload File");
+				}, 1000);
+			}
+		}).submit();
+	});
+	jFileInput.click();
+
+}
 function openPrivateMessageDialog(targetUser) {
 	if (document.getElementById("channelPane_" + targetUser) || myNickName == targetUser) {
 		return;
@@ -263,7 +322,7 @@ function partFromChannel(channelName) {
 	var channelMessagesArea = $("#tabContent").children(":first");
 	channelMessagesArea.addClass("active");
 	channelMessagesArea.addClass("in");
-	
+
 	$("#channelPane_" + channelName).remove();
 	$("#tabChannel_" + channelName).remove();
 	$.post("/channel/part", {

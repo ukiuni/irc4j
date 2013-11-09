@@ -49,6 +49,10 @@ public class WebWorkerClientConnection extends ClientConnection {
 	public void sendPrivateMessage(String type, ClientConnection senderClientConnection, String message) throws IOException {
 		send(Event.createMessage(senderClientConnection.getNickName(), senderClientConnection.getNickName(), message));
 	}
+	
+	public void sendPrivateSelfMessage(String type, ClientConnection tailingClientConnection, String message) throws IOException {
+		send(Event.createMessage(tailingClientConnection.getNickName(), getNickName(), message));
+	}
 
 	private void send(Event event) {
 		eventList.add(event);

@@ -16,6 +16,7 @@ import org.ukiuni.irc4j.server.worker.webworker.ResponseLogs;
 import org.ukiuni.irc4j.server.worker.webworker.ResponsePart;
 import org.ukiuni.irc4j.server.worker.webworker.ResponsePostMessage;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseRejoin;
+import org.ukiuni.irc4j.server.worker.webworker.ResponseUploadFile;
 import org.ukiuni.lighthttpserver.HttpServer;
 import org.ukiuni.lighthttpserver.request.DefaultHandler;
 import org.ukiuni.lighthttpserver.request.Request;
@@ -52,6 +53,8 @@ public class WebWorker implements Worker {
 					return new ResponsePart(ircServer);
 				} else if ("/channel/message".equals(request.getPath())) {
 					return new ResponseLoadMessage(ircServer);
+				} else if ("/channel/sendFile".equals(request.getPath())) {
+					return new ResponseUploadFile(ircServer);
 				}
 				return super.onRequest(request);
 			}

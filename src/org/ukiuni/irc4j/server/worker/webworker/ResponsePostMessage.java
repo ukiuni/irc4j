@@ -16,12 +16,13 @@ public class ResponsePostMessage extends AIRCResponse {
 	public void onResponseSecure(OutputStream out) throws Throwable {
 		String channelName = getRequest().getParameter("channelName");
 		String message = getRequest().getParameter("message");
+		if (null == message || "".equals(message)) {
+			writeError(out, 400, "message must be not null or empty");
+			return;
+		}
 		if (channelName.startsWith("#")) {
 			if (null == channelName || !ircServer.hasChannel(channelName)) {
 				writeError(out, 404, "channelNotFound");
-				return;
-			} else if (null == message || "".equals(message)) {
-				writeError(out, 400, "message must be not null or empty");
 				return;
 			}
 			ServerChannel channel = ircServer.getChannel(channelName);
@@ -30,6 +31,7 @@ public class ResponsePostMessage extends AIRCResponse {
 			ClientConnection connection = ircServer.findConnection(channelName);
 			if (null == connection) {
 				writeError(out, 404, "user not found");
+				return;
 			}
 			connection.sendPrivateMessage("PRIVMSG", getAccessConnection(), message);
 		}

@@ -54,9 +54,12 @@ function loadTemplate(template, onSuccessFunction) {
 		}
 	});
 }
+function replaceToLink(src) {
+	return src.replace(/((http|https|ftp|NOTES):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g, '<a href="$1" target="_blank">$1</a>');
+}
 $.fn.extend({
 	toLink : function() {
-		$(this).html($(this).html().replace(/((http|https|ftp|NOTES):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g, '<a href="$1" target="_blank">$1</a>'));
+		$(this).html(replaceToLink($(this).html()));
 	}
 });
 if (typeof String.prototype.startsWith != 'function') {
