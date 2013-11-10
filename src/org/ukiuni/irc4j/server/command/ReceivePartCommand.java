@@ -18,8 +18,12 @@ public class ReceivePartCommand extends ServerCommand {
 			if (channelName == null) {
 				selfClientConnection.sendCommand("You're not a member of the channel " + channelName + ", so you can't part it.");
 			} else {
-				channel.part(selfClientConnection);
-				selfClientConnection.partFromChannel(channelName);
+				if (getCommandParameters().length <= 1) {
+					channel.part(selfClientConnection);
+				} else {
+					String message = getCommandParametersString().split(" ", 2)[1];
+					channel.part(selfClientConnection, message);
+				}
 			}
 		}
 	}

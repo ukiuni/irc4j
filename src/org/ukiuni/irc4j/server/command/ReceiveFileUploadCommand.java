@@ -24,7 +24,7 @@ public class ReceiveFileUploadCommand extends ServerCommand {
 			return;
 		}
 		if (null != selfClientConnection.getCurrentFileUploadChannel()) {
-			selfClientConnection.sendPartCommand(ircServer.getFQSN(), selfClientConnection.getCurrentFileUploadChannel().getName());
+			selfClientConnection.sendPartCommand(ircServer.getFQSN(), selfClientConnection.getCurrentFileUploadChannel().getName(), "switch upload channel to " + channel.getName());
 		}
 		selfClientConnection.setCurrentFileUploadChannel(channel);
 		selfClientConnection.sendJoin(ircServer.getFQSN(), channel.getName());

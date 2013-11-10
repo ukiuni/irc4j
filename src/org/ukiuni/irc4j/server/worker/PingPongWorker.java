@@ -1,6 +1,5 @@
 package org.ukiuni.irc4j.server.worker;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,7 +14,7 @@ import org.ukiuni.irc4j.server.IRCServer;
 
 public class PingPongWorker extends TimerTask implements Worker {
 	private IRCServer ircServer;
-	private static final int PONG_WAIT_TIME = 60000;
+	private static final int PONG_WAIT_TIME = 30000;
 	private static final int PERIOD = 3000;
 	private Timer timer;
 
@@ -25,19 +24,16 @@ public class PingPongWorker extends TimerTask implements Worker {
 			Log.log(this + " run");
 			List<ClientConnection> doPingConnectionList = new ArrayList<ClientConnection>(this.ircServer.getConnectionList());
 			Calendar waitTimeAgoCalendar = Calendar.getInstance();
+			waitTimeAgoCalendar.add(Calendar.MILLISECOND, PONG_WAIT_TIME * -1);
 			Date waitTimeAgo = waitTimeAgoCalendar.getTime();
-			waitTimeAgoCalendar.add(Calendar.SECOND, PONG_WAIT_TIME * -1);
 			for (ClientConnection clientConnection : doPingConnectionList) {
 				try {
-					if(null == clientConnection.getLastRecievePongDate() || waitTimeAgoCalendar.before(waitTimeAgoCalendar))
-					clientConnection.sendPing("hello");
-				} catch (IOException e) {
+					if (null == clientConnection.getLastRecievePongDate() || clientConnection.getLastRecievePongDate().before(waitTimeAgo)) {
+						clientConnection.sendPing("hello");
+					}
+				} catch (Throwable e) {
 					this.ircServer.removeConnection(clientConnection.getNickName());
 				}
-			}
-			try {
-				Thread.sleep(PONG_WAIT_TIME);
-			} catch (InterruptedException e) {
 			}
 			waitTimeAgoCalendar = Calendar.getInstance();
 			waitTimeAgoCalendar.add(Calendar.MILLISECOND, PONG_WAIT_TIME * -1);

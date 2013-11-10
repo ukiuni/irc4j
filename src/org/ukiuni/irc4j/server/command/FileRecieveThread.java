@@ -54,7 +54,7 @@ public class FileRecieveThread extends Thread {
 			String responseMessage = "file upload to " + Conf.getHttpServerURL() + "/file/" + writeHandle.getKey();
 			channel.sendMessage("PRIVMSG", selfClientConnection, responseMessage);
 			selfClientConnection.sendMessage("PRIVMSG", selfClientConnection, channel, responseMessage);
-			selfClientConnection.sendPartCommand(ircServer.getFQSN(), channel.getName());// TODO
+			selfClientConnection.sendPartCommand(ircServer.getFQSN(), channel.getName(), "upload is completed.");// TODO
 		} catch (Throwable e) {
 			Log.log(e);
 		}

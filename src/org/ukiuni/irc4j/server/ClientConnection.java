@@ -220,12 +220,16 @@ public class ClientConnection implements Runnable, Closeable {
 		send(":" + userFQCN + " JOIN " + channelName);
 	}
 
-	public void sendPartCommand(ClientConnection partConnection, Channel channel) throws IOException {
-		sendPartCommand(partConnection.getUser().getFQUN(), channel.getName());
+	public void sendPartCommand(ClientConnection partConnection, Channel channel, String message) throws IOException {
+		sendPartCommand(partConnection.getUser().getFQUN(), channel.getName(), message);
 	}
 
-	public void sendPartCommand(String userFQCN, String channelName) throws IOException {
-		send(":" + userFQCN + " PART " + channelName);
+	public void sendPartCommand(String userFQCN, String channelName, String message) throws IOException {
+		if (message == null) {
+			send(":" + userFQCN + " PART " + channelName);
+		} else {
+			send(":" + userFQCN + " PART " + channelName + " :" + message);
+		}
 	}
 
 	public ServerChannel getCurrentFileUploadChannel() {

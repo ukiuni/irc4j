@@ -117,11 +117,11 @@ public class ServerChannel extends Channel {
 		}
 	}
 
-	private void sendPartCommand(ClientConnection partConnection) throws IOException {
+	private void sendPartCommand(ClientConnection partConnection, String message) throws IOException {
 		List<ClientConnection> sendClients = new ArrayList<ClientConnection>(joinedConnectionList);
 		for (ClientConnection clientConnection : sendClients) {
 			try {
-				clientConnection.sendPartCommand(partConnection, this);
+				clientConnection.sendPartCommand(partConnection, this, message);
 			} catch (Exception e) {// TODO something do with exception???
 				Log.log(e);
 			}
@@ -140,7 +140,11 @@ public class ServerChannel extends Channel {
 	}
 
 	public void part(ClientConnection clientConnection) throws IOException {
-		this.sendPartCommand(clientConnection);
+		this.part(clientConnection, null);
+	}
+
+	public void part(ClientConnection clientConnection, String message) throws IOException {
+		this.sendPartCommand(clientConnection, message);
 		this.removeConnection(clientConnection);
 	}
 

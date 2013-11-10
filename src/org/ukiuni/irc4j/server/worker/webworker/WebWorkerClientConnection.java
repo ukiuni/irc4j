@@ -21,7 +21,7 @@ public class WebWorkerClientConnection extends ClientConnection {
 
 	@Override
 	public synchronized void send(String lowCommand) throws IOException {
-		Log.log("********WebWorkerClientConnection#send > " + lowCommand);
+		Log.log("## WebWorkerClientConnection#send(dummy) > " + lowCommand);
 	}
 
 	public List<Event> removeAllEvent() {
@@ -31,7 +31,7 @@ public class WebWorkerClientConnection extends ClientConnection {
 	}
 
 	@Override
-	public void sendPartCommand(ClientConnection partConnection, Channel channel) throws IOException {
+	public void sendPartCommand(ClientConnection partConnection, Channel channel, String message) throws IOException {
 		send(Event.createPart(channel.getName(), partConnection.getNickName()));
 	}
 
@@ -49,7 +49,7 @@ public class WebWorkerClientConnection extends ClientConnection {
 	public void sendPrivateMessage(String type, ClientConnection senderClientConnection, String message) throws IOException {
 		send(Event.createMessage(senderClientConnection.getNickName(), senderClientConnection.getNickName(), message));
 	}
-	
+
 	public void sendPrivateSelfMessage(String type, ClientConnection tailingClientConnection, String message) throws IOException {
 		send(Event.createMessage(tailingClientConnection.getNickName(), getNickName(), message));
 	}
