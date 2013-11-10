@@ -1,5 +1,6 @@
 package org.ukiuni.irc4j.db;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,7 +12,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.ukiuni.irc4j.entity.JoinLog;
 import org.ukiuni.irc4j.entity.Message;
+import org.ukiuni.irc4j.util.IOUtil;
 
 public class Database {
 	private static Database instance;
@@ -30,12 +33,24 @@ public class Database {
 
 	public Database() {
 		try {
-			this.con = DriverManager.getConnection("jdbc:h2:file:" + System.getProperty("user.home") + "/.jairc");
-			Statement st = this.con.createStatement();
+			new File(System.getProperty("user.home") + "/.airc").mkdirs();
+			this.con = DriverManager.getConnection("jdbc:h2:file:" + System.getProperty("user.home") + "/.airc/.db");
+			Statement st = null;
 			try {
+				st = this.con.createStatement();
 				st.executeQuery("select * from message limit 1");
 			} catch (SQLException e) {
 				st.execute("create table message (id bigint auto_increment primary key, type varchar, senderFQUN varchar, sender_nick_name varchar,  target_channel varchar, message varchar,created_at timestamp)");
+			} finally {
+				IOUtil.close(st);
+			}
+			try {
+				st = this.con.createStatement();
+				st.executeQuery("select * from join_log limit 1");
+			} catch (SQLException e) {
+				st.execute("create table join_log (id bigint auto_increment primary key, channel_name varchar,  event varchar, user_id bigint, nickname varchar, created_at timestamp)");
+			} finally {
+				IOUtil.close(st);
 			}
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
@@ -43,8 +58,9 @@ public class Database {
 	}
 
 	public void regist(Message message) {
+		PreparedStatement stmt = null;
 		try {
-			PreparedStatement stmt = con.prepareStatement("insert into message (type, senderFQUN, sender_nick_name, target_channel, message, created_at) values ( ?, ?, ?, ?, ?, now())");
+			stmt = con.prepareStatement("insert into message (type, senderFQUN, sender_nick_name, target_channel, message, created_at) values ( ?, ?, ?, ?, ?, now())");
 			stmt.setString(1, message.getType());
 			stmt.setString(2, message.getSenderFQUN());
 			stmt.setString(3, message.getSenderNickName());
@@ -53,6 +69,24 @@ public class Database {
 			stmt.executeUpdate();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(stmt);
+		}
+	}
+
+	public void regist(JoinLog joinLog) {
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement("insert into join_log (channel_name, event, user_id, nickname, created_at) values (?, ?, ?, ?, now())");
+			stmt.setString(1, joinLog.getChannelName());
+			stmt.setString(2, joinLog.getEvent().toString());
+			stmt.setLong(3, joinLog.getUserId());
+			stmt.setString(4, joinLog.getNickName());
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(stmt);
 		}
 	}
 
@@ -66,9 +100,10 @@ public class Database {
 	}
 
 	private List<Message> loadMessage(String channel, int limit, String where, boolean oldToNew) {
+		PreparedStatement stmt = null;
 		try {
 			String sql = "select id, type, senderFQUN, sender_nick_name, target_channel, message, created_at from message where target_channel = ? " + where + " order by id desc limit ?";
-			PreparedStatement stmt = con.prepareStatement(sql);
+			stmt = con.prepareStatement(sql);
 			stmt.setString(1, channel);
 			stmt.setInt(2, limit);
 			ResultSet rs = stmt.executeQuery();
@@ -79,6 +114,8 @@ public class Database {
 			return messageList;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(stmt);
 		}
 	}
 

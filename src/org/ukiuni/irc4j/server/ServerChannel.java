@@ -11,7 +11,9 @@ import java.util.Set;
 import org.ukiuni.irc4j.Channel;
 import org.ukiuni.irc4j.Log;
 import org.ukiuni.irc4j.db.Database;
+import org.ukiuni.irc4j.entity.JoinLog;
 import org.ukiuni.irc4j.entity.Message;
+import org.ukiuni.irc4j.entity.JoinLog.Event;
 
 public class ServerChannel extends Channel {
 
@@ -29,12 +31,14 @@ public class ServerChannel extends Channel {
 	}
 
 	public void addConnection(ClientConnection clientConnection) {
+		Database.getInstance().regist(JoinLog.create(getName(), Event.JOIN, clientConnection.getNickName(), clientConnection.getUser().getId()));
 		joinedConnectionList.add(clientConnection);
 		clientConnection.joinToChannel(this);
 		addUser(clientConnection.getUser());
 	}
 
 	public void removeConnection(ClientConnection clientConnection) {
+		Database.getInstance().regist(JoinLog.create(getName(), Event.PART, clientConnection.getNickName(), clientConnection.getUser().getId()));
 		joinedConnectionList.remove(clientConnection);
 		removeUser(clientConnection.getUser());
 		if (joinedConnectionList.isEmpty()) {

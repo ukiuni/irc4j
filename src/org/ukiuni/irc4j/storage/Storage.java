@@ -25,7 +25,7 @@ public class Storage {
 
 	public Storage() {
 		try {
-			storageDirectory = new File(System.getProperty("user.home") + "/.airc_storage");
+			storageDirectory = new File(System.getProperty("user.home") + "/.airc/storage");
 			storageDirectory.mkdirs();
 		} catch (Throwable e) {
 			throw new RuntimeException(e);

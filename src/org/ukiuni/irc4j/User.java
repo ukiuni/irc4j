@@ -21,6 +21,7 @@ package org.ukiuni.irc4j;
  * @author ukiuni
  */
 public class User {
+	private long id;
 	private String name;
 	private String realName;
 	private String hostName;
@@ -110,5 +111,13 @@ public class User {
 
 	public static boolean isWrongNickName(String nickName) {
 		return (null == nickName || nickName.startsWith("AIRC_CHANNEL_") || nickName.startsWith("#") || nickName.startsWith(":") || nickName.contains(">") || nickName.contains("<") || nickName.contains("&") || nickName.contains("\"") || nickName.contains("@"));
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 }
