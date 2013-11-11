@@ -41,7 +41,7 @@ public class PingPongWorker extends TimerTask implements Worker {
 			List<ClientConnection> checkPongList = new ArrayList<ClientConnection>(this.ircServer.getConnectionList());
 			for (ClientConnection clientConnection : checkPongList) {
 				Date lastPongDate = clientConnection.getLastRecievePongDate();
-				Date lastPingDate = clientConnection.getLastSendPingDate();
+				Date lastPingDate = clientConnection.getOldestSendPingDate();
 				if (null != lastPingDate && lastPingDate.before(waitTimeAgo)) {
 					if (null == lastPongDate || lastPongDate.before(lastPingDate)) {
 						Log.log("remove [" + clientConnection.getNickName() + "] lastPing " + new SimpleDateFormat("hh:mm").format(lastPingDate) + " lastPong " + (null == lastPongDate ? "null" : new SimpleDateFormat("hh:mm").format(lastPongDate)));

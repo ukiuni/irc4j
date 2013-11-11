@@ -33,7 +33,7 @@ public class ClientConnection implements Runnable, Closeable {
 	private Thread readingThread;
 	private String encode = "UTF-8";
 	private Date lastRecievePongDate;
-	private Date lastSendPingDate;
+	private Date oldestSendPingDate;
 	private boolean serverHelloSended;
 	private ServerChannel currentFileUploadChannel;
 
@@ -136,8 +136,8 @@ public class ClientConnection implements Runnable, Closeable {
 		return lastRecievePongDate;
 	}
 
-	public Date getLastSendPingDate() {
-		return lastSendPingDate;
+	public Date getOldestSendPingDate() {
+		return oldestSendPingDate;
 	}
 
 	public boolean isServerHelloSended() {
@@ -150,6 +150,7 @@ public class ClientConnection implements Runnable, Closeable {
 
 	public void recievePong() {
 		this.lastRecievePongDate = new Date();
+		oldestSendPingDate = null;// reset Ping date
 	}
 
 	public ServerChannel getJoinedChannel(String channelName) {
@@ -165,7 +166,9 @@ public class ClientConnection implements Runnable, Closeable {
 	}
 
 	public void sendPing(String message) throws IOException {
-		lastSendPingDate = new Date();
+		if (null == oldestSendPingDate) {
+			oldestSendPingDate = new Date();
+		}
 		send(":" + ircServer.getServerName() + " PING " + ircServer.getServerName() + " :" + message);
 	}
 
