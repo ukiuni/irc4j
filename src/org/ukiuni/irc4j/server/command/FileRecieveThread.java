@@ -28,8 +28,8 @@ public class FileRecieveThread extends Thread {
 		try {
 			final String[] param = parameterString.split(" ");
 
-			Log.log("/////////////////// socket = " + param[4] + ":" + Integer.valueOf(param[5]));
-			Socket socket = new Socket("localhost", Integer.valueOf(param[5]));
+			Log.log("/////////////////// socket = " + selfClientConnection.getUser().getHostName() + ":" + Integer.valueOf(param[5]));
+			Socket socket = new Socket(selfClientConnection.getUser().getHostName(), Integer.valueOf(param[5]));
 			long fileSize = Long.valueOf(Integer.valueOf(param[6]));
 			InputStream in = socket.getInputStream();
 			byte[] buffer = new byte[1024];
