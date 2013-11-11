@@ -215,7 +215,6 @@ function sendMessage(channelName, message, onSuccessFunction) {
 }
 function uploadFile(channelName, uploadButtonOrg) {
 	var uploadButton = $(uploadButtonOrg);
-	uploadButton.addClass("disabled");
 	var form = document.createElement("form");
 	form.action = "/channel/sendFile";
 	form.style.display = "none";
