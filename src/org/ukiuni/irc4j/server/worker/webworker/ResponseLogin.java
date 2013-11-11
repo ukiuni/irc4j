@@ -33,7 +33,7 @@ public class ResponseLogin extends Response {
 		clientConnection.getUser().setHostName("webIF");
 		clientConnection.getUser().setName(nickName);
 		clientConnection.getUser().setRealName(nickName);
-		clientConnection.getUser().setPassword(password);
+		clientConnection.getUser().setPasswordHashed(User.toHash(password));
 
 		ircServer.putConnection(clientConnection);
 

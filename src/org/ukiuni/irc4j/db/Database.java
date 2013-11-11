@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.ukiuni.irc4j.Channel;
+import org.ukiuni.irc4j.User;
 import org.ukiuni.irc4j.entity.JoinLog;
 import org.ukiuni.irc4j.entity.Message;
 import org.ukiuni.irc4j.util.IOUtil;
@@ -52,6 +54,22 @@ public class Database {
 			} finally {
 				IOUtil.close(st);
 			}
+			try {
+				st = this.con.createStatement();
+				st.executeQuery("select * from user limit 1");
+			} catch (SQLException e) {
+				st.execute("create table user (id bigint auto_increment primary key, name varchar, real_name varchar, host_name varchar, nick_name varchar unique, password_hashed varchar, description varchar, icon_image varchar, created_at timestamp, updateded_at timestamp)");
+			} finally {
+				IOUtil.close(st);
+			}
+			try {
+				st = this.con.createStatement();
+				st.executeQuery("select * from user_and_channel_relation limit 1");
+			} catch (SQLException e) {
+				st.execute("create table user_and_channel_relation (id bigint auto_increment primary key, user_id long, channel_name varchar, created_at timestamp)");
+			} finally {
+				IOUtil.close(st);
+			}
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
@@ -83,6 +101,122 @@ public class Database {
 			stmt.setLong(3, joinLog.getUserId());
 			stmt.setString(4, joinLog.getNickName());
 			stmt.executeUpdate();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(stmt);
+		}
+	}
+
+	public void resetJoinChannel(User user, List<Channel> channelList) {
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement("delete from user_and_channel_relation where user_id = ?");
+			stmt.setLong(1, user.getId());
+			stmt.execute();
+			stmt.close();
+			for (Channel channel : channelList) {
+				stmt = con.prepareStatement("insert into user_and_channel_relation (user_id, channel_name, created_at) values (?, ?, now())");
+				stmt.setLong(1, user.getId());
+				stmt.setString(2, channel.getName());
+				stmt.execute();
+				stmt.close();
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(stmt);
+		}
+	}
+
+	public List<String> loadJoinedChannelNames(User user) {
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement("select user_id channel_name created_at from user_and_channel_relation where user_id = ?");
+			stmt.setLong(1, user.getId());
+			ResultSet resultSet = stmt.executeQuery();
+			List<String> channelNameList = new ArrayList<String>();
+			while (resultSet.next()) {
+				channelNameList.add(resultSet.getString("channel_name"));
+			}
+			return channelNameList;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(stmt);
+		}
+	}
+
+	public void regist(User user) {
+		PreparedStatement stmt = null;
+		try {
+			if (user.getId() == 0) {
+				stmt = con.prepareStatement("insert into user (name, real_name, host_name, nickname, password_hashed, description, icon_image, created_at) values (?, ?, ?, ?, ?, ?, ?, now())");
+				stmt.setString(1, user.getName());
+				stmt.setString(2, user.getRealName());
+				stmt.setString(3, user.getHostName());
+				stmt.setString(4, user.getNickName());
+				stmt.setString(5, user.getPasswordHashed());
+				stmt.setString(6, user.getDescription());
+				stmt.setString(7, user.getIconImage());
+				stmt.executeUpdate();
+				PreparedStatement idQueryStmt = con.prepareStatement("select id from user where nickname = ?");
+				ResultSet resultSet = idQueryStmt.executeQuery();
+				resultSet.next();
+				user.setId(resultSet.getLong("id"));
+				resultSet.close();
+				idQueryStmt.close();
+			} else {
+				StringBuilder sqlCreateBuilder = new StringBuilder("update user set");
+				if (null != user.getName()) {
+					sqlCreateBuilder.append(" name = ?");
+				}
+				if (null != user.getRealName()) {
+					sqlCreateBuilder.append(" real_name = ?");
+				}
+				if (null != user.getHostName()) {
+					sqlCreateBuilder.append(" host_name = ?");
+				}
+				if (null != user.getNickName()) {
+					sqlCreateBuilder.append(" nick_name = ?");
+				}
+				if (null != user.getPasswordHashed()) {
+					sqlCreateBuilder.append(" password_hashed = ?");
+				}
+				if (null != user.getDescription()) {
+					sqlCreateBuilder.append(" description = ?");
+				}
+				if (null != user.getIconImage()) {
+					sqlCreateBuilder.append(" icon_image = ?");
+				}
+				sqlCreateBuilder.append(" updated_at = now()");
+				sqlCreateBuilder.append(" where id = ?");
+				stmt = con.prepareStatement(sqlCreateBuilder.toString());
+				int stmtIndex = 1;
+				if (null != user.getName()) {
+					stmt.setString(stmtIndex++, user.getName());
+				}
+				if (null != user.getRealName()) {
+					stmt.setString(stmtIndex++, user.getRealName());
+				}
+				if (null != user.getHostName()) {
+					stmt.setString(stmtIndex++, user.getHostName());
+				}
+				if (null != user.getNickName()) {
+					stmt.setString(stmtIndex++, user.getNickName());
+				}
+				if (null != user.getPasswordHashed()) {
+					stmt.setString(stmtIndex++, user.getPasswordHashed());
+				}
+				if (null != user.getDescription()) {
+					stmt.setString(stmtIndex++, user.getDescription());
+				}
+				if (null != user.getIconImage()) {
+					stmt.setString(stmtIndex++, user.getIconImage());
+				}
+				stmt.setLong(stmtIndex++, user.getId());
+				stmt.executeUpdate();
+			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {

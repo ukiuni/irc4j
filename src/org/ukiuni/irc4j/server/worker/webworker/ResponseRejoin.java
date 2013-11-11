@@ -3,6 +3,7 @@ package org.ukiuni.irc4j.server.worker.webworker;
 import java.io.OutputStream;
 
 import org.ukiuni.irc4j.Channel;
+import org.ukiuni.irc4j.User;
 import org.ukiuni.irc4j.server.IRCServer;
 
 public class ResponseRejoin extends AIRCResponse {
@@ -30,7 +31,10 @@ public class ResponseRejoin extends AIRCResponse {
 			clientConnection.getUser().setHostName("webIF");
 			clientConnection.getUser().setName(getNickName());
 			clientConnection.getUser().setRealName(getNickName());
-			clientConnection.getUser().setPassword(null);
+			String password = getRequest().getParameter("password");
+			if (null != password && !"".equals(password)) {
+				clientConnection.getUser().setPasswordHashed(User.toHash(password));
+			}
 
 			ircServer.putConnection(clientConnection);
 		}

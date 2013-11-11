@@ -1,5 +1,11 @@
 package org.ukiuni.irc4j;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+
+import net.arnx.jsonic.util.Base64;
+
 /*
  * Copyright [2013] [ukiuni]
  * 
@@ -26,8 +32,11 @@ public class User {
 	private String realName;
 	private String hostName;
 	private String nickName;
-	private String password;
+	private String passwordHashed;
 	private String description;
+	private String iconImage;
+	private Date createdAt;
+	private Date updatedAt;
 	private boolean owner;
 
 	public String getNickName() {
@@ -101,23 +110,62 @@ public class User {
 		return this.nickName.equals(((User) obj).getNickName());
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public static boolean isWrongNickName(String nickName) {
-		return (null == nickName || nickName.startsWith("AIRC_CHANNEL_") || nickName.startsWith("#") || nickName.startsWith(":") || nickName.contains(">") || nickName.contains("<") || nickName.contains("&") || nickName.contains("\"") || nickName.contains("@") || nickName.contains(" "));
-	}
-
 	public long getId() {
 		return id;
 	}
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getIconImage() {
+		return iconImage;
+	}
+
+	public void setIconImage(String iconImage) {
+		this.iconImage = iconImage;
+	}
+
+	public static boolean isWrongNickName(String nickName) {
+		return (null == nickName || nickName.startsWith("AIRC_CHANNEL_") || nickName.startsWith("#") || nickName.startsWith(":") || nickName.contains(">") || nickName.contains("<") || nickName.contains("&") || nickName.contains("\"") || nickName.contains("@") || nickName.contains(" "));
+	}
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public String getPasswordHashed() {
+		return passwordHashed;
+	}
+
+	public void setPasswordHashed(String passwordHashed) {
+		this.passwordHashed = passwordHashed;
+	}
+
+	public static String toHash(String password) {
+
+		return null;
+	}
+
+	public String digest(String str) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA"); // あるいはMD5など→アルゴリズム名
+			md.update(str.getBytes());
+			return Base64.encode(md.digest());
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
