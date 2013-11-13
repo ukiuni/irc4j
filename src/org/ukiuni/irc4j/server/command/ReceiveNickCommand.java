@@ -21,6 +21,14 @@ public class ReceiveNickCommand extends ServerCommand {
 			selfClientConnection.sendCommand("432 " + selfClientConnection.getNickName() + " :nickname " + newNickName + " has wrong char.");
 			return;
 		}
+
+		//TODO use irc password for registed account
+		/*
+		User registedUser = Database.getInstance().loadUser(newNickName);
+		if (null != registedUser && (null == selfClientConnection.getUser().getPasswordHashed() || !selfClientConnection.getUser().getPasswordHashed().equals(registedUser.getPasswordHashed()))) {
+			selfClientConnection.sendCommand("464 " + selfClientConnection.getNickName() + " :Password incorrect.");
+			return;
+		}*/
 		String oldNickName = selfClientConnection.getNickName();
 
 		selfClientConnection.setNickName(newNickName);

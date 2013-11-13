@@ -32,6 +32,7 @@ public class User {
 	private String realName;
 	private String hostName;
 	private String nickName;
+	private String email;
 	private String passwordHashed;
 	private String description;
 	private String iconImage;
@@ -155,17 +156,24 @@ public class User {
 	}
 
 	public static String toHash(String password) {
-
-		return null;
+		return digest(password);
 	}
 
-	public String digest(String str) {
+	private static String digest(String str) {
 		try {
-			MessageDigest md = MessageDigest.getInstance("SHA"); // あるいはMD5など→アルゴリズム名
+			MessageDigest md = MessageDigest.getInstance("SHA");
 			md.update(str.getBytes());
 			return Base64.encode(md.digest());
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }

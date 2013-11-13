@@ -17,6 +17,9 @@ import org.ukiuni.irc4j.server.worker.webworker.ResponsePart;
 import org.ukiuni.irc4j.server.worker.webworker.ResponsePostMessage;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseRejoin;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseUploadFile;
+import org.ukiuni.irc4j.server.worker.webworker.ResponseUser;
+import org.ukiuni.irc4j.server.worker.webworker.ResponseUserImage;
+import org.ukiuni.irc4j.server.worker.webworker.ResponseUserSetting;
 import org.ukiuni.lighthttpserver.HttpServer;
 import org.ukiuni.lighthttpserver.request.DefaultHandler;
 import org.ukiuni.lighthttpserver.request.Request;
@@ -55,6 +58,12 @@ public class WebWorker implements Worker {
 					return new ResponseLoadMessage(ircServer);
 				} else if ("/channel/sendFile".equals(request.getPath())) {
 					return new ResponseUploadFile(ircServer);
+				} else if ("/user".equals(request.getPath())) {
+					return new ResponseUser(ircServer);
+				} else if ("/user/setting".equals(request.getPath())) {
+					return new ResponseUserSetting(ircServer);
+				} else if (request.getPath().startsWith("/user/iconImage/")) {
+					return new ResponseUserImage();
 				}
 				return super.onRequest(request);
 			}

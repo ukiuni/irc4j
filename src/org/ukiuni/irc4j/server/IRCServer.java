@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -255,7 +256,9 @@ public class IRCServer implements Runnable {
 			for (Channel channel : connection.getJoinedChannels()) {
 				inChannel = inChannel + channel.getName() + ",";
 			}
-			Log.log(connection.getUser().getFQUN() + " in " + inChannel + "lastPing = " + (null == connection.getOldestSendPingDate() ? null : new SimpleDateFormat("HH:mm:ss SSS").format(connection.getOldestSendPingDate())) + " lastPong = " + (null == connection.getLastRecievePongDate() ? null : new SimpleDateFormat("HH:mm:ss SSS").format(connection.getLastRecievePongDate())));
+			Date pongDate = connection.getLastRecievePongDate();
+			Date pingDate = connection.getOldestSendPingDate();
+			Log.log(connection.getUser().getFQUN() + " in " + inChannel + "lastPing = " + (null == pingDate ? null : new SimpleDateFormat("HH:mm:ss SSS").format(pingDate) + " lastPong = " + (null == pongDate ? null : new SimpleDateFormat("HH:mm:ss SSS").format(pongDate))));
 		}
 		Log.log("/////////////");
 

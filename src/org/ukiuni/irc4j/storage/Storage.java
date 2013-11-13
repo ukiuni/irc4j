@@ -32,8 +32,11 @@ public class Storage {
 		}
 	}
 
-	public ReadHandle createReadandle(final String key) {
+	public ReadHandle createReadHandle(final String key) {
 		final File file = new File(storageDirectory, key);
+		if (!file.isFile()) {
+			return null;
+		}
 		return new ReadHandle() {
 			@Override
 			public String getKey() {
@@ -71,7 +74,22 @@ public class Storage {
 		final String uuid = UUID.randomUUID().toString().replace("-", "");
 		final File uploadDir = new File(storageDirectory, uuid);
 		uploadDir.mkdirs();
-		final File file = new File(uploadDir, name);
+		File file = new File(uploadDir, name);
+		return createWriteHandle(file, uuid + "/" + name);
+	}
+
+	public WriteHandle createUserIconImageWriteHandle(final String nickname) {
+		final File uploadDir = new File(storageDirectory, "userIconImage");
+		uploadDir.mkdirs();
+		File file = new File(uploadDir, nickname + ".gif");
+		return createWriteHandle(file, "userIconImage/" + nickname + ".gif");
+	}
+
+	public ReadHandle createUserIconImageReadHandle(final String fileName) {
+		return createReadHandle("userIconImage/" + fileName);
+	}
+
+	public WriteHandle createWriteHandle(final File file, final String key) {
 		return new WriteHandle() {
 			OutputStream out;
 
@@ -92,7 +110,7 @@ public class Storage {
 
 			@Override
 			public String getKey() {
-				return uuid + "/" + name;
+				return key;
 			}
 		};
 	}

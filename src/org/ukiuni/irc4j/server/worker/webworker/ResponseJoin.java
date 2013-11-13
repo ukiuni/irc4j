@@ -31,5 +31,4 @@ public class ResponseJoin extends AIRCResponse {
 		Log.log("join from web: " + getAccessConnection().getNickName() + " to " + channelName);
 		write(out, 200, "{\"status\":\"joined\"}", "application/json; charset=utf-8", "UTF-8");
 	}
-
 }

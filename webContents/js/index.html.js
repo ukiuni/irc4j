@@ -12,13 +12,18 @@ function tryLogin(loginId, password) {
 		$("#userArea").addClass("has-error");
 		return;
 	}
-	$.getJSON("/login", {
+	$.post("/login", {
 		nickName : loginId,
 		password : password
 	}, function(sessionData) {
 		$("#userArea").removeClass("has-error");
 		$("#passwordArea").removeClass("has-error");
 		myNickName = sessionData.nickName;
+		$("#headerSettingArea").css("display", "inline");
+		if (sessionData.iconImage) {
+			$("#headerSettingArea").prepend("<li><img id=\"selfHeaderImage\" style=\"width:30px;height:30px;margin-top:10px\" src=" + sessionData.iconImage + "/></li>")
+		}
+		$("#selfNameArea").text(myNickName)
 		sessionId = sessionData.sessionId;
 		sessionKey = sessionData.sessionKey;
 		initChatPane(myNickName);
@@ -27,7 +32,7 @@ function tryLogin(loginId, password) {
 		if (data.password) {
 			$("#passwordArea").addClass("has-error");
 		}
-	});
+	}, "json");
 }
 function initChatPane(nickName) {
 	renderExternalTemplate("#content", "/resource/templates/chatPane.html", {}, function() {
@@ -242,22 +247,19 @@ function uploadFile(channelName, uploadButtonOrg) {
 
 	jFileInput = $(fileInput);
 	jFileInput.change(function() {
-		console.log("changed");
 		$(form).ajaxForm({
 			beforeSend : function() {
+				uploadButton.addClass("disabled");
 				var percentVal = '0%';
 				uploadButton.html(percentVal);
-				console.log("beforeSend");
 			},
 			uploadProgress : function(event, position, total, percentComplete) {
 				var percentVal = percentComplete + '%';
 				uploadButton.html(percentVal);
-				console.log("uploadProgress " + percentVal);
 			},
 			success : function() {
 				var percentVal = '100%';
 				uploadButton.html(percentVal);
-				console.log("success " + percentVal);
 			},
 			complete : function(xhr) {
 				uploadButton.removeClass("disabled");
@@ -329,5 +331,109 @@ function partFromChannel(channelName) {
 		sessionKey : sessionKey,
 		channelName : loadChannelName
 	});
+}
+function openSettingPane() {
+	var paddingSettingPane = function() {
+		$.post("/user", {
+			sessionId : sessionId,
+			sessionKey : sessionKey
+		}, function(user) {
+			$("#settingPane").show(500);
+			$("#chatPane").hide(500);
+			$("#inputNickName").val(user.nickName);
+			$("#inputName").val(user.name);
+			$("#inputRealName").val(user.realName);
+			$("#inputEmail").val(user.email);
+			// $("#inputPassword").val();
+			$("#descriptionTextArea").val(user.description);
+		}, "json");
+	}
+	if (document.getElementById("settingPane")) {
+		paddingSettingPane();
+	} else {
+		loadTemplate("/resource/templates/settingPane.html", function(renderd) {
+			$("#content").append(renderd.render());
+			paddingSettingPane();
+		})
+	}
+}
+function hideSettingPane() {
+	$("#settingPane").hide(500);
+	$("#chatPane").show(500);
+}
+function submitUserSettingForm() {
+	var userSettingSubmit = $("#userSettingSubmit");
+	var userSettingForm = $("#userSettingForm");
+	var hasError = false;
+	if (!$("#inputEmail").val().match(/^[A-Za-z0-9]+[\w-]+@[\w\.-]+\.\w{2,}$/)) {
+		$("#emailFormGroup").addClass("has-error");
+		hasError = true;
+	}
+	if ("" == $("#inputPassword").val()) {
+		$("#passwordFormGroup").addClass("has-error");
+		hasError = true;
+	}
+	if ("" == $("#inputName").val()) {
+		$("#nameFormGroup").addClass("has-error");
+		hasError = true;
+	}
+	if ("" == $("#inputRealName").val()) {
+		$("#realNameFormGroup").addClass("has-error");
+		hasError = true;
+	}
+	if (hasError) {
+		$("#submitUserSettingFail").show(1000);
+		return;
+	}
+	$("#emailFormGroup").removeClass("has-error");
+	$("#passwordFormGroup").removeClass("has-error");
+	$("#nameFormGroup").removeClass("has-error");
+	$("#realNameFormGroup").removeClass("has-error");
+
+	var sessionIdInput = document.createElement("input");
+	sessionIdInput.type = "hidden";
+	sessionIdInput.name = "sessionId";
+	sessionIdInput.value = sessionId;
+	userSettingForm.append(sessionIdInput);
+	var sessionKeyInput = document.createElement("input");
+	sessionKeyInput.type = "hidden";
+	sessionKeyInput.name = "sessionKey";
+	sessionKeyInput.value = sessionKey;
+	userSettingForm.append(sessionKeyInput);
+
+	userSettingForm.ajaxForm({
+		beforeSend : function() {
+			$("#submitUserSettingSuccess").hide();
+			$("#submitUserSettingFail").hide();
+			$("#userSettingSubmit").addClass("disabled");
+			userSettingSubmit.html("0%");
+		},
+		uploadProgress : function(event, position, total, percentComplete) {
+			var percentVal = percentComplete + '%';
+			userSettingSubmit.html(percentVal);
+		},
+		success : function() {
+			$("#submitUserSettingSuccess").show(1000);
+		},
+		error : function() {
+			$("#submitUserSettingFail").show(1000);
+		},
+		complete : function(xhr) {
+			$("#userSettingSubmit").removeClass("disabled");
+			setTimeout(function() {
+				userSettingSubmit.html("Submit");
+			}, 1000);
+			$.post("/user", {
+				sessionId : sessionId,
+				sessionKey : sessionKey
+			}, function(user) {
+				if (document.getElementById("selfHeaderImage")) {
+					$("#selfHeaderImage").attr("src", user.iconImage);
+				} else {
+					$("#headerSettingArea").prepend("<li><img id=\"selfHeaderImage\" style=\"width:30px;height:30px;margin-top:10px\" src=" + user.iconImage + "/></li>")
+				}
+			}, "json");
+		}
+	}).submit();
 }
 renderExternalTemplate("#content", "/resource/templates/login.html");

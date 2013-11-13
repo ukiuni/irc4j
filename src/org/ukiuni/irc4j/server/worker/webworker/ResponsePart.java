@@ -26,5 +26,4 @@ public class ResponsePart extends AIRCResponse {
 		Log.log("part from web: " + getAccessConnection().getNickName() + " from " + channelName);
 		write(out, 200, "{\"status\":\"parted\"}", "application/json; charset=utf-8", "UTF-8");
 	}
-
 }

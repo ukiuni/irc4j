@@ -3,6 +3,7 @@ package org.ukiuni.irc4j.util;
 import java.io.Closeable;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 public class IOUtil {
@@ -37,6 +38,15 @@ public class IOUtil {
 		if (null != closeable) {
 			try {
 				closeable.close();
+			} catch (Throwable e) {
+			}
+		}
+	}
+
+	public static void close(ResultSet rs) {
+		if (null != rs) {
+			try {
+				rs.close();
 			} catch (Throwable e) {
 			}
 		}

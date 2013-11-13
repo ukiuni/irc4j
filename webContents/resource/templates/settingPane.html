@@ -1,0 +1,73 @@
+<div class="bs-example" style="margin-top: 20px" id="settingPane">
+	<div class="well col-sm-8 col-sm-offset-2">
+		<form id="userSettingForm" class="bs-example form-horizontal" onsubmit="return false;" action="/user/setting" method="post" enctype="multipart/form-data">
+			<fieldset>
+				<legend>Setting</legend>
+				<div class="form-group" id="nickNameFormGroup">
+					<label for="inputNickName" class="col-sm-2 control-label">NickName</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control disabled" id="inputNickName" name="nickName" placeholder="NickName" disabled>
+					</div>
+				</div>
+				<div class="form-group" id="nameFormGroup">
+					<label for="inputName" class="col-sm-2 control-label">Name</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="inputName" name="name" placeholder="Name">
+					</div>
+				</div>
+				<div class="form-group" id="realNameFormGroup">
+					<label for="inputRealName" class="col-sm-2 control-label">RealName</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="inputRealName" name="realName" placeholder="RealName">
+					</div>
+				</div>
+				<div class="form-group" id="emailFormGroup">
+					<label for="inputEmail" class="col-sm-2 control-label">Email</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="inputEmail" name="email" placeholder="Email">
+					</div>
+				</div>
+				<div class="form-group" id="iconImageFormGroup">
+					<label for="iconImage" class="col-sm-2 control-label">Icon Image</label>
+					<div class="col-sm-10">
+						<div class="input-group">
+							<input type="file" id="iconImageFileInput" name="iconImage" style="display: none" /> <input type="text" id="iconImageFilePath" class="form-control" disabled> <span class="input-group-btn">
+								<button class="btn btn-default" type="button" onclick="choiceFile()">Choice</button>
+							</span>
+							<script>
+								function choiceFile() {
+									var iconImageFileInput = $("#iconImageFileInput");
+									iconImageFileInput.change(function() {
+										$("#iconImageFilePath").val(iconImageFileInput.val());
+									});
+									iconImageFileInput.click();
+								}
+							</script>
+						</div>
+					</div>
+				</div>
+				<div class="form-group" id="passwordFormGroup">
+					<label for="inputPassword" class="col-sm-2 control-label">Password</label>
+					<div class="col-sm-10">
+						<input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password">
+					</div>
+				</div>
+				<div class="form-group" id="descriptionFormGroup">
+					<label for="descriptionTextArea" class="col-sm-2 control-label">Description</label>
+					<div class="col-sm-10">
+						<textarea class="form-control" rows="3" id="descriptionTextArea" name="description"></textarea>
+						<span class="help-block">Your description.</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-10 col-sm-offset-2">
+						<button class="btn btn-default" onclick="hideSettingPane()">Cancel</button>
+						<button type="submit" class="btn btn-primary" onclick="submitUserSettingForm()" id="userSettingSubmit">Submit</button>
+					</div>
+				</div>
+				<div class="alert alert-success" id="submitUserSettingSuccess" style="display: none">Done. Your setting updated successfully</div>
+				<div class="alert alert-danger" id="submitUserSettingFail" style="display: none">Fail. Check input.</div>
+			</fieldset>
+		</form>
+	</div>
+</div>

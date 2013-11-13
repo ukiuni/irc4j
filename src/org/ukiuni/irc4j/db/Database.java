@@ -56,9 +56,20 @@ public class Database {
 			}
 			try {
 				st = this.con.createStatement();
-				st.executeQuery("select * from user limit 1");
+				st.executeQuery("select nickname from user limit 1");
 			} catch (SQLException e) {
-				st.execute("create table user (id bigint auto_increment primary key, name varchar, real_name varchar, host_name varchar, nick_name varchar unique, password_hashed varchar, description varchar, icon_image varchar, created_at timestamp, updateded_at timestamp)");
+				try {
+					st.execute("drop table user");
+				} catch (SQLException e1) {
+				}
+				st.execute("create table user (id bigint auto_increment primary key, name varchar, real_name varchar, email varchar, host_name varchar, nickname varchar unique, password_hashed varchar, description varchar, icon_image varchar, created_at timestamp, updated_at timestamp)");
+			} finally {
+				IOUtil.close(st);
+			}
+			try {
+				st = this.con.createStatement();
+				st.execute("create index user_nickname on user(nickname)");
+			} catch (SQLException e) {
 			} finally {
 				IOUtil.close(st);
 			}
@@ -67,6 +78,13 @@ public class Database {
 				st.executeQuery("select * from user_and_channel_relation limit 1");
 			} catch (SQLException e) {
 				st.execute("create table user_and_channel_relation (id bigint auto_increment primary key, user_id long, channel_name varchar, created_at timestamp)");
+			} finally {
+				IOUtil.close(st);
+			}
+			try {
+				st = this.con.createStatement();
+				st.execute("create index user_and_channel_relation_user_id on user_and_channel_relation(user_id)");
+			} catch (SQLException e) {
 			} finally {
 				IOUtil.close(st);
 			}
@@ -132,7 +150,7 @@ public class Database {
 	public List<String> loadJoinedChannelNames(User user) {
 		PreparedStatement stmt = null;
 		try {
-			stmt = con.prepareStatement("select user_id channel_name created_at from user_and_channel_relation where user_id = ?");
+			stmt = con.prepareStatement("select user_id, channel_name, created_at from user_and_channel_relation where user_id = ?");
 			stmt.setLong(1, user.getId());
 			ResultSet resultSet = stmt.executeQuery();
 			List<String> channelNameList = new ArrayList<String>();
@@ -151,16 +169,18 @@ public class Database {
 		PreparedStatement stmt = null;
 		try {
 			if (user.getId() == 0) {
-				stmt = con.prepareStatement("insert into user (name, real_name, host_name, nickname, password_hashed, description, icon_image, created_at) values (?, ?, ?, ?, ?, ?, ?, now())");
+				stmt = con.prepareStatement("insert into user (name, real_name, host_name, nickname, email, password_hashed, description, icon_image, created_at) values (?, ?, ?, ?, ?, ?, ?, ?, now())");
 				stmt.setString(1, user.getName());
 				stmt.setString(2, user.getRealName());
 				stmt.setString(3, user.getHostName());
 				stmt.setString(4, user.getNickName());
-				stmt.setString(5, user.getPasswordHashed());
-				stmt.setString(6, user.getDescription());
-				stmt.setString(7, user.getIconImage());
+				stmt.setString(5, user.getEmail());
+				stmt.setString(6, user.getPasswordHashed());
+				stmt.setString(7, user.getDescription());
+				stmt.setString(8, user.getIconImage());
 				stmt.executeUpdate();
 				PreparedStatement idQueryStmt = con.prepareStatement("select id from user where nickname = ?");
+				idQueryStmt.setString(1, user.getNickName());
 				ResultSet resultSet = idQueryStmt.executeQuery();
 				resultSet.next();
 				user.setId(resultSet.getLong("id"));
@@ -169,25 +189,28 @@ public class Database {
 			} else {
 				StringBuilder sqlCreateBuilder = new StringBuilder("update user set");
 				if (null != user.getName()) {
-					sqlCreateBuilder.append(" name = ?");
+					sqlCreateBuilder.append(" name = ?,");
 				}
 				if (null != user.getRealName()) {
-					sqlCreateBuilder.append(" real_name = ?");
+					sqlCreateBuilder.append(" real_name = ?,");
 				}
 				if (null != user.getHostName()) {
-					sqlCreateBuilder.append(" host_name = ?");
+					sqlCreateBuilder.append(" host_name = ?,");
 				}
 				if (null != user.getNickName()) {
-					sqlCreateBuilder.append(" nick_name = ?");
+					sqlCreateBuilder.append(" nickname = ?,");
+				}
+				if (null != user.getEmail()) {
+					sqlCreateBuilder.append(" email = ?,");
 				}
 				if (null != user.getPasswordHashed()) {
-					sqlCreateBuilder.append(" password_hashed = ?");
+					sqlCreateBuilder.append(" password_hashed = ?,");
 				}
 				if (null != user.getDescription()) {
-					sqlCreateBuilder.append(" description = ?");
+					sqlCreateBuilder.append(" description = ?,");
 				}
 				if (null != user.getIconImage()) {
-					sqlCreateBuilder.append(" icon_image = ?");
+					sqlCreateBuilder.append(" icon_image = ?,");
 				}
 				sqlCreateBuilder.append(" updated_at = now()");
 				sqlCreateBuilder.append(" where id = ?");
@@ -204,6 +227,9 @@ public class Database {
 				}
 				if (null != user.getNickName()) {
 					stmt.setString(stmtIndex++, user.getNickName());
+				}
+				if (null != user.getEmail()) {
+					stmt.setString(stmtIndex++, user.getEmail());
 				}
 				if (null != user.getPasswordHashed()) {
 					stmt.setString(stmtIndex++, user.getPasswordHashed());
@@ -284,5 +310,35 @@ public class Database {
 	public long loadMaxId(String channel) {
 		List<Message> messageList = loadMessage(channel, 1, "", false);
 		return messageList.isEmpty() ? 0 : messageList.get(0).getId();
+	}
+
+	public User loadUser(String nickName) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			String sql = "select id, name, real_name, host_name, nickname, email, password_hashed, description, icon_image, created_at from user where nickname = ?";
+			stmt = con.prepareStatement(sql);
+			stmt.setString(1, nickName);
+			rs = stmt.executeQuery();
+			if (!rs.next()) {
+				return null;
+			}
+			User user = new User();
+			user.setId(rs.getLong("id"));
+			user.setName(rs.getString("name"));
+			user.setRealName(rs.getString("real_name"));
+			user.setNickName(rs.getString("nickname"));
+			user.setEmail(rs.getString("email"));
+			user.setPasswordHashed(rs.getString("password_hashed"));
+			user.setDescription(rs.getString("description"));
+			user.setIconImage(rs.getString("icon_image"));
+			user.setCreatedAt(rs.getDate("created_at"));
+			return user;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(rs);
+			IOUtil.close(stmt);
+		}
 	}
 }
