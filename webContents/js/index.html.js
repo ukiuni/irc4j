@@ -117,7 +117,7 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 	messageObjforPaint.senderNickName = senderNickName;
 	messageObjforPaint.message = message;
 	var newChatMessagePane = chatMessageTemplate.render(messageObjforPaint);
-	newChatMessagePane = replaceToLink(newChatMessagePane);
+	newChatMessagePane = replaceToLink(newChatMessagePane, myNickName);
 	$("#channelPane_messageArea_" + channelName).prepend(newChatMessagePane);
 }
 function addChannel(channelName, onSuccessAddChannelFunction) {
@@ -176,7 +176,7 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 				}
 				renderExternalTemplate("#channelPane_messageArea_" + channelName, "/resource/templates/chatMessage.html", data.messages, function(template, renderd) {
 					chatMessageTemplate = template;
-					$("#channelPane_messageArea_" + channelName).toLink();
+					$("#channelPane_messageArea_" + channelName).toLink(myNickName);
 					if (channelName.startsWith(CHANNEL_NAME_PREFIX)) {
 						joinedChannels.push("#" + channelName.substring(CHANNEL_NAME_PREFIX.length));
 					}
@@ -308,7 +308,7 @@ function loadOlderMessage(channelName) {
 			var message = data.messages[i];
 			setMaxAndMin(channelName, message);
 			$("#channelPane_messageArea_" + channelName).append(chatMessageTemplate.render(message));
-			$("#channelPane_messageArea_" + channelName).toLink();
+			$("#channelPane_messageArea_" + channelName).toLink(myNickName);
 		}
 		if (0 == data.messages.length) {
 			$("#channelPane_loadNextButtonRow_" + channelName).hide();
