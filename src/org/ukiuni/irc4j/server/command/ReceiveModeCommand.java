@@ -17,15 +17,21 @@ public class ReceiveModeCommand extends ServerCommand {
 			} else {
 				con.sendPrivateCommand("User mode query is not supported now.");
 			}
-		} else if (getCommandParameters().length == 2 && (getCommandParameters()[1].equals("+b") || getCommandParameters()[1].equals("+e"))) {
+		} else if (getCommandParameters().length == 2 && (getCommandParameters()[1].equals("+b") || getCommandParameters()[1].equals("+e") || getCommandParameters()[1].equals("+s"))) {
 			if (getCommandParameters()[0].startsWith("#")) {// 368,349
 				if (getCommandParameters()[1].equals("+b")) {
 					con.sendCommand("368 " + con.getNickName() + " " + getCommandParameters()[0] + " :End of channel ban list");
-				} else {
+				} else if (getCommandParameters()[1].equals("+e")) {
 					con.sendCommand("349 " + con.getNickName() + " " + getCommandParameters()[0] + " :End of channel exception list");
+				} else {
+					con.sendCommand("501 :Unknown MODE flag");
 				}
 			} else {
-				con.sendCommand("mode setting is +b or +e.");
+				if (getCommandParameters()[1].equals("+s")) {
+					con.sendCommand("221 +s");
+				} else {
+					con.sendCommand("501 :Unknown MODE flag");
+				}
 			}
 		} else {
 			con.sendPrivateCommand("Specific modes not supported.");
