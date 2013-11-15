@@ -16,6 +16,7 @@ import org.ukiuni.irc4j.server.worker.webworker.ResponseLogs;
 import org.ukiuni.irc4j.server.worker.webworker.ResponsePart;
 import org.ukiuni.irc4j.server.worker.webworker.ResponsePostMessage;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseRejoin;
+import org.ukiuni.irc4j.server.worker.webworker.ResponseLogout;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseUploadFile;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseUser;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseUserImage;
@@ -62,6 +63,8 @@ public class WebWorker implements Worker {
 					return new ResponseUser(ircServer);
 				} else if ("/user/setting".equals(request.getPath())) {
 					return new ResponseUserSetting(ircServer);
+				} else if ("/logout".equals(request.getPath())) {
+					return new ResponseLogout(ircServer);
 				} else if (request.getPath().startsWith("/user/iconImage/")) {
 					return new ResponseUserImage();
 				}

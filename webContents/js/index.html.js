@@ -448,4 +448,13 @@ function submitUserSettingForm() {
 		}
 	}).submit();
 }
+function signOut() {
+	$.post("/logout", {
+		sessionId : sessionId,
+		sessionKey : sessionKey
+	}, function() {
+		$(window).unbind();
+		document.location.href = "/";
+	});
+}
 renderExternalTemplate("#content", "/resource/templates/login.html");
