@@ -38,7 +38,7 @@ public class ReceiveNickCommand extends ServerCommand {
 			ircServer.sendToSameChannelUser(selfClientConnection, newNickCommand);
 		}
 		ircServer.putConnection(selfClientConnection);
-		if (!selfClientConnection.isServerHelloSended()) {
+		if (null != selfClientConnection.getUser().getName() && !selfClientConnection.isServerHelloSended()) {
 			ircServer.sendServerHello(selfClientConnection);
 		}
 	}
