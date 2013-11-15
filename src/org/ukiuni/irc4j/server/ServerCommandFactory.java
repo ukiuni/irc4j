@@ -11,6 +11,7 @@ import org.ukiuni.irc4j.server.command.ReceiveModeCommand;
 import org.ukiuni.irc4j.server.command.ReceiveNickCommand;
 import org.ukiuni.irc4j.server.command.ReceiveNoticeCommand;
 import org.ukiuni.irc4j.server.command.ReceivePartCommand;
+import org.ukiuni.irc4j.server.command.ReceivePassCommand;
 import org.ukiuni.irc4j.server.command.ReceivePingCommand;
 import org.ukiuni.irc4j.server.command.ReceivePongCommand;
 import org.ukiuni.irc4j.server.command.ReceivePrivmsgCommand;
@@ -61,6 +62,8 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceiveHistoryCommand();
 		} else if (Command.COMMAND_LIST.equals(commandString)) {
 			command = new ReceiveListCommand();
+		} else if (Command.COMMAND_PASS.equals(commandString)) {
+			command = new ReceivePassCommand();
 		} else if (Command.COMMAND_WHOIS.equals(commandString)) {
 			command = new ReceiveWhoisCommand();
 		} else if (Command.COMMAND_WEBLOG.equals(commandString)) {
