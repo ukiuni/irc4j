@@ -67,14 +67,17 @@ public class ResponseLogin extends Response {
 		String sessionId = UUID.randomUUID().toString();
 		long loginTime = new Date().getTime();
 		String sessionKey = AIRCResponse.createSessionKey(nickName, sessionId, loginTime);
-		Map<String, String> responseData = new HashMap<String, String>();
+		Map<String, Object> responseData = new HashMap<String, Object>();
 		responseData.put("sessionId", sessionId);
 		responseData.put("sessionKey", sessionKey);
 		responseData.put("nickName", nickName);
 		if (null != clientConnection.getUser().getIconImage()) {
 			responseData.put("iconImage", user.getIconImage());
 		}
-		System.out.println(JSON.encode(clientConnection.getUser()));
+		if (null != user) {
+			List<String> channelNames = Database.getInstance().loadJoinedChannelNames(user);
+			responseData.put("channelNames", channelNames);
+		}
 		write(out, 200, JSON.encode(responseData), "application/json; charset=utf-8", "UTF-8");
 	}
 }

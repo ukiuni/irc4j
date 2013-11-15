@@ -4,6 +4,7 @@ import java.io.OutputStream;
 
 import org.ukiuni.irc4j.Channel;
 import org.ukiuni.irc4j.Log;
+import org.ukiuni.irc4j.db.Database;
 import org.ukiuni.irc4j.server.IRCServer;
 
 public class ResponseJoin extends AIRCResponse {
@@ -24,9 +25,11 @@ public class ResponseJoin extends AIRCResponse {
 			if ("".equals(password)) {
 				password = null;
 			}
-			//TODO if password wrong
+			// TODO if password wrong
 			ircServer.joinToChannel(getAccessConnection(), channelName, password);
-			
+			if (0 != getAccessConnection().getUser().getId()) {
+				Database.getInstance().registJoinChannel(getAccessConnection().getUser(), channelName);
+			}
 		}
 		Log.log("join from web: " + getAccessConnection().getNickName() + " to " + channelName);
 		write(out, 200, "{\"status\":\"joined\"}", "application/json; charset=utf-8", "UTF-8");

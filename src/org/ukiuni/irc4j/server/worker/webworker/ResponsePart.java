@@ -3,6 +3,7 @@ package org.ukiuni.irc4j.server.worker.webworker;
 import java.io.OutputStream;
 
 import org.ukiuni.irc4j.Log;
+import org.ukiuni.irc4j.db.Database;
 import org.ukiuni.irc4j.server.IRCServer;
 import org.ukiuni.irc4j.server.ServerChannel;
 
@@ -24,6 +25,9 @@ public class ResponsePart extends AIRCResponse {
 			channel.part(getAccessConnection());
 		}
 		Log.log("part from web: " + getAccessConnection().getNickName() + " from " + channelName);
+		if (0 != getAccessConnection().getUser().getId()) {
+			Database.getInstance().removePartChannel(getAccessConnection().getUser(), channelName);
+		}
 		write(out, 200, "{\"status\":\"parted\"}", "application/json; charset=utf-8", "UTF-8");
 	}
 }

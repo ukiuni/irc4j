@@ -150,7 +150,7 @@ public class Database {
 	public List<String> loadJoinedChannelNames(User user) {
 		PreparedStatement stmt = null;
 		try {
-			stmt = con.prepareStatement("select user_id, channel_name, created_at from user_and_channel_relation where user_id = ?");
+			stmt = con.prepareStatement("select user_id, channel_name, created_at from user_and_channel_relation where user_id = ? order by created_at");
 			stmt.setLong(1, user.getId());
 			ResultSet resultSet = stmt.executeQuery();
 			List<String> channelNameList = new ArrayList<String>();
@@ -334,6 +334,45 @@ public class Database {
 			user.setIconImage(rs.getString("icon_image"));
 			user.setCreatedAt(rs.getDate("created_at"));
 			return user;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(rs);
+			IOUtil.close(stmt);
+		}
+	}
+
+	public void registJoinChannel(User user, String channelName) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = con.prepareStatement("select user_id from user_and_channel_relation where user_id = ? and channel_name = ?");
+			stmt.setLong(1, user.getId());
+			stmt.setString(2, channelName);
+			rs = stmt.executeQuery();
+			if (!rs.next()) {
+				stmt = con.prepareStatement("insert into user_and_channel_relation (user_id, channel_name, created_at) values (?, ?, now())");
+				stmt.setLong(1, user.getId());
+				stmt.setString(2, channelName);
+				stmt.execute();
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(rs);
+			IOUtil.close(stmt);
+		}
+	}
+
+	public void removePartChannel(User user, String channelName) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = con.prepareStatement("delete from user_and_channel_relation where user_id = ? and channel_name = ?");
+			stmt.setLong(1, user.getId());
+			stmt.setString(2, channelName);
+			stmt.execute();
+			stmt.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {

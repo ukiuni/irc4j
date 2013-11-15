@@ -26,7 +26,15 @@ function tryLogin(loginId, password) {
 		$("#selfNameArea").text(myNickName)
 		sessionId = sessionData.sessionId;
 		sessionKey = sessionData.sessionKey;
-		initChatPane(myNickName);
+		if (sessionData.channelNames) {
+			initChatPane(myNickName, function() {
+				for ( var i in sessionData.channelNames) {
+					addChannel(CHANNEL_NAME_PREFIX + sessionData.channelNames[i].substring(1));
+				}
+			});
+		} else {
+			initChatPane(myNickName);
+		}
 	}).error(function(data) {
 		$("#userArea").addClass("has-error");
 		if (data.password) {
@@ -34,11 +42,15 @@ function tryLogin(loginId, password) {
 		}
 	}, "json");
 }
-function initChatPane(nickName) {
+function initChatPane(nickName, addchannelFunction) {
 	renderExternalTemplate("#content", "/resource/templates/chatPane.html", {}, function() {
 		loadTemplate("/resource/templates/channelTab.html", function(template) {
 			channelTabTemplate = template;
-			addChannel(CHANNEL_NAME_PREFIX + "home");
+			if (addchannelFunction) {
+				addchannelFunction();
+			} else {
+				addChannel(CHANNEL_NAME_PREFIX + "home");
+			}
 		});
 	});
 	$(window).bind("beforeunload", function() {
