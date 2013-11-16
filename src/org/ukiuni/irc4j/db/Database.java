@@ -37,6 +37,16 @@ public class Database {
 		try {
 			new File(System.getProperty("user.home") + "/.airc").mkdirs();
 			this.con = DriverManager.getConnection("jdbc:h2:file:" + System.getProperty("user.home") + "/.airc/.db");
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					try{
+						con.close();
+					}catch(Throwable e){
+						//Do nothing.
+					}
+				}
+			});
 			Statement st = null;
 			try {
 				st = this.con.createStatement();
