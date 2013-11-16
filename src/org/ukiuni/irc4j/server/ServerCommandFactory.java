@@ -22,6 +22,7 @@ import org.ukiuni.irc4j.server.command.ReceiveUserHostCommand;
 import org.ukiuni.irc4j.server.command.ReceiveWeblogCommand;
 import org.ukiuni.irc4j.server.command.ReceiveWhoCommand;
 import org.ukiuni.irc4j.server.command.ReceiveWhoisCommand;
+import org.ukiuni.irc4j.server.plugin.PluginFactory;
 
 public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 	public ServerCommand createCommandInstance(String commandString) {
@@ -74,6 +75,8 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			// command = new ServerErrorCommand();
 		} else if (commandString.matches("^[23][0-9]{2}$")) {
 			// command = new ServerCommand(Integer.parseInt(commandString));
+		} else if (PluginFactory.getInstance().containsCommand(commandString)) {
+			command = PluginFactory.getInstance().loadCommand(commandString);
 		}
 		if (null == command) {
 			command = new OtherCommand();

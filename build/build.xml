@@ -85,10 +85,12 @@
 		<echo file="bin/airs">#!/bin/sh
 binary_path=$(cd $(dirname "$$0"); pwd)
 export WEB_BASE_PATH=${binary_path}/../webContents
+export PLUGIN_BASE_PATH=${binary_path}/../plugins
 java -cp "$${binary_path}/../conf:$${binary_path}/irc4j.${version}.jar:$${binary_path}/../libs/*" org.ukiuni.irc4j.server.IRCServer
 </echo>
-		<echo file="bin/airs.bat">set basePath=%~dp1
+		<echo file="bin/airs.bat">set basePath=%~dp0
 set WEB_BASE_PATH=%basePath%\..\webContents
+set PLUGIN_BASE_PATH=%basePath%\..\plugins
 java -cp %basePath%\..\conf;%basePath%\irc4j.${version}.jar;%basePath%\..\libs\*; org.ukiuni.irc4j.server.IRCServer
 </echo>
 		<chmod file="bin/airs" perm="ugo+rx" />

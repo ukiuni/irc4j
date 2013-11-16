@@ -19,6 +19,7 @@ public abstract class ServerCommand extends Command {
 		return channel;
 	}
 
+	@SuppressWarnings("serial")
 	protected class ChannelException extends Exception {
 		private ChannelException(String message) {
 			super(message);

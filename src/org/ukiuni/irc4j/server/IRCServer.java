@@ -18,6 +18,7 @@ import org.ukiuni.irc4j.Conf;
 import org.ukiuni.irc4j.ExceptionHandler;
 import org.ukiuni.irc4j.Log;
 import org.ukiuni.irc4j.User;
+import org.ukiuni.irc4j.server.plugin.PluginFactory;
 import org.ukiuni.irc4j.server.worker.PingPongWorker;
 import org.ukiuni.irc4j.server.worker.WebWorker;
 import org.ukiuni.irc4j.server.worker.Worker;
@@ -57,6 +58,7 @@ public class IRCServer implements Runnable {
 	public void start() {
 		runningThread = new Thread(this);
 		runningThread.start();
+		PluginFactory.getInstance();//init.
 		this.workerList = new ArrayList<Worker>();
 		this.workerList.add(new PingPongWorker());
 		this.workerList.add(new WebWorker());
