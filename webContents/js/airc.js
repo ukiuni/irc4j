@@ -67,7 +67,16 @@ function replaceToLink(src, nickName, imageArray) {
 			imageArray.push(matchValue)
 		}
 		if (matchValue.indexOf("http://") == 0 || matchValue.indexOf("https://") == 0 || matchValue.indexOf("ftp://") == 0 || matchValue.indexOf("NOTES://") == 0) {
-			return '<a href="$1" target="_blank">' + matchValue + '</a>';
+			if (matchValue.match(".png$") == ".png" || matchValue.match(".jpg$") == ".jpg" || matchValue.match(".jpeg$") == ".jpeg" || matchValue.match(".gif$") == ".gif") {
+				setTimeout(function() {
+					$('[rel="popover"]').popover({
+						html : true
+					})
+				}, 100);
+				return '<a href="#" data-toggle="popover" rel="popover" data-placement="bottom" data-content="<img style=\'max-width:300px\' src=\'' + matchValue + '\'/>">' + matchValue + '</a>'
+			} else {
+				return '<a href="' + matchValue + '" target="_blank">' + matchValue + '</a>';
+			}
 		} else {
 			return "<span class=\"text-info\">" + matchValue + "</span>"
 		}
