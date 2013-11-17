@@ -16,7 +16,7 @@
 		<path refid="JUnit 4.libraryclasspath" />
 		<pathelement location="libs/h2-1.3.174.jar" />
 		<pathelement location="libs/jsonic-1.2.11.jar" />
-		<pathelement location="libs/lightHttpServer_0.0.16_snapshot.jar" />
+		<pathelement location="libs/lightHttpServer_0.0.17_snapshot.jar" />
 	</path>
 	<path id="IRC4J.test.classpath">
 		<pathelement location="${BUILD_CLASS_DIR}" />
@@ -24,7 +24,7 @@
 		<path refid="JUnit 4.libraryclasspath" />
 		<pathelement location="libs/h2-1.3.174.jar" />
 		<pathelement location="libs/jsonic-1.2.11.jar" />
-		<pathelement location="libs/lightHttpServer_0.0.16_snapshot.jar" />
+		<pathelement location="libs/lightHttpServer_0.0.17_snapshot.jar" />
 	</path>
 	<target name="clean">
 		<delete dir="${BUILD_CLASS_DIR}" />
