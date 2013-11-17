@@ -73,6 +73,13 @@ public class WebWorker implements Worker {
 		});
 		httpServer.getDefaultHandler().addStaticBaseDir(baseDir);
 		try {
+			if(Conf.isHttpSSL()){
+				httpServer.setSsl(Conf.isHttpSSL());
+				httpServer.setCertificatePassword(Conf.getHttpCertPassword());
+				httpServer.setKeyStorePassword(Conf.getHttpStorePassword());
+				httpServer.setKeyStoreType(Conf.getHttpKeyStoreType());
+				httpServer.setKeyStorePath(Conf.getHttpCertPath());
+			}
 			httpServer.start();
 		} catch (IOException e) {
 			e.printStackTrace();

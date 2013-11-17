@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +63,7 @@ public class IRCServer implements Runnable {
 	public void start() {
 		runningThread = new Thread(this);
 		runningThread.start();
-		PluginFactory.getInstance();//init.
+		PluginFactory.getInstance();// init.
 		this.workerList = new ArrayList<Worker>();
 		this.workerList.add(new PingPongWorker());
 		this.workerList.add(new WebWorker());
@@ -94,7 +99,7 @@ public class IRCServer implements Runnable {
 	public void run() {
 		try {
 			isRunning = true;
-			serverSocket = new ServerSocket(portNum);
+			serverSocket = initServerSocket();
 			while (isRunning) {
 				Socket socket = serverSocket.accept();
 				ClientConnectionExceptionHandler exceptionHandler = new ClientConnectionExceptionHandler();
@@ -106,6 +111,14 @@ public class IRCServer implements Runnable {
 			if (isRunning) {
 				e.printStackTrace();// todo
 			}
+		}
+	}
+
+	private ServerSocket initServerSocket() throws IOException, UnrecoverableKeyException, KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+		if (Conf.isIRCSSL()) {
+			return IOUtil.createSSLServerSocket(portNum, Conf.getIRCServerWaitQueue(), Conf.getIRCKeyStoreType(), getClass().getClassLoader().getResourceAsStream(Conf.getIRCCertPath()), Conf.getIRCStorePassword(), Conf.getIRCCertPassword());
+		} else {
+			return new ServerSocket(portNum, Conf.getIRCServerWaitQueue());
 		}
 	}
 
