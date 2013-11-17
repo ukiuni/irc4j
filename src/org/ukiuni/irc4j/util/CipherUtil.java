@@ -11,8 +11,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 
-import net.arnx.jsonic.util.Base64;
-
 import org.ukiuni.irc4j.Conf;
 
 public class CipherUtil {
@@ -90,13 +88,5 @@ public class CipherUtil {
 			bytes[index] = (byte) Integer.parseInt(hex.substring(index * 2, (index + 1) * 2), 16);
 		}
 		return bytes;
-	}
-
-	private static String toBase64String(byte[] src) {
-		return Base64.encode(src);
-	}
-
-	private static byte[] returnBase64(String src) {
-		return Base64.decode(src);
 	}
 }

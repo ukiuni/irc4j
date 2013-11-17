@@ -28,6 +28,7 @@ public abstract class AIRCResponse extends Response {
 		String[] decordedSprit = decorded.split(" ");
 		nickName = decordedSprit[0];
 		String encordedSessionKey = decordedSprit[1];
+		@SuppressWarnings("unused")
 		String loginTime = decordedSprit[2];
 		if (!sessionId.equals(encordedSessionKey)) {
 			writeError(out, 403, "security");
