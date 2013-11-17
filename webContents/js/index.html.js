@@ -319,8 +319,8 @@ function loadOlderMessage(channelName) {
 		for ( var i in data.messages) {
 			var message = data.messages[i];
 			setMaxAndMin(channelName, message);
-			$("#channelPane_messageArea_" + channelName).append(chatMessageTemplate.render(message));
-			$("#channelPane_messageArea_" + channelName).toLink(myNickName);
+			var messageArea = replaceToLink(chatMessageTemplate.render(message));
+			$("#channelPane_messageArea_" + channelName).append(messageArea);
 		}
 		if (0 == data.messages.length) {
 			$("#channelPane_loadNextButtonRow_" + channelName).hide();
