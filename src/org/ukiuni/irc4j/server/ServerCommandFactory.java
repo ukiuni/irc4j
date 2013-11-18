@@ -16,6 +16,7 @@ import org.ukiuni.irc4j.server.command.ReceivePingCommand;
 import org.ukiuni.irc4j.server.command.ReceivePongCommand;
 import org.ukiuni.irc4j.server.command.ReceivePrivmsgCommand;
 import org.ukiuni.irc4j.server.command.ReceiveQuitCommand;
+import org.ukiuni.irc4j.server.command.ReceiveReloadPluginCommand;
 import org.ukiuni.irc4j.server.command.ReceiveTopicCommand;
 import org.ukiuni.irc4j.server.command.ReceiveUserCommand;
 import org.ukiuni.irc4j.server.command.ReceiveUserHostCommand;
@@ -71,6 +72,8 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceiveWeblogCommand();
 		} else if (Command.COMMAND_FILEUPLOAD.equals(commandString)) {
 			command = new ReceiveFileUploadCommand();
+		} else if (Command.COMMAND_RELOADPLUGIN.equals(commandString)) {
+			command = new ReceiveReloadPluginCommand();
 		} else if (commandString.matches("^[4][0-9]{2}$")) {
 			// command = new ServerErrorCommand();
 		} else if (commandString.matches("^[23][0-9]{2}$")) {

@@ -88,4 +88,10 @@ public class PluginFactory {
 			return null;
 		}
 	}
+
+	public void flush() {
+		synchronized (PluginFactory.class) {
+			instance = null;
+		}
+	}
 }
