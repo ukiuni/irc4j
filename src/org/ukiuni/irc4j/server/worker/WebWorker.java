@@ -12,11 +12,13 @@ import org.ukiuni.irc4j.server.worker.webworker.ResponseJoin;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseListenEvent;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLoadMessage;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLogin;
+import org.ukiuni.irc4j.server.worker.webworker.ResponseLogout;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseLogs;
 import org.ukiuni.irc4j.server.worker.webworker.ResponsePart;
+import org.ukiuni.irc4j.server.worker.webworker.ResponsePluginMyList;
+import org.ukiuni.irc4j.server.worker.webworker.ResponsePluginPost;
 import org.ukiuni.irc4j.server.worker.webworker.ResponsePostMessage;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseRejoin;
-import org.ukiuni.irc4j.server.worker.webworker.ResponseLogout;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseUploadFile;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseUser;
 import org.ukiuni.irc4j.server.worker.webworker.ResponseUserImage;
@@ -55,6 +57,8 @@ public class WebWorker implements Worker {
 					return new ResponseJoin(ircServer);
 				} else if ("/channel/part".equals(request.getPath())) {
 					return new ResponsePart(ircServer);
+				} else if (request.getPath().startsWith("/user/iconImage/")) {
+					return new ResponseUserImage();
 				} else if ("/channel/message".equals(request.getPath())) {
 					return new ResponseLoadMessage(ircServer);
 				} else if ("/channel/sendFile".equals(request.getPath())) {
@@ -65,15 +69,17 @@ public class WebWorker implements Worker {
 					return new ResponseUserSetting(ircServer);
 				} else if ("/logout".equals(request.getPath())) {
 					return new ResponseLogout(ircServer);
-				} else if (request.getPath().startsWith("/user/iconImage/")) {
-					return new ResponseUserImage();
+				} else if ("/plugin/myList".equals(request.getPath())) {
+					return new ResponsePluginMyList(ircServer);
+				} else if ("/plugin/post".equals(request.getPath())) {
+					return new ResponsePluginPost(ircServer);
 				}
 				return super.onRequest(request);
 			}
 		});
 		httpServer.getDefaultHandler().addStaticBaseDir(baseDir);
 		try {
-			if(Conf.isHttpSSL()){
+			if (Conf.isHttpSSL()) {
 				httpServer.setSsl(Conf.isHttpSSL());
 				httpServer.setCertificatePassword(Conf.getHttpCertPassword());
 				httpServer.setKeyStorePassword(Conf.getHttpStorePassword());

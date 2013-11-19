@@ -2,6 +2,7 @@ var sessionKey;
 var sessionId;
 var chatMessageTemplate;
 var channelTabTemplate;
+var myUserId;
 var myNickName;
 var CHANNEL_NAME_PREFIX = "AIRC_CHANNEL_";
 var joinedChannels = new Array();
@@ -16,6 +17,9 @@ function tryLogin(loginId, password) {
 		nickName : loginId,
 		password : password
 	}, function(sessionData) {
+		$("#headerTitle").click(function() {
+			showChatPane();
+		});
 		$("#userArea").removeClass("has-error");
 		$("#passwordArea").removeClass("has-error");
 		myNickName = sessionData.nickName;
@@ -23,7 +27,8 @@ function tryLogin(loginId, password) {
 		if (sessionData.iconImage) {
 			$("#headerSettingArea").prepend("<li><img id=\"selfHeaderImage\" style=\"width:30px;height:30px;margin-top:10px\" src=" + sessionData.iconImage + "/></li>")
 		}
-		$("#selfNameArea").text(myNickName)
+		$("#selfNameArea").text(myNickName);
+		myUserId = sessionData.userId;
 		sessionId = sessionData.sessionId;
 		sessionKey = sessionData.sessionKey;
 		if (sessionData.channelNames) {
@@ -352,6 +357,7 @@ function openSettingPane() {
 		}, function(user) {
 			$("#settingPane").show(500);
 			$("#chatPane").hide(500);
+			$("#pluginPane").hide(500);
 			$("#inputNickName").val(user.nickName);
 			$("#inputName").val(user.name);
 			$("#inputRealName").val(user.realName);
@@ -369,15 +375,131 @@ function openSettingPane() {
 		})
 	}
 }
-function hideSettingPane() {
+
+function openPluginPane() {
+	var paddingPluginPane = function() {
+		$.post("/plugin/myList", {
+			sessionId : sessionId,
+			sessionKey : sessionKey
+		}, function(plugins) {
+			$("#settingPane").hide(500);
+			$("#chatPane").hide(500);
+			$("#pluginPane").show(500);
+			for ( var i in plugins) {
+				var plugin = plugins[i];
+				addPluginTabHead(plugin);
+			}
+		}, "json");
+	}
+	if (document.getElementById("pluginPane")) {
+		paddingPluginPane();
+	} else {
+		loadTemplate("/resource/templates/pluginPane.html", function(renderd) {
+			$("#content").append(renderd.render());
+			paddingPluginPane();
+		});
+	}
+}
+function addPluginTabHead(plugin) {
+	$("#pluginTabHead" + plugin.id).remove();
+	$("#pluginListPaneTab").prepend($('<div><li id="pluginTabHead{{:id}}" ><a href="#">{{:name}}</a></li></div>').render(plugin));
+	$("#pluginTabHead" + plugin.id).click(function() {
+		showPluginPanel(plugin);
+	});
+}
+function showNewPluginPanel() {
+	showPluginPanel({
+		id : 0,
+		name : myNickName + "_COMMAND",
+		command : myNickName + "_COMMAND",
+		description : myNickName + "\'s COMMAND",
+		status : 0,
+		script : "function execute(server, client) {\n    client.sendPrivateCommand(\"Hello \"+client.getNickName()+\". I am " + myNickName + "\");\n}"
+	});
+}
+function showPluginPanel(plugin) {
+	renderExternalTemplate("#pluginEditPane", "/resource/templates/pluginCreateFormPane.html", plugin, function() {
+		if (0 == plugin.status) {
+			$("#pluginStatus").attr("checked", true);
+		} else {
+			$("#pluginStatus").attr("checked", false);
+		}
+	});
+}
+function submitPluginForm() {
+	var name = $("#pluginName").val();
+	var command = $("#pluginCommand").val();
+	var description = $("#pluginDescriptionTextArea").val();
+	var script = $("#pluginScriptTextArea").val();
+
+	$("#pluginNameFormGroup").removeClass("has-error");
+	$("#pluginCommandFormGroup").removeClass("has-error");
+	$("#pluginDescriptionFormGroup").removeClass("has-error");
+	$("#pluginScriptFormGroup").removeClass("has-error");
+	var hasError = false;
+	if ("" == name) {
+		$("#pluginNameFormGroup").addClass("has-error");
+		hasError = true;
+	}
+	if ("" == command) {
+		$("#pluginCommandFormGroup").addClass("has-error");
+		hasError = true;
+	}
+	if ("" == description) {
+		$("#pluginDescriptionFormGroup").addClass("has-error");
+		hasError = true;
+	}
+	if ("" == script) {
+		$("#pluginScriptFormGroup").addClass("has-error");
+		hasError = true;
+	}
+	try {
+		eval(script);
+	} catch (e) {
+		$("#pluginScriptFormGroup").addClass("has-error");
+		hasError = true;
+	}
+	if (hasError) {
+		$("#submitPluginFail").show(500);
+		return;
+	}
+	$("#submitPluginSuccess").hide(500);
+	$("#submitPluginFail").hide(500);
+	$.post("/plugin/post", {
+		sessionId : sessionId,
+		sessionKey : sessionKey,
+		id : $("#pluginId").val(),
+		name : name,
+		command : command,
+		description : description,
+		script : script,
+		effective : $("#pluginStatus:checked").val()
+	}, function(plugin, textStatus, jXhr) {
+		$("#submitPluginSuccess").show(500);
+		addPluginTabHead(plugin);
+		$("#pluginId").val(plugin.id);
+	}, "json").error(function(jXhr) {
+		if (409 == jXhr.status) {
+			$("#pluginNameFormGroup").addClass("has-error");
+			$("#pluginCommandFormGroup").addClass("has-error");
+		}
+		$("#submitPluginFail").show(500);
+	});
+}
+function showChatPane() {
 	$("#settingPane").hide(500);
+	$("#pluginPane").hide(500);
 	$("#chatPane").show(500);
 }
 function submitUserSettingForm() {
 	var userSettingSubmit = $("#userSettingSubmit");
 	var userSettingForm = $("#userSettingForm");
+	$("#emailFormGroup").removeClass("has-error");
+	$("#passwordFormGroup").removeClass("has-error");
+	$("#nameFormGroup").removeClass("has-error");
+	$("#realNameFormGroup").removeClass("has-error");
 	var hasError = false;
-	if (!$("#inputEmail").val().match(/^[A-Za-z0-9]+[\w-]+@[\w\.-]+\.\w{2,}$/)) {
+	if (!$("#inputEmail").val().match(/^[A-Za-z0-9.\+]+[\w-]+@[\w\.-]+\.\w{2,}$/)) {
 		$("#emailFormGroup").addClass("has-error");
 		hasError = true;
 	}
@@ -397,10 +519,6 @@ function submitUserSettingForm() {
 		$("#submitUserSettingFail").show(1000);
 		return;
 	}
-	$("#emailFormGroup").removeClass("has-error");
-	$("#passwordFormGroup").removeClass("has-error");
-	$("#nameFormGroup").removeClass("has-error");
-	$("#realNameFormGroup").removeClass("has-error");
 
 	var sessionIdInput = document.createElement("input");
 	sessionIdInput.type = "hidden";

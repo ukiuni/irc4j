@@ -16,6 +16,9 @@ import org.ukiuni.irc4j.Channel;
 import org.ukiuni.irc4j.User;
 import org.ukiuni.irc4j.entity.JoinLog;
 import org.ukiuni.irc4j.entity.Message;
+import org.ukiuni.irc4j.server.plugin.Plugin;
+import org.ukiuni.irc4j.server.plugin.Plugin.Status;
+import org.ukiuni.irc4j.server.plugin.Plugin.Type;
 import org.ukiuni.irc4j.util.IOUtil;
 
 public class Database {
@@ -40,10 +43,10 @@ public class Database {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
 				public void run() {
-					try{
+					try {
 						con.close();
-					}catch(Throwable e){
-						//Do nothing.
+					} catch (Throwable e) {
+						// Do nothing.
 					}
 				}
 			});
@@ -95,6 +98,14 @@ public class Database {
 				st = this.con.createStatement();
 				st.execute("create index user_and_channel_relation_user_id on user_and_channel_relation(user_id)");
 			} catch (SQLException e) {
+			} finally {
+				IOUtil.close(st);
+			}
+			try {
+				st = this.con.createStatement();
+				st.executeQuery("select * from plugin limit 1");
+			} catch (SQLException e) {
+				st.execute("create table plugin (id bigint auto_increment primary key, created_user_id bigint, name varchar unique, description varchar, command varchar unique, type varchar, script varchar, engine_name varchar, created_at timestamp, updated_at timestamp, status varchar)");
 			} finally {
 				IOUtil.close(st);
 			}
@@ -260,6 +271,91 @@ public class Database {
 		}
 	}
 
+	public void regist(Plugin plugin) {
+		PreparedStatement stmt = null;
+		try {
+			if (0 == plugin.getId()) {
+				stmt = con.prepareStatement("insert into plugin (created_user_id, name, description, command, type, script, engine_name, created_at, status) values (?, ?, ?, ?, ?, ?, ?, now(), ?)");
+				stmt.setLong(1, plugin.getCreatedUserId());
+				stmt.setString(2, plugin.getName());
+				stmt.setString(3, plugin.getDescription());
+				stmt.setString(4, plugin.getCommand());
+				stmt.setString(5, plugin.getType().toString());
+				stmt.setString(6, plugin.getScript());
+				stmt.setString(7, plugin.getEngineName());
+				stmt.setString(8, plugin.getStatus().toString());
+				stmt.executeUpdate();
+				PreparedStatement idQueryStmt = con.prepareStatement("select id from plugin where name = ?");
+				idQueryStmt.setString(1, plugin.getName());
+				ResultSet resultSet = idQueryStmt.executeQuery();
+				resultSet.next();
+				plugin.setId(resultSet.getLong("id"));
+				resultSet.close();
+				idQueryStmt.close();
+			} else {
+				StringBuilder sqlCreateBuilder = new StringBuilder("update plugin set");
+				if (0 != plugin.getCreatedUserId()) {
+					sqlCreateBuilder.append(" created_user_id = ?,");
+				}
+				if (null != plugin.getName()) {
+					sqlCreateBuilder.append(" name = ?,");
+				}
+				if (null != plugin.getDescription()) {
+					sqlCreateBuilder.append(" description = ?,");
+				}
+				if (null != plugin.getCommand()) {
+					sqlCreateBuilder.append(" command = ?,");
+				}
+				if (null != plugin.getType()) {
+					sqlCreateBuilder.append(" type = ?,");
+				}
+				if (null != plugin.getScript()) {
+					sqlCreateBuilder.append(" script = ?,");
+				}
+				if (null != plugin.getEngineName()) {
+					sqlCreateBuilder.append(" engine_name = ?,");
+				}
+				if (null != plugin.getStatus()) {
+					sqlCreateBuilder.append(" status = ?,");
+				}
+				sqlCreateBuilder.append(" updated_at = now()");
+				sqlCreateBuilder.append(" where id = ?");
+				stmt = con.prepareStatement(sqlCreateBuilder.toString());
+				int stmtIndex = 1;
+				if (0 != plugin.getCreatedUserId()) {
+					stmt.setLong(stmtIndex++, plugin.getCreatedUserId());
+				}
+				if (null != plugin.getName()) {
+					stmt.setString(stmtIndex++, plugin.getName());
+				}
+				if (null != plugin.getDescription()) {
+					stmt.setString(stmtIndex++, plugin.getDescription());
+				}
+				if (null != plugin.getCommand()) {
+					stmt.setString(stmtIndex++, plugin.getCommand());
+				}
+				if (null != plugin.getType()) {
+					stmt.setString(stmtIndex++, plugin.getType().toString());
+				}
+				if (null != plugin.getScript()) {
+					stmt.setString(stmtIndex++, plugin.getScript());
+				}
+				if (null != plugin.getEngineName()) {
+					stmt.setString(stmtIndex++, plugin.getEngineName());
+				}
+				if (null != plugin.getStatus()) {
+					stmt.setString(stmtIndex++, plugin.getStatus().toString());
+				}
+				stmt.setLong(stmtIndex++, plugin.getId());
+				stmt.executeUpdate();
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(stmt);
+		}
+	}
+
 	public List<Message> loadMessage(String channel, int limit) {
 		return loadMessage(channel, limit, true);
 	}
@@ -285,6 +381,46 @@ public class Database {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
+			IOUtil.close(stmt);
+		}
+	}
+
+	public List<Plugin> loadPlugin(long userId) {
+		return loadPlugin("where created_user_id = " + userId);
+	}
+
+	public List<Plugin> loadMovingPlugin() {
+		return loadPlugin("where status = \'" + Status.MOVING.toString() + "\'");
+	}
+
+	private List<Plugin> loadPlugin(String where) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			String sql = "select id, created_user_id, name, description, command, type, script, engine_name, created_at, updated_at, status from plugin " + where + " order by created_at desc";
+			stmt = con.prepareStatement(sql);
+			rs = stmt.executeQuery();
+			List<Plugin> pluginList = new ArrayList<Plugin>();
+			while (rs.next()) {
+				Plugin plugin = new Plugin();
+				plugin.setId(rs.getLong("id"));
+				plugin.setCreatedUserId(rs.getLong("created_user_id"));
+				plugin.setName(rs.getString("name"));
+				plugin.setDescription(rs.getString("description"));
+				plugin.setCommand(rs.getString("command"));
+				plugin.setType(Type.valueOf(rs.getString("type")));
+				plugin.setScript(rs.getString("script"));
+				plugin.setEngineName(rs.getString("engine_name"));
+				plugin.setCreatedAt(rs.getDate("created_at"));
+				plugin.setUpdatedAt(rs.getDate("updated_at"));
+				plugin.setStatus(Status.valueOf(rs.getString("status")));
+				pluginList.add(plugin);
+			}
+			return pluginList;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtil.close(rs);
 			IOUtil.close(stmt);
 		}
 	}

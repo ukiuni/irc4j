@@ -2,8 +2,11 @@ package org.ukiuni.irc4j.server.plugin;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.script.Invocable;
@@ -12,6 +15,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.ukiuni.irc4j.Log;
+import org.ukiuni.irc4j.db.Database;
 import org.ukiuni.irc4j.server.ServerCommand;
 import org.ukiuni.irc4j.util.IOUtil;
 import org.ukiuni.lighthttpserver.util.FileUtil;
@@ -37,23 +41,31 @@ public class PluginFactory {
 	}
 
 	private void loadPlugin() {
+		loadPluginFromDB();
+		loadPluginFromFile();
+	}
+
+	private void loadPluginFromDB() {
+		List<Plugin> pluginList = Database.getInstance().loadMovingPlugin();
+		for (Plugin plugin : pluginList) {
+			try {
+				appendPlugin(new StringReader(plugin.getScript() + "\n function getCommand() {return \"" + plugin.getCommand() + "\";}"), plugin.getName() + ".js");
+			} catch (ScriptException e) {
+				Log.log("error on load Plugin from db", e);
+			}
+		}
+	}
+
+	private void loadPluginFromFile() {
 		try {
 			File[] files = pluginBaseDir.listFiles();
 			for (int i = 0; i < files.length; i++) {
 				File file = files[i];
-				FileReader reader = null;
+				Reader reader = null;
 				try {
-					Log.log("plugin loading :" + file.getAbsolutePath());
-					ScriptEngine engine = new ScriptEngineManager().getEngineByExtension(FileUtil.getExt(file));
-					engine.eval("Package = importPackage = java = javax = org = edu = com = net = null;");
-					Invocable inv = (Invocable) engine;
 					reader = new FileReader(file);
-					engine.eval(reader);
-					if (fitsInterface(engine, CommandPlugin.class)) {
-						CommandPlugin commandPlugin = inv.getInterface(CommandPlugin.class);
-						commandPluginMap.put(commandPlugin.getCommand().toUpperCase(), commandPlugin);
-					}
-					Log.log("plugin loaded :" + file.getAbsolutePath());
+					String name = file.getAbsolutePath();
+					appendPlugin(reader, name);
 				} catch (Throwable e) {
 					Log.log("Plugin " + file.getAbsolutePath() + " boot failed.", e);
 				} finally {
@@ -62,6 +74,21 @@ public class PluginFactory {
 			}
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void appendPlugin(Reader reader, String name) throws ScriptException {
+		Log.log("plugin loading :" + name);
+		ScriptEngine engine = new ScriptEngineManager().getEngineByExtension(FileUtil.getExt(name));
+		engine.eval("Package = importPackage = java = javax = org = edu = com = net = null;");
+		Invocable inv = (Invocable) engine;
+		engine.eval(reader);
+		if (fitsInterface(engine, CommandPlugin.class)) {
+			CommandPlugin commandPlugin = inv.getInterface(CommandPlugin.class);
+			commandPluginMap.put(commandPlugin.getCommand().toUpperCase(), commandPlugin);
+			Log.log("plugin loaded :" + name);
+		} else {
+			Log.log("plugin throw :" + name);
 		}
 	}
 

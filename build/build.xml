@@ -107,6 +107,7 @@ java -cp %basePath%\..\conf;%basePath%\irc4j.${version}.jar;%basePath%\..\libs\*
 			<tarfileset dir=".">
 				<include name="bin/airs.bat" />
 				<include name="bin/service/*" />
+				<include name="plugins/*" />
 				<include name="libs/*" />
 				<include name="conf/*" />
 				<include name="webContents/**/*" />

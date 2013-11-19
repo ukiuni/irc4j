@@ -77,6 +77,7 @@ public class ResponseLogin extends Response {
 		if (null != user) {
 			List<String> channelNames = Database.getInstance().loadJoinedChannelNames(user);
 			responseData.put("channelNames", channelNames);
+			responseData.put("userId", user.getId());
 		}
 		write(out, 200, JSON.encode(responseData), "application/json; charset=utf-8", "UTF-8");
 	}
