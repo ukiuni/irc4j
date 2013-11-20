@@ -45,6 +45,7 @@ public abstract class Command {
 	public static final String COMMAND_LIST = "LIST";
 	public static final String COMMAND_WHOIS = "WHOIS";
 	public static final String COMMAND_RELOADPLUGIN = "RELOADPLUGIN";
+	public static final String COMMAND_HELP = "HELP";
 	private String line;
 	private String prefix;
 	private String command;

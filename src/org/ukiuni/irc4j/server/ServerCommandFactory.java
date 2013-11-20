@@ -3,6 +3,7 @@ package org.ukiuni.irc4j.server;
 import org.ukiuni.irc4j.Command;
 import org.ukiuni.irc4j.CommandFactory;
 import org.ukiuni.irc4j.server.command.ReceiveFileUploadCommand;
+import org.ukiuni.irc4j.server.command.ReceiveHelpCommand;
 import org.ukiuni.irc4j.server.command.ReceiveHistoryCommand;
 import org.ukiuni.irc4j.server.command.ReceiveInviteCommand;
 import org.ukiuni.irc4j.server.command.ReceiveJoinCommand;
@@ -74,6 +75,8 @@ public class ServerCommandFactory extends CommandFactory<ServerCommand> {
 			command = new ReceiveFileUploadCommand();
 		} else if (Command.COMMAND_RELOADPLUGIN.equals(commandString)) {
 			command = new ReceiveReloadPluginCommand();
+		} else if (Command.COMMAND_HELP.equals(commandString)) {
+			command = new ReceiveHelpCommand();
 		} else if (commandString.matches("^[4][0-9]{2}$")) {
 			// command = new ServerErrorCommand();
 		} else if (commandString.matches("^[23][0-9]{2}$")) {

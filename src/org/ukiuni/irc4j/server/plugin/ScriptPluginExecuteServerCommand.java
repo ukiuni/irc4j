@@ -16,6 +16,6 @@ public class ScriptPluginExecuteServerCommand extends ServerCommand {
 
 	@Override
 	public void execute(IRCServer ircServer, ClientConnection selfClientConnection, List<IRCEventHandler> handlers) throws Throwable {
-		commandPlugin.execute(ircServer, selfClientConnection);
+		commandPlugin.execute(ircServer, selfClientConnection, getCommandParameters());
 	}
 }

@@ -17,6 +17,7 @@ import javax.script.ScriptException;
 import org.ukiuni.irc4j.Log;
 import org.ukiuni.irc4j.db.Database;
 import org.ukiuni.irc4j.server.ServerCommand;
+import org.ukiuni.irc4j.server.plugin.Plugin.Status;
 import org.ukiuni.irc4j.util.IOUtil;
 import org.ukiuni.lighthttpserver.util.FileUtil;
 
@@ -50,8 +51,10 @@ public class PluginFactory {
 		for (Plugin plugin : pluginList) {
 			try {
 				appendPlugin(new StringReader(plugin.getScript() + "\n function getCommand() {return \"" + plugin.getCommand() + "\";}"), plugin.getName() + ".js");
-			} catch (ScriptException e) {
-				Log.log("error on load Plugin from db", e);
+			} catch (Throwable e) {
+				Log.log("error on load Plugin from db plugin = " + plugin.getName(), e);
+				plugin.setStatus(Status.SUSPENDED);
+				Database.getInstance().regist(plugin);
 			}
 		}
 	}

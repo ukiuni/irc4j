@@ -2,7 +2,6 @@ var sessionKey;
 var sessionId;
 var chatMessageTemplate;
 var channelTabTemplate;
-var myUserId;
 var myNickName;
 var CHANNEL_NAME_PREFIX = "AIRC_CHANNEL_";
 var joinedChannels = new Array();
@@ -28,7 +27,9 @@ function tryLogin(loginId, password) {
 			$("#headerSettingArea").prepend("<li><img id=\"selfHeaderImage\" style=\"width:30px;height:30px;margin-top:10px\" src=" + sessionData.iconImage + "/></li>")
 		}
 		$("#selfNameArea").text(myNickName);
-		myUserId = sessionData.userId;
+		if (sessionData.userId && 0 != sessionData.userId) {
+			$("#headerPluginMenu").show();
+		}
 		sessionId = sessionData.sessionId;
 		sessionKey = sessionData.sessionKey;
 		if (sessionData.channelNames) {
@@ -544,6 +545,7 @@ function submitUserSettingForm() {
 		},
 		success : function() {
 			$("#submitUserSettingSuccess").show(1000);
+			$("#headerPluginMenu").show();
 		},
 		error : function() {
 			$("#submitUserSettingFail").show(1000);
