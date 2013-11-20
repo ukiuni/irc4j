@@ -42,10 +42,16 @@ function tryLogin(loginId, password) {
 			initChatPane(myNickName);
 		}
 	}).error(function(data) {
-		$("#userArea").addClass("has-error");
-		if (data.password) {
+		if (409 == data.status) {
+			$("#userArea").addClass("has-error");
+			$("#errorMessageArea").html("User is aleady in");
+		} else if (403 == data.status) {
 			$("#passwordArea").addClass("has-error");
+			$("#errorMessageArea").html("password is wrong.");
+		} else {
+			$("#errorMessageArea").html("something is wrong.");
 		}
+		$("#errorMessageArea").show(500);
 	}, "json");
 }
 function initChatPane(nickName, addchannelFunction) {

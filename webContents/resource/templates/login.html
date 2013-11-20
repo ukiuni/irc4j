@@ -1,13 +1,37 @@
-<div class="page-header">
-	<h2 id="leadArea">Sign in</h2>
-</div>
-<div class="form-group">
-	<div class="input-group" style="max-width: 300px" id="userArea">
-		<span class="input-group-addon span2"></span> <input type="text" id="loginInput" class="form-control" placeholder="login id" /> <span class="input-group-btn">
-			<button class="btn btn-default" type="button" onclick="tryLogin($('#loginInput').val(), $('#passwordInput').val());">Sign in</button>
-		</span>
+<div class="row">
+	<div class="col-sm-4 col-sm-offset-1">
+		<div class="row">
+			<div class="page-header">
+				<h2 id="leadArea">Sign in</h2>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="row">
+				<div class="input-group" id="userArea">
+					<span class="input-group-addon span2"></span> <input type="text" id="loginInput" class="form-control" placeholder="login id" /> <span class="input-group-btn">
+						<button class="btn btn-default" type="button" onclick="tryLogin($('#loginInput').val(), $('#passwordInput').val());">Sign in</button>
+					</span>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-group" style="margin-top: 3px;" id="passwordArea">
+					<span class="input-group-addon span2">option</span> <input type="password" id="passwordInput" class="form-control" placeholder="password" /> <span class="input-group-btn"></span>
+				</div>
+			</div>
+			<div class="row">
+				<div class="alert alert-danger" id="errorMessageArea" style="display: none; margin-top: 3px;">
+					<strong>Oh snap!</strong> some error happen.
+				</div>
+			</div>
+		</div>
 	</div>
-	<div class="input-group" style="margin-top: 3px; max-width: 300px" id="passwordArea">
-		<span class="input-group-addon span2">option</span> <input type="password" id="passwordInput" class="form-control" placeholder="password" /> <span class="input-group-btn"></span>
+	<div class="jumbotron col-sm-5 col-sm-offset-1" style="margin-top: 20px; height: 300px">
+		<h2>Infomation</h2>
+		<p>
+			This area is for inform about this product.<br /> but this item is not still fixed.
+		</p>
+		<div class="row text-right">
+			<div class="glyphicon glyphicon-plane align-right"></div>
+		</div>
 	</div>
 </div>
