@@ -421,7 +421,7 @@ function showNewPluginPanel() {
 		command : myNickName + "_COMMAND",
 		description : myNickName + "\'s COMMAND",
 		status : 0,
-		script : "function execute(server, client) {\n    client.sendPrivateCommand(\"Hello \"+client.getNickName()+\". I am " + myNickName + "\");\n}"
+		script : "function execute(server, client, params) {\n    client.sendPrivateCommand(\"Hello \"+client.getNickName()+\". I am " + myNickName + "\");\n}"
 	});
 }
 function showPluginPanel(plugin) {
