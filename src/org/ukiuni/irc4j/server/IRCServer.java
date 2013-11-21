@@ -273,7 +273,7 @@ public class IRCServer implements Runnable {
 			}
 			Date pongDate = connection.getLastRecievePongDate();
 			Date pingDate = connection.getOldestSendPingDate();
-			Log.log(connection.getUser().getFQUN() + " in " + inChannel + "lastPing = " + (null == pingDate ? null : new SimpleDateFormat("HH:mm:ss SSS").format(pingDate) + " lastPong = " + (null == pongDate ? null : new SimpleDateFormat("HH:mm:ss SSS").format(pongDate))));
+			Log.log(connection.getUser().getId() + " " + connection.getUser().getFQUN() + " in " + inChannel + "lastPing = " + (null == pingDate ? null : new SimpleDateFormat("HH:mm:ss SSS").format(pingDate) + " lastPong = " + (null == pongDate ? null : new SimpleDateFormat("HH:mm:ss SSS").format(pongDate))));
 		}
 		Log.log("/////////////");
 

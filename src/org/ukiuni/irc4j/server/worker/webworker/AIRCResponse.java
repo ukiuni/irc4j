@@ -11,6 +11,7 @@ public abstract class AIRCResponse extends Response {
 	private String nickName;
 	private WebWorkerClientConnection accessConnection;
 	protected IRCServer ircServer;
+	private Long userId;
 
 	public AIRCResponse(IRCServer ircServer) {
 		this.ircServer = ircServer;
@@ -26,6 +27,10 @@ public abstract class AIRCResponse extends Response {
 		}
 		String decorded = CipherUtil.decode(sessionKey);
 		String[] decordedSprit = decorded.split(" ");
+		if (decordedSprit.length != 4) {
+			writeError(out, 403, "security");
+			return;
+		}
 		nickName = decordedSprit[0];
 		String encordedSessionKey = decordedSprit[1];
 		@SuppressWarnings("unused")
@@ -34,6 +39,7 @@ public abstract class AIRCResponse extends Response {
 			writeError(out, 403, "security");
 			return;
 		}
+		userId = Long.valueOf(decordedSprit[3]);
 		accessConnection = (WebWorkerClientConnection) ircServer.findConnection(nickName);
 		onResponseSecure(out);
 	}
@@ -56,7 +62,11 @@ public abstract class AIRCResponse extends Response {
 		return accessConnection;
 	}
 
-	protected static String createSessionKey(String nickName, String sessionId, long time) {
-		return CipherUtil.encode(nickName + " " + sessionId + " " + time);
+	protected static String createSessionKey(String nickName, String sessionId, long time, long userId) {
+		return CipherUtil.encode(nickName + " " + sessionId + " " + time + " " + userId);
+	}
+
+	public Long getUserId() {
+		return userId;
 	}
 }

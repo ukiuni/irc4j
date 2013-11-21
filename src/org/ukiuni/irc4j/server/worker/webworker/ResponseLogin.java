@@ -40,6 +40,7 @@ public class ResponseLogin extends Response {
 		WebWorkerClientConnection clientConnection = new WebWorkerClientConnection(ircServer);
 		if (user != null) {
 			clientConnection.setNickName(user.getNickName());
+			clientConnection.getUser().setId(user.getId());
 			clientConnection.getUser().setHostName("webIF");
 			clientConnection.getUser().setName(user.getName());
 			clientConnection.getUser().setRealName(user.getRealName());
@@ -48,6 +49,8 @@ public class ResponseLogin extends Response {
 			clientConnection.getUser().setEmail(user.getEmail());
 			clientConnection.getUser().setId(user.getId());
 			clientConnection.getUser().setDescription(user.getDescription());
+			clientConnection.getUser().setCreatedAt(user.getCreatedAt());
+			clientConnection.getUser().setUpdatedAt(user.getUpdatedAt());
 		} else {
 			clientConnection.setNickName(nickName);
 			clientConnection.getUser().setHostName("webIF");
@@ -66,7 +69,8 @@ public class ResponseLogin extends Response {
 
 		String sessionId = UUID.randomUUID().toString();
 		long loginTime = new Date().getTime();
-		String sessionKey = AIRCResponse.createSessionKey(nickName, sessionId, loginTime);
+
+		String sessionKey = AIRCResponse.createSessionKey(nickName, sessionId, loginTime, clientConnection.getUser().getId());
 		Map<String, Object> responseData = new HashMap<String, Object>();
 		responseData.put("sessionId", sessionId);
 		responseData.put("sessionKey", sessionKey);
