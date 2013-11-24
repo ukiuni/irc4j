@@ -5,9 +5,12 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -80,10 +83,42 @@ public class PluginFactory {
 		}
 	}
 
+	public class ScriptUtil {
+		public void exec(final Runnable runnable, Object timeObj) {
+			long time;
+			System.out.println("timeObj = " + timeObj.getClass());
+			if (timeObj instanceof Long) {
+				time = (Long) timeObj;
+			} else if (timeObj instanceof Integer) {
+				time = (Integer) timeObj;
+			} else if (timeObj instanceof String) {
+				time = Long.valueOf((String) timeObj);
+			} else if (timeObj instanceof Date) {
+				time = ((Date) timeObj).getTime() - System.currentTimeMillis();
+			} else {
+				throw new IllegalArgumentException("time must be number or string or date.");
+			}
+			new Timer().schedule(new TimerTask() {
+				@Override
+				public void run() {
+					runnable.run();
+				}
+			}, time);
+		}
+
+		public long parseInt(String value) {
+			return Long.parseLong(value);
+		}
+	}
+
 	private void appendPlugin(Reader reader, String name) throws ScriptException {
 		Log.log("plugin loading :" + name);
 		ScriptEngine engine = new ScriptEngineManager().getEngineByExtension(FileUtil.getExt(name));
-		engine.eval("Package = importPackage = java = javax = org = edu = com = net = null;");
+		engine.put("SCRIPTINGFRAMEWORK_Util", new ScriptUtil());
+		engine.eval("var SCRIPTINGFRAMEWORK_Runnable = java.lang.Runnable;");
+		// engine.eval("function parseInt(value){return SCRIPTINGFRAMEWORK_Util.parseInt(value)}");
+		engine.eval("function setTimeout(execFunction, delayTime){SCRIPTINGFRAMEWORK_Util.exec(new SCRIPTINGFRAMEWORK_Runnable({run:execFunction}), delayTime)}");
+		engine.eval("Package = importPackage = Java = java = javax = org = edu = com = net = null;");
 		Invocable inv = (Invocable) engine;
 		engine.eval(reader);
 		if (fitsInterface(engine, CommandPlugin.class)) {
