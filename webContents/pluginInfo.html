@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>AIRC</title>
+<link href="/css/cerulean.bootstrap.css" rel="stylesheet">
+<link href="/css/starter-template.css" rel="stylesheet">
+<link href="/js/google-code-prettify/prettify.css" rel="stylesheet">
+<link href="/css/airc.css" rel="stylesheet">
+</head>
+<body>
+
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top"></div>
+	<div id="content" class="container">
+		<div class="row" style="margin-top: 20px">
+			<div class="col-md-8 col-md-offset-2">
+				<legend id="pluginInfoTitle" class="translate">Plugin Info</legend>
+			</div>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2 translate" id="pluginInfoSubtitle">AIRS Server can extends with JavaScript</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<h3 class="lead translate" id="pluginInfoAboutPluginTitle"></h3>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<p class="translate" id="pluginInfoAboutPlugin"></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<h3 class="lead translate" id="pluginInfoAboutMethodExecute"></h3>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<p class="translate" id="pluginInfoAboutMethodExecuteMessage"></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<h3 class="lead translate" id="pluginInfoAboutMethodSetTimeout"></h3>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<p class="translate" id="pluginInfoAboutMethodSetTimeoutMessage"></p>
+				</div>
+			</div>
+		</div>
+
+		<script src="/js/jquery-1.10.2.min.js"></script>
+		<script src="/js/google-code-prettify/prettify.js"></script>
+		<script src="/js/bootstrap.min.js"></script>
+		<script src="/js/jsrender.min.js" type="text/javascript"></script>
+		<script src="/js/jquery.form.min.js" type="text/javascript"></script>
+		<script src="/js/airc.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$(function() {
+				$(".translate").each(function(args, element) {
+					$(element).translate();
+				})
+			});
+		</script>
+</body>
+</html>

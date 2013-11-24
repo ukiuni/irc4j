@@ -5,7 +5,14 @@
 			</ul>
 			<button type="button" class="btn btn-default col-sm-12" onclick="showNewPluginPanel()">Create New</button>
 		</div>
-		<div class="col-sm-8" id="pluginEditPane">
+		<div class="col-sm-8" id="pluginEditPane"></div>
+		<div class="col-sm-2">
+			<a class="translate" href="/pluginInfo.html" id="pluginPaneLinkToInfo" target="_blank">About Plugin</a>
 		</div>
 	</div>
+	<script type="text/javascript">
+		$(".translate").each(function(args, element) {
+			$(element).translate();
+		})
+	</script>
 </div>

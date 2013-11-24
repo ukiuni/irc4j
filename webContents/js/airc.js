@@ -82,9 +82,45 @@ function replaceToLink(src, nickName, imageArray) {
 		}
 	});
 }
-$.fn.extend({
+function browserLanguage() {
+	try {
+		return (navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0, 2)
+	} catch (e) {
+		return undefined;
+	}
+}
+$.loadTranslateValue = function(key, onLoadFunction) {
+	if (!$.translateData) {
+		$.getJSON("/resource/translate.js", function(data) {
+			$.translateData = data;
+			$.getJSON("/resource/translate_" + browserLanguage() + ".js", function(data) {
+				$.extend($.translateData, obj2)
+			}).complete(function() {
+				var value = $.translateData[key];
+				if (value) {
+					onLoadFunction(key, value);
+				}
+			});
+		}).error(function() {
+			console.log("/resource/translate.js is not found");
+			$.translateData = {};
+		});
+	} else {
+		var value = $.translateData[key];
+		if (value) {
+			onLoadFunction(key, value);
+		}
+	}
+}, $.fn.extend({
 	toLink : function(nickName, imageArray) {
 		$(this).html(replaceToLink($(this).html(), nickName, imageArray));
+	},
+	translate : function() {
+		var element = this;
+		$.loadTranslateValue(this.attr("id"), function(key, value) {
+			element.html(value);
+			element.removeClass("translate");
+		});
 	}
 });
 if (typeof String.prototype.startsWith != 'function') {
