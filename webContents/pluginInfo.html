@@ -22,31 +22,37 @@
 			<div class="row">
 				<div class="col-md-8 col-md-offset-2">
 					<h3 class="lead translate" id="pluginInfoAboutPluginTitle"></h3>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-8 col-md-offset-2">
 					<p class="translate" id="pluginInfoAboutPlugin"></p>
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-md-8 col-md-offset-2">
-					<h3 class="lead translate" id="pluginInfoAboutMethodExecute"></h3>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-8 col-md-offset-2">
-					<p class="translate" id="pluginInfoAboutMethodExecuteMessage"></p>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-8 col-md-offset-2">
-					<h3 class="lead translate" id="pluginInfoAboutMethodSetTimeout"></h3>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-8 col-md-offset-2">
-					<p class="translate" id="pluginInfoAboutMethodSetTimeoutMessage"></p>
+				<div class="col-md-8 col-md-offset-2 bs-callout bs-callout-default">
+					<h3 class="lead translate" id="pluginInfoAboutPluginFunctionTitle"></h3>
+					<dl class="">
+						<dt class="translate" id="pluginInfoAboutMethodExecute"></dt>
+						<dd style="margin-left:20px" class="translate" id="pluginInfoAboutMethodExecuteMessage"></dd>
+						<small>サーバーメッセージを返信します。</small>
+						<pre>function execute(server, client, params) {
+    client.sendPrivateCommand("Hello "+client.getNickName()+"!!");
+}</pre>
+
+						<small>指定したチャネルにメッセージを送信します。<br>"/COMMAND channelName message" というフォーマットを期待した実装です。</small>
+						<pre>function execute(server, client, params) {
+    var channelName = params[0];
+    var channel = server.getChannel(channelName);
+    var message = params[1];
+    client.sendMessage("PRIVMSG", client, channel, message);
+}</pre>
+						<dt class="translate" id="pluginInfoAboutMethodSetTimeout">
+					</dt>
+						<dd style="margin-left:20px" class="translate" id="pluginInfoAboutMethodSetTimeoutMessage"></dd>
+						<small>10秒後にサーバーメッセージを返信します。</small>
+						<pre>function execute(server, client, params) {
+    setTimeout(function(){
+        client.sendPrivateCommand("Hello "+client.getNickName()+"!!");
+    }, 10000);
+}
+					</dl>
 				</div>
 			</div>
 		</div>
