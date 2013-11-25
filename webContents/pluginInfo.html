@@ -28,35 +28,34 @@
 			<div class="row">
 				<div class="col-md-8 col-md-offset-2 bs-callout bs-callout-default">
 					<h3 class="lead translate" id="pluginInfoAboutPluginFunctionTitle"></h3>
-					<dl class="">
+					<dl>
 						<dt class="translate" id="pluginInfoAboutMethodExecute"></dt>
 						<dd style="margin-left:20px" class="translate" id="pluginInfoAboutMethodExecuteMessage"></dd>
-						<small>サーバーメッセージを返信します。</small>
-						<pre>function execute(server, client, params) {
+						<small style="margin-left:20px" class="translate" id="pluginInfoAboutMethodExecuteMessageSmall" ></small>
+						<pre style="margin-left:20px">function execute(server, client, params) {
     client.sendPrivateCommand("Hello "+client.getNickName()+"!!");
 }</pre>
 
-						<small>指定したチャネルにメッセージを送信します。<br>"/COMMAND channelName message" というフォーマットを期待した実装です。</small>
-						<pre>function execute(server, client, params) {
+						<small style="margin-left:20px" class="translate" id="pluginInfoAboutMethodExecuteMessageSmall2"></small>
+						<pre style="margin-left:20px">function execute(server, client, params) {
     var channelName = params[0];
     var channel = server.getChannel(channelName);
     var message = params[1];
     client.sendMessage("PRIVMSG", client, channel, message);
 }</pre>
-						<dt class="translate" id="pluginInfoAboutMethodSetTimeout">
+					<dt class="translate" id="pluginInfoAboutMethodSetTimeout">
 					</dt>
 						<dd style="margin-left:20px" class="translate" id="pluginInfoAboutMethodSetTimeoutMessage"></dd>
-						<small>10秒後にサーバーメッセージを返信します。</small>
-						<pre>function execute(server, client, params) {
+						<small style="margin-left:20px" class="translate" id="pluginInfoAboutMethodSetTimeoutMessageSmall"></small>
+						<pre style="margin-left:20px">function execute(server, client, params) {
     setTimeout(function(){
         client.sendPrivateCommand("Hello "+client.getNickName()+"!!");
     }, 10000);
-}
+}</pre>
 					</dl>
 				</div>
 			</div>
 		</div>
-
 		<script src="/js/jquery-1.10.2.min.js"></script>
 		<script src="/js/google-code-prettify/prettify.js"></script>
 		<script src="/js/bootstrap.min.js"></script>
