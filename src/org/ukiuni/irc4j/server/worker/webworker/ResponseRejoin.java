@@ -1,10 +1,16 @@
 package org.ukiuni.irc4j.server.worker.webworker;
 
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.arnx.jsonic.JSON;
 
 import org.ukiuni.irc4j.Channel;
 import org.ukiuni.irc4j.User;
 import org.ukiuni.irc4j.db.Database;
+import org.ukiuni.irc4j.entity.Message;
 import org.ukiuni.irc4j.server.IRCServer;
 
 public class ResponseRejoin extends AIRCResponse {
@@ -64,6 +70,17 @@ public class ResponseRejoin extends AIRCResponse {
 				ircServer.joinToChannel(clientConnection, channelName);
 			}
 		}
-		write(out, 200, "{\"status\":\"rejoined\"}", "application/json; charset=utf-8", "UTF-8");
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		try {
+			long maxMessageId = Long.parseLong(getRequest().getParameter("maxMessageId"));
+			Map<String, List<Message>> messageMap = new HashMap<String, List<Message>>();
+			for (String channelName : channelNameArray) {
+				messageMap.put(channelName, Database.getInstance().loadMessageNewerThan(channelName, maxMessageId, Integer.MAX_VALUE));
+			}
+			returnMap.put("messages", messageMap);
+		} catch (Exception e) {
+		}
+		returnMap.put("status", "rejoined");
+		write(out, 200, JSON.encode(returnMap), "application/json; charset=utf-8", "UTF-8");
 	}
 }

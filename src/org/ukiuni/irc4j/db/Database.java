@@ -450,7 +450,11 @@ public class Database {
 	}
 
 	public List<Message> loadMessageNewerThan(String channel, long maxId, int limit) {
-		return loadMessage(channel, limit, "and id > " + maxId, false);
+		return loadMessage(channel, limit, "and id > " + maxId, true);
+	}
+
+	public List<Message> loadMessageBetween(String channel, long olderThan, long newerThan, int limit) {
+		return loadMessage(channel, limit, "and id < " + olderThan + "and id > " + newerThan, false);
 	}
 
 	public long loadMaxId(String channel) {

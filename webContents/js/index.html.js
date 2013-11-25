@@ -7,6 +7,7 @@ var CHANNEL_NAME_PREFIX = "AIRC_CHANNEL_";
 var joinedChannels = new Array();
 var minMessageIdArray = new Array();
 var maxMessageIdArray = new Array();
+var maxMessageId = 0;
 function tryLogin(loginId, password) {
 	if (!loginId) {
 		$("#userArea").addClass("has-error");
@@ -185,7 +186,7 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 					});
 				}
 			});
-			$.getJSON("/channel/message", {
+			$.post("/channel/message", {
 				channelName : loadChannelName,
 				sessionId : sessionId,
 				sessionKey : sessionKey
@@ -211,7 +212,7 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 						$("#channelPane_loadNextButtonRow_" + channelName).show();
 					}
 				});
-			}).error(function(data) {
+			}, "json").error(function(data) {
 				$("#channelPane_messageArea_" + channelName).html("error " + data.textStatus);
 			});
 		});
@@ -223,6 +224,9 @@ function setMaxAndMin(channelName, message) {
 	}
 	if (!maxMessageIdArray[channelName] || maxMessageIdArray[channelName] < message.id) {
 		maxMessageIdArray[channelName] = message.id;
+	}
+	if (maxMessageId < message.id) {
+		maxMessageId = message.id;
 	}
 }
 function sendMessage(channelName, message, onSuccessFunction) {
@@ -315,10 +319,20 @@ function rejoin() {
 	$.post("/rejoin", {
 		sessionId : sessionId,
 		sessionKey : sessionKey,
-		channelNames : joinedChannels.join(",")
-	}, function() {
+		channelNames : joinedChannels.join(","),
+		maxMessageId : maxMessageId
+	}, function(data) {
 		$("#connectionStatus").hide(1000);
-	});
+		for ( var channelName in data.messages) {
+			var messages = data.messages[channelName];
+			var channelNameWithoutCharp = CHANNEL_NAME_PREFIX + channelName.substring(1);
+			for ( var i in messages) {
+				var message = messages[i];
+				console.log("message = " + message.createdAt + ":" + message.senderNickName + ":" + message.message);
+				appendMessageToChannelPane(channelNameWithoutCharp, message.createdAt, message.senderNickName, message.message);
+			}
+		}
+	}, "json");
 }
 function loadOlderMessage(channelName) {
 	var loadChannelName = (channelName.startsWith(CHANNEL_NAME_PREFIX)) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName;
