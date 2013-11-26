@@ -328,7 +328,6 @@ function rejoin() {
 			var channelNameWithoutCharp = CHANNEL_NAME_PREFIX + channelName.substring(1);
 			for ( var i in messages) {
 				var message = messages[i];
-				console.log("message = " + message.createdAt + ":" + message.senderNickName + ":" + message.message);
 				appendMessageToChannelPane(channelNameWithoutCharp, message.createdAt, message.senderNickName, message.message);
 			}
 		}
