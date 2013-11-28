@@ -60,6 +60,39 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label for="notificationInput" class="col-sm-2 control-label">Notification</label>
+					<div class="col-sm-10 input-group">
+						<span class="input-group-addon">Keyword</span> <input type="text" class="form-control" id="notificationInput" name="notificationKeyword"> <span class="input-group-btn">
+							<button class="btn btn-default" type="button" id="notificationButton">OFF</button>
+						</span> <input type="checkbox" id="notificationCheckbox" name="notify" style="display: none;">
+					</div>
+					<div class="help-block col-sm-10 col-sm-offset-2">notification message contains Keyword will keep stay on display</div>
+				</div>
+				<script type="text/javascript">
+					$("#notificationButton").click(function() {
+						if ($("#notificationCheckbox").attr("checked")) {
+							console.log("asdfasdfasdf");
+							$("#notificationCheckbox").attr("checked", false);
+							$("#notificationInput").attr("disabled", "disabled");
+							$("#notificationButton").text("OFF");
+						} else {
+							if (0 != webkitNotifications.checkPermission()) {
+								webkitNotifications.requestPermission(function() {
+									if (0 == webkitNotifications.checkPermission()) {
+										$("#notificationCheckbox").attr("checked", true);
+										$("#notificationInput").removeAttr("disabled");
+										$("#notificationButton").text("ON");
+									}
+								});
+							} else {
+								$("#notificationCheckbox").attr("checked", true);
+								$("#notificationInput").removeAttr("disabled");
+								$("#notificationButton").text("ON");
+							}
+						}
+					});
+				</script>
+				<div class="form-group">
 					<div class="col-sm-10 col-sm-offset-2">
 						<button class="btn btn-default" onclick="showChatPane()">Close</button>
 						<button type="submit" class="btn btn-primary" onclick="submitUserSettingForm()" id="userSettingSubmit">Submit</button>

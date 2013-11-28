@@ -49,6 +49,8 @@ public class ResponseLogin extends Response {
 			clientConnection.getUser().setEmail(user.getEmail());
 			clientConnection.getUser().setId(user.getId());
 			clientConnection.getUser().setDescription(user.getDescription());
+			clientConnection.getUser().setNotify(user.isNotify());
+			clientConnection.getUser().setNotificationKeyword(user.getNotificationKeyword());
 			clientConnection.getUser().setCreatedAt(user.getCreatedAt());
 			clientConnection.getUser().setUpdatedAt(user.getUpdatedAt());
 		} else {
@@ -82,6 +84,8 @@ public class ResponseLogin extends Response {
 			List<String> channelNames = Database.getInstance().loadJoinedChannelNames(user);
 			responseData.put("channelNames", channelNames);
 			responseData.put("userId", user.getId());
+			responseData.put("notify", user.isNotify());
+			responseData.put("notificationKeyword", user.getNotificationKeyword());
 		}
 		write(out, 200, JSON.encode(responseData), "application/json; charset=utf-8", "UTF-8");
 	}

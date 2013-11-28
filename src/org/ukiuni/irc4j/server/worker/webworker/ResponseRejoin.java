@@ -55,6 +55,8 @@ public class ResponseRejoin extends AIRCResponse {
 			clientConnection.getUser().setId(user.getId());
 			clientConnection.getUser().setNickName(user.getNickName());
 			clientConnection.getUser().setPasswordHashed(user.getPasswordHashed());
+			clientConnection.getUser().setNotify(user.isNotify());
+			clientConnection.getUser().setNotificationKeyword(user.getNotificationKeyword());
 			clientConnection.getUser().setRealName(user.getRealName());
 			clientConnection.getUser().setUpdatedAt(user.getUpdatedAt());
 		}

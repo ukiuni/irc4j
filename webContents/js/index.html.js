@@ -8,6 +8,7 @@ var joinedChannels = new Array();
 var minMessageIdArray = new Array();
 var maxMessageIdArray = new Array();
 var maxMessageId = 0;
+var notificationKeywordArray = new Array();
 function tryLogin(loginId, password) {
 	if (!loginId) {
 		$("#userArea").addClass("has-error");
@@ -30,6 +31,10 @@ function tryLogin(loginId, password) {
 		$("#selfNameArea").text(myNickName);
 		if (sessionData.userId && 0 != sessionData.userId) {
 			$("#headerPluginMenu").show();
+		}
+		notify = sessionData.notify;
+		if (notify && sessionData.notificationKeyword) {
+			setNotificationKeyword(sessionData.notificationKeyword);
 		}
 		sessionId = sessionData.sessionId;
 		sessionKey = sessionData.sessionKey;
@@ -144,6 +149,30 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 	var newChatMessagePane = chatMessageTemplate.render(messageObjforPaint);
 	newChatMessagePane = replaceToLink(newChatMessagePane, myNickName);
 	$("#channelPane_messageArea_" + channelName).prepend(newChatMessagePane);
+	if (notify && webkitNotifications && webkitNotifications.createNotification) {
+		if (0 == webkitNotifications.checkPermission()) {
+			var containsNotificationKeyword = false;
+			for ( var i in notificationKeywordArray) {
+				if (0 <= message.indexOf(notificationKeywordArray[i])) {
+					containsNotificationKeyword = true;
+					break;
+				}
+			}
+			var icon = containsNotificationKeyword ? "/images/notify_warn.gif" : "/images/notify_standard.gif"
+			var loadChannelName = (channelName.startsWith(CHANNEL_NAME_PREFIX)) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName;
+			var notifyWindow = webkitNotifications.createNotification(icon, "[" + loadChannelName + "] " + senderNickName, message);
+			notifyWindow.show();
+			if (!containsNotificationKeyword) {
+				setTimeout(function() {
+					if (notifyWindow.clear) {
+						notifyWindow.clear();
+					} else if (notifyWindow.close()) {
+						notifyWindow.close();
+					}
+				}, 3000);
+			}
+		}
+	}
 }
 function addChannel(channelName, onSuccessAddChannelFunction) {
 	if (0 == channelName.length || 0 <= channelName.indexOf("#")) {
@@ -384,6 +413,20 @@ function openSettingPane() {
 			$("#inputEmail").val(user.email);
 			// $("#inputPassword").val();
 			$("#descriptionTextArea").val(user.description);
+			if (user.notificationKeyword && "" != user.notificationKeyword) {
+				$("#notificationInput").val(user.notificationKeyword);
+			} else {
+				$("#notificationInput").val(myNickName);
+			}
+			if (user.notify) {
+				$("#notificationCheckbox").attr("checked", true);
+				$("#notificationInput").removeAttr("disabled");
+				$("#notificationButton").text("ON");
+			} else {
+				$("#notificationCheckbox").attr("checked", false);
+				$("#notificationInput").attr("disabled", "disabled");
+				$("#notificationButton").text("OFF");
+			}
 		}, "json");
 	}
 	if (document.getElementById("settingPane")) {
@@ -565,6 +608,8 @@ function submitUserSettingForm() {
 		success : function() {
 			$("#submitUserSettingSuccess").show(1000);
 			$("#headerPluginMenu").show();
+			notify = $("#notificationCheckbox").attr("checked");
+			setNotificationKeyword($("#notificationInput").val())
 		},
 		error : function() {
 			$("#submitUserSettingFail").show(1000);
@@ -586,6 +631,13 @@ function submitUserSettingForm() {
 			}, "json");
 		}
 	}).submit();
+}
+function setNotificationKeyword(notiicationkeywords) {
+	var beforeTrim = notiicationkeywords.split(",");
+	notificationKeywordArray = new Array();
+	for ( var i in beforeTrim) {
+		notificationKeywordArray.push($.trim(beforeTrim[i]));
+	}
 }
 function signOut() {
 	$.post("/logout", {

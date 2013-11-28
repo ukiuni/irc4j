@@ -39,6 +39,8 @@ public class User {
 	private Date createdAt;
 	private Date updatedAt;
 	private boolean owner;
+	private boolean notify;
+	private String notificationKeyword;
 
 	public String getNickName() {
 		return nickName;
@@ -175,5 +177,21 @@ public class User {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public boolean isNotify() {
+		return notify;
+	}
+
+	public void setNotify(boolean notify) {
+		this.notify = notify;
+	}
+
+	public String getNotificationKeyword() {
+		return notificationKeyword;
+	}
+
+	public void setNotificationKeyword(String notificationKeyword) {
+		this.notificationKeyword = notificationKeyword;
 	}
 }

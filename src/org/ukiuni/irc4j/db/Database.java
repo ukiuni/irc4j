@@ -81,6 +81,15 @@ public class Database {
 			}
 			try {
 				st = this.con.createStatement();
+				st.executeQuery("select notify from user limit 1");
+			} catch (SQLException e) {
+				st.execute("alter table user add notify boolean");
+				st.execute("alter table user add notificationKeyword text");
+			} finally {
+				IOUtil.close(st);
+			}
+			try {
+				st = this.con.createStatement();
 				st.execute("create index user_nickname on user(nickname)");
 			} catch (SQLException e) {
 			} finally {
@@ -190,7 +199,7 @@ public class Database {
 		PreparedStatement stmt = null;
 		try {
 			if (user.getId() == 0) {
-				stmt = con.prepareStatement("insert into user (name, real_name, host_name, nickname, email, password_hashed, description, icon_image, created_at) values (?, ?, ?, ?, ?, ?, ?, ?, now())");
+				stmt = con.prepareStatement("insert into user (name, real_name, host_name, nickname, email, password_hashed, description, icon_image, notify, notificationKeyword, created_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now())");
 				stmt.setString(1, user.getName());
 				stmt.setString(2, user.getRealName());
 				stmt.setString(3, user.getHostName());
@@ -199,6 +208,8 @@ public class Database {
 				stmt.setString(6, user.getPasswordHashed());
 				stmt.setString(7, user.getDescription());
 				stmt.setString(8, user.getIconImage());
+				stmt.setBoolean(9, user.isNotify());
+				stmt.setString(10, user.getNotificationKeyword());
 				stmt.executeUpdate();
 				PreparedStatement idQueryStmt = con.prepareStatement("select id from user where nickname = ?");
 				idQueryStmt.setString(1, user.getNickName());
@@ -233,6 +244,10 @@ public class Database {
 				if (null != user.getIconImage()) {
 					sqlCreateBuilder.append(" icon_image = ?,");
 				}
+				sqlCreateBuilder.append(" notify = ?,");
+				if (null != user.getNotificationKeyword()) {
+					sqlCreateBuilder.append(" notificationKeyword = ?,");
+				}
 				sqlCreateBuilder.append(" updated_at = now()");
 				sqlCreateBuilder.append(" where id = ?");
 				stmt = con.prepareStatement(sqlCreateBuilder.toString());
@@ -260,6 +275,10 @@ public class Database {
 				}
 				if (null != user.getIconImage()) {
 					stmt.setString(stmtIndex++, user.getIconImage());
+				}
+				stmt.setBoolean(stmtIndex++, user.isNotify());
+				if (null != user.getNotificationKeyword()) {
+					stmt.setString(stmtIndex++, user.getNotificationKeyword());
 				}
 				stmt.setLong(stmtIndex++, user.getId());
 				stmt.executeUpdate();
@@ -466,7 +485,7 @@ public class Database {
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		try {
-			String sql = "select id, name, real_name, host_name, nickname, email, password_hashed, description, icon_image, created_at from user where nickname = ?";
+			String sql = "select id, name, real_name, host_name, nickname, email, password_hashed, description, icon_image, notify, notificationKeyword, created_at, updated_at from user where nickname = ?";
 			stmt = con.prepareStatement(sql);
 			stmt.setString(1, nickName);
 			rs = stmt.executeQuery();
@@ -482,6 +501,9 @@ public class Database {
 			user.setPasswordHashed(rs.getString("password_hashed"));
 			user.setDescription(rs.getString("description"));
 			user.setIconImage(rs.getString("icon_image"));
+			user.setNotify(rs.getBoolean("notify"));
+			user.setNotificationKeyword(rs.getString("notificationKeyword"));
+			user.setUpdatedAt(rs.getDate("updated_at"));
 			user.setCreatedAt(rs.getDate("created_at"));
 			return user;
 		} catch (SQLException e) {

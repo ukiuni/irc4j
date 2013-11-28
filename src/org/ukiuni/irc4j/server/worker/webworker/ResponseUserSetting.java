@@ -29,12 +29,17 @@ public class ResponseUserSetting extends AIRCResponse {
 		ParameterFile iconImage = getRequest().getParameterFile("iconImage");
 		String password = getRequest().getParameter("password");
 		String description = getRequest().getParameter("description");
+		String notify = getRequest().getParameter("notify");
+		String notificationKeyword = getRequest().getParameter("notificationKeyword");
+
 		User user = getAccessConnection().getUser();
 		user.setName(name);
 		user.setRealName(realName);
 		user.setEmail(email);
 		user.setPasswordHashed(User.toHash(password));
 		user.setDescription(description);
+		user.setNotify(null != notify);
+		user.setNotificationKeyword(notificationKeyword);
 		if (null != iconImage) {
 			BufferedImage uploadedImage = ImageIO.read(iconImage.getInputStream());
 			BufferedImage image = new BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB);
