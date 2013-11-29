@@ -145,11 +145,13 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 	var messageObjforPaint = new Object();
 	messageObjforPaint.createdAt = createdAt;
 	messageObjforPaint.senderNickName = senderNickName;
+	messageObjforPaint.tempId = "messageId_" + new Date().getTime();
 	messageObjforPaint.message = message;
 	var newChatMessagePane = chatMessageTemplate.render(messageObjforPaint);
 	newChatMessagePane = replaceToLink(newChatMessagePane, myNickName);
-	$("#channelPane_messageArea_" + channelName).prepend(newChatMessagePane);
-	if (notify && webkitNotifications && webkitNotifications.createNotification) {
+	var channelPane_messageArea = $("#channelPane_messageArea_" + channelName);
+	channelPane_messageArea.prepend(newChatMessagePane);
+	if ((!document.hasFocus() || !channelPane_messageArea.isVisible()) && notify && webkitNotifications && webkitNotifications.createNotification && senderNickName != myNickName) {
 		if (0 == webkitNotifications.checkPermission()) {
 			var containsNotificationKeyword = false;
 			for ( var i in notificationKeywordArray) {
@@ -161,6 +163,12 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 			var icon = containsNotificationKeyword ? "/images/notify_warn.gif" : "/images/notify_standard.gif"
 			var loadChannelName = (channelName.startsWith(CHANNEL_NAME_PREFIX)) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName;
 			var notifyWindow = webkitNotifications.createNotification(icon, "[" + loadChannelName + "] " + senderNickName, message);
+			notifyWindow.onclick = function() {
+				window.focus();
+				showChatPane();
+				openChannelPane(channelName);
+				document.location.href = "#" + messageObjforPaint.tempId;
+			};
 			notifyWindow.show();
 			if (!containsNotificationKeyword) {
 				setTimeout(function() {
@@ -200,14 +208,7 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 				channelDisplayName : channelName.startsWith(CHANNEL_NAME_PREFIX) ? channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName,
 				channelName : channelName
 			}));
-			$(".nav-tabs li").removeClass("active");
-			$(".tab-content div").removeClass("active");
-			$("#tabChannel_" + channelName).addClass("active");
-			$("#tabChannel_" + channelName).click(function() {
-				clearBadge(channelName);
-			});
-			$("#channelPane_" + channelName).addClass("active");
-			$("#channelPane_" + channelName).addClass("in");
+			openChannelPane(channelName);
 			$("#messageInput_" + channelName).keypress(function(e) {
 				if (e.which == 13) {
 					sendMessage(channelName, $('#messageInput_' + channelName).val(), function() {
@@ -246,6 +247,16 @@ function addChannel(channelName, onSuccessAddChannelFunction) {
 			});
 		});
 	}, "json");
+}
+function openChannelPane(channelName) {
+	$(".nav-tabs li").removeClass("active");
+	$(".tab-content div").removeClass("active");
+	$("#tabChannel_" + channelName).addClass("active");
+	$("#tabChannel_" + channelName).click(function() {
+		clearBadge(channelName);
+	});
+	$("#channelPane_" + channelName).addClass("active");
+	$("#channelPane_" + channelName).addClass("in");
 }
 function setMaxAndMin(channelName, message) {
 	if (!minMessageIdArray[channelName] || minMessageIdArray[channelName] > message.id) {

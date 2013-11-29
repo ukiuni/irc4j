@@ -121,6 +121,9 @@ $.loadTranslateValue = function(key, onLoadFunction) {
 			element.html(value);
 			element.removeClass("translate");
 		});
+	},
+	isVisible : function() {
+		return $.expr.filters.visible(this[0]);
 	}
 });
 if (typeof String.prototype.startsWith != 'function') {
