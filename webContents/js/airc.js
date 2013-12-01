@@ -94,7 +94,7 @@ $.loadTranslateValue = function(key, onLoadFunction) {
 		$.getJSON("/resource/translate.js", function(data) {
 			$.translateData = data;
 			$.getJSON("/resource/translate_" + browserLanguage() + ".js", function(data) {
-				$.extend($.translateData, obj2)
+				$.extend($.translateData, data)
 			}).complete(function() {
 				var value = $.translateData[key];
 				if (value) {

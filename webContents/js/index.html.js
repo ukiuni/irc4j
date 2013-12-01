@@ -127,6 +127,10 @@ function clearBadge(channelName) {
 	badge.css("margin-left", "0px");
 }
 function incrementsBadge(channelName) {
+	var channelPane_messageArea = $("#channelPane_messageArea_" + channelName);
+	if (document.hasFocus() && channelPane_messageArea.isVisible()) {
+		return;
+	}
 	var badge = $("#tabChannelBadge_" + channelName);
 	var badgeNum = badge.html();
 	if ("" == badgeNum || typeof badgeNum === "undefined") {
@@ -151,7 +155,7 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 	newChatMessagePane = replaceToLink(newChatMessagePane, myNickName);
 	var channelPane_messageArea = $("#channelPane_messageArea_" + channelName);
 	channelPane_messageArea.prepend(newChatMessagePane);
-	if ((!document.hasFocus() || !channelPane_messageArea.isVisible()) && notify && webkitNotifications && webkitNotifications.createNotification && senderNickName != myNickName) {
+	if (senderNickName != myNickName && (!document.hasFocus() || !channelPane_messageArea.isVisible()) && notify && webkitNotifications && webkitNotifications.createNotification) {
 		if (0 == webkitNotifications.checkPermission()) {
 			var containsNotificationKeyword = false;
 			for ( var i in notificationKeywordArray) {

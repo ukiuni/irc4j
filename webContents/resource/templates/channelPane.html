@@ -2,8 +2,8 @@
 	<div class="row">
 		<div class="input-group" id="userArea" style="margin-bottom: 20px">
 			<span class="input-group-addon span2"></span> <input type="text" id="messageInput_{{>channelName}}" class="form-control" placeholder="message" /> <span class="input-group-btn">
-				<button class="btn btn-default" type="button" onclick="sendMessage('{{>channelName}}', $('#messageInput_{{>channelName}}').val(), function(){ $('#messageInput_{{>channelName}}').val('')});">Send</button>
-				<button class="btn btn-default" type="button" onclick="uploadFile('{{>channelName}}', this);">Upload File</button>
+				<button class="btn btn-default translate" type="button" onclick="sendMessage('{{>channelName}}', $('#messageInput_{{>channelName}}').val(), function(){ $('#messageInput_{{>channelName}}').val('')});" id="channnelPane_send_button">Send</button>
+				<button class="btn btn-default translate" type="button" onclick="uploadFile('{{>channelName}}', this);" id="channnelPane_uploadFile_button">Upload File</button>
 			</span>
 		</div>
 	</div>
@@ -13,7 +13,7 @@
 	</div>
 	<div class="row" style="display: none" id="channelPane_loadNextButtonRow_{{>channelName}}">
 		<div class="col-sm-9 col-sm-offset-3">
-			<button type="button" class="btn btn-default" style="width: 100%;" onclick="loadOlderMessage('{{>channelName}}')">Load Next</button>
+			<button type="button" class="btn btn-default translate" style="width: 100%;" onclick="loadOlderMessage('{{>channelName}}')" id="channnelPane_loadNext_button">Load Next</button>
 		</div>
 	</div>
 	<div class="row" style="margin-top: 20px">
@@ -22,10 +22,15 @@
 				<div class="row">
 					<div class="col-sm-9">{{>displayChannelName}}</div>
 					<div class="col-sm-3 text-right">
-						<button type="button" class="btn btn-default btn-sm" onclick="partFromChannel('{{>channelName}}')">Part</button>
+						<button type="button" class="btn btn-default btn-sm translate" onclick="partFromChannel('{{>channelName}}')" id="channnelPane_part_button">Part</button>
 					</div>
 				</div>
 			</ul>
 		</div>
 	</div>
 </div>
+<script type="text/javascript">
+	$(".translate").each(function(args, element) {
+		$(element).translate();
+	});
+</script>
