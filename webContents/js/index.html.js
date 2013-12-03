@@ -77,6 +77,9 @@ function initChatPane(nickName, addchannelFunction) {
 	continueListen();
 }
 function continueListen() {
+	var nextListenWhenTimeout = setTimeout(function() {
+		continueListen();
+	}, 45000);
 	$.post("/listenEvent", {
 		sessionId : sessionId,
 		sessionKey : sessionKey
@@ -112,8 +115,10 @@ function continueListen() {
 			}
 		}
 	}, "json").done(function(data) {
+		clearTimeout(nextListenWhenTimeout);
 		continueListen();
 	}).fail(function(data) {
+		clearTimeout(nextListenWhenTimeout);
 		$("#connectionStatus").show(1000);
 		setTimeout(function() {
 			continueListen()
