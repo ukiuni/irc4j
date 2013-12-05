@@ -74,12 +74,12 @@ function initChatPane(nickName, addchannelFunction) {
 	$(window).bind("beforeunload", function() {
 		return "Do you leave from chat?";
 	});
+	$.ajaxSetup({
+		timeout : 40000
+	});
 	continueListen();
 }
 function continueListen() {
-	var nextListenWhenTimeout = setTimeout(function() {
-		continueListen();
-	}, 45000);
 	$.post("/listenEvent", {
 		sessionId : sessionId,
 		sessionKey : sessionKey
@@ -115,10 +115,8 @@ function continueListen() {
 			}
 		}
 	}, "json").done(function(data) {
-		clearTimeout(nextListenWhenTimeout);
 		continueListen();
 	}).fail(function(data) {
-		clearTimeout(nextListenWhenTimeout);
 		$("#connectionStatus").show(1000);
 		setTimeout(function() {
 			continueListen()
