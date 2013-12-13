@@ -131,10 +131,11 @@ function clearBadge(channelName) {
 }
 function incrementsBadge(channelName) {
 	var channelPane_messageArea = $("#channelPane_messageArea_" + channelName);
+	var badge = $("#tabChannelBadge_" + channelName);
 	if (document.hasFocus() && channelPane_messageArea.isVisible()) {
+		badge.html("");
 		return;
 	}
-	var badge = $("#tabChannelBadge_" + channelName);
 	var badgeNum = badge.html();
 	if ("" == badgeNum || typeof badgeNum === "undefined") {
 		badge.html("1");
@@ -174,6 +175,7 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 				window.focus();
 				showChatPane();
 				openChannelPane(channelName);
+				$("#messageInput_" + channelName).focus();
 				document.location.href = "#" + messageObjforPaint.tempId;
 			};
 			notifyWindow.show();
