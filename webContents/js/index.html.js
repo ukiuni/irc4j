@@ -102,6 +102,7 @@ function continueListen() {
 				var appendMessageFunction = function() {
 					appendMessageToChannelPane(channelNameWithoutCharp, event.createdAt, event.userNickName, event.message);
 					incrementsBadge(channelNameWithoutCharp);
+					setMaxAndMin(event.channelName, event.message);
 				}
 				if (document.getElementById("channelPane_" + channelNameWithoutCharp)) {
 					appendMessageFunction();
@@ -119,7 +120,7 @@ function continueListen() {
 	}).fail(function(data) {
 		$("#connectionStatus").show(1000);
 		setTimeout(function() {
-			continueListen()
+			continueListen();
 		}, 30000);
 	});
 }
@@ -377,6 +378,7 @@ function rejoin() {
 			var channelNameWithoutCharp = CHANNEL_NAME_PREFIX + channelName.substring(1);
 			for ( var i in messages) {
 				var message = messages[i];
+				setMaxAndMin(channelName, message);
 				appendMessageToChannelPane(channelNameWithoutCharp, message.createdAt, message.senderNickName, message.message);
 			}
 		}
