@@ -14,6 +14,10 @@ public class ClientCommandFactory extends CommandFactory<ClientCommand> {
 			command = new MessageCommand();
 		} else if (Command.COMMAND_NOTICE.equals(commandString)) {
 			command = new MessageCommand();
+		} else if (Command.COMMAND_JOIN.equals(commandString)) {
+			command = new JoinCommand();
+		} else if (Command.COMMAND_PART.equals(commandString)) {
+			command = new PartCommand();
 		} else if (commandString.matches("^[4][0-9]{2}$")) {
 			command = new ServerErrorCommand();
 		} else if (commandString.matches("^[23][0-9]{2}$")) {

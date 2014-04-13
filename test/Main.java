@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import org.ukiuni.irc4j.IRCClient;
+import org.ukiuni.irc4j.IRCEventAdapter;
 import org.ukiuni.irc4j.IRCEventHandler;
 
 public class Main {
@@ -33,7 +34,7 @@ public class Main {
 			return;
 		}
 		IRCClient ircClient = new IRCClient(host, port, nickName, myHost, realName);
-		ircClient.addHandler(new IRCEventHandler() {
+		ircClient.addHandler(new IRCEventAdapter() {
 			@Override
 			public void onServerMessage(int id, String message) {
 				System.out.println("onServerMessage(" + id + ", " + message + ")");

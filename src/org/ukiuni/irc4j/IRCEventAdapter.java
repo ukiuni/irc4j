@@ -32,4 +32,12 @@ public abstract class IRCEventAdapter implements IRCEventHandler {
 	@Override
 	public void onError(Throwable e) {
 	}
+
+	@Override
+	public void onJoinToChannel(String channelName, String nickName) {
+	}
+
+	@Override
+	public void onPartFromChannel(String channelName, String nickName, String message) {
+	}
 }

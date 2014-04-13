@@ -43,4 +43,20 @@ public interface IRCEventHandler {
 	 * @param e
 	 */
 	public void onError(Throwable e);
+
+	/**
+	 * Callback on someone join to channel
+	 * @param channelName
+	 * @param nickName
+	 * @param message
+	 */
+	public void onJoinToChannel(String channelName, String nickName);
+
+	/**
+	 * Callback on someone part from channel
+	 * @param channelName
+	 * @param nickName
+	 * @param message
+	 */
+	public void onPartFromChannel(String channelName, String nickName, String message);
 }
