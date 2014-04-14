@@ -1,17 +1,15 @@
 package org.ukiuni.irc4j.gui;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.ukiuni.irc4j.IRCClient;
 
 public class ConnectingManager {
-	private Map<String, Map<String, List<String>>> hostAndChannelAndUsers = new HashMap<String, Map<String, List<String>>>();
+	private Map<String, Map<String, Set<String>>> hostAndChannelAndUsers = new HashMap<String, Map<String, Set<String>>>();
 	private Map<Object, IRCClient> clientMap = new HashMap<Object, IRCClient>();
 	private Map<Object, Set<String>> joindedChannel = new HashMap<Object, Set<String>>();
 	private static ConnectingManager instance;
@@ -30,10 +28,10 @@ public class ConnectingManager {
 		return instance;
 	}
 
-	public Map<String, List<String>> getChannelsAndUsers(String host, int port) {
+	public Map<String, Set<String>> getChannelsAndUsers(String host, int port) {
 		String key = host + ":" + port;
 		if (!hostAndChannelAndUsers.containsKey(key)) {
-			hostAndChannelAndUsers.put(key, new HashMap<String, List<String>>());
+			hostAndChannelAndUsers.put(key, new HashMap<String, Set<String>>());
 		}
 		return hostAndChannelAndUsers.get(key);
 	}
@@ -42,11 +40,11 @@ public class ConnectingManager {
 		return clientMap.get(registerKey);
 	}
 
-	public List<String> getUsers(String host, int port, String channel) {
-		Map<String, List<String>> channelAndUsers = getChannelsAndUsers(host, port);
+	public Set<String> getUsers(String host, int port, String channel) {
+		Map<String, Set<String>> channelAndUsers = getChannelsAndUsers(host, port);
 
 		if (!channelAndUsers.containsKey(channel)) {
-			channelAndUsers.put(channel, new ArrayList<String>());
+			channelAndUsers.put(channel, new HashSet<String>());
 		}
 		return channelAndUsers.get(channel);
 	}

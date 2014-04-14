@@ -7,9 +7,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.plaf.metal.MetalSplitPaneUI;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants.CharacterConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -112,10 +112,29 @@ public class Test {
 		final ConnectingManager.IRCEventHandler handler = (new ConnectingManager.IRCEventHandler() {
 			@Override
 			public void onMessage(IRCClient client, String channelName, String from, String message) {
+				System.out.println("onMessage = " + channelName);
 				SimpleAttributeSet attribute = new SimpleAttributeSet();
-				UISet currentUISet = uiSetMap.get(currentSelectChannelNode);
+				UISet recievedUISet = uiSetMap.get(currentSelectChannelNode);
+				if (null == recievedUISet) {
+					DefaultMutableTreeNode channelNode = new DefaultMutableTreeNode(channelName);
+					DefaultMutableTreeNode hostNode = null;
+					Enumeration<DefaultMutableTreeNode> nodes = hostAndChannelTreeRootNode.children();
+					while (nodes.hasMoreElements()) {
+						DefaultMutableTreeNode node = nodes.nextElement();
+						if (node.toString().equals(client.getHost())) {
+							hostNode = node;
+							break;
+						}
+					}
+					hostNode.add(channelNode);
+					DefaultStyledDocument messageDocument = new DefaultStyledDocument();
+					DefaultListModel userlist = new DefaultListModel();
+
+					UISet uiSet = new UISet(client.getHost(), client.getPort(), channelName, messageDocument, userlist);
+					uiSetMap.put(channelNode, uiSet);
+				}
 				try {
-					currentUISet.messageDocument.insertString(currentUISet.messageDocument.getLength(), String.format("%1$-12s", from) + ":" + message + "\n", attribute);
+					recievedUISet.messageDocument.insertString(recievedUISet.messageDocument.getLength(), String.format("%1$-12s", from) + ":" + message + "\n", attribute);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -144,11 +163,11 @@ public class Test {
 						String channelName = m.group(1).trim();
 						String[] respondUsers = message.substring(message.lastIndexOf(":") + 1).split(" ");
 
-						List<String> users = connectingManager.getUsers(client.getHost(), client.getPort(), channelName);
-						users.clear();
+						Set<String> users = connectingManager.getUsers(client.getHost(), client.getPort(), channelName);
 						for (String userName : respondUsers) {
-							System.out.println("u = " + userName);
-							users.add(userName);
+							if (!users.contains(userName) && users.contains("@" + userName)) {
+								users.add(userName);
+							}
 						}
 
 						UISet targetUISet = UISet.findUISet(client.getHost(), client.getPort(), channelName);
@@ -164,7 +183,7 @@ public class Test {
 
 			@Override
 			public void onJoinToChannel(IRCClient client, String channelName, String nickName) {
-				List<String> users = connectingManager.getUsers(client.getHost(), client.getPort(), channelName);
+				Set<String> users = connectingManager.getUsers(client.getHost(), client.getPort(), channelName);
 				if (!users.contains(nickName)) {
 					users.add(nickName);
 				}
@@ -177,7 +196,7 @@ public class Test {
 
 			@Override
 			public void onPartFromChannel(IRCClient client, String channelName, String nickName, String message) {
-				List<String> users = connectingManager.getUsers(client.getHost(), client.getPort(), channelName);
+				Set<String> users = connectingManager.getUsers(client.getHost(), client.getPort(), channelName);
 				users.remove(nickName);
 				UISet targetUISet = UISet.findUISet(client.getHost(), client.getPort(), channelName);
 				targetUISet.userlist.removeAllElements();
