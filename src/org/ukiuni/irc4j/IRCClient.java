@@ -384,7 +384,7 @@ public class IRCClient {
 					line = reader.readLine();
 				}
 			} catch (IOException e) {
-
+				onDisconnectedOnce();
 				if (IRCClient.this.isReady()) {
 					onError(e);
 					if (isAutoRecconect()) {
@@ -615,6 +615,12 @@ public class IRCClient {
 		}
 	}
 
+	private void onDisconnectedOnce() {
+		for (IRCEventHandler handler : handlers) {
+			handler.onDisconnectedOnce();
+		}
+	}
+	
 	/**
 	 * Add callback handler.
 	 * 

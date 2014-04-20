@@ -25,6 +25,9 @@ public class Settings {
 	public static final File CONFIG_FILE = new File(System.getProperty("user.home"), "/irc4j/irc_connect_setting.xml");
 
 	private List<HostSetting> hosts = new ArrayList<HostSetting>();
+	private String myNickName;
+	private String myRealName;
+	private String myHostName = "localhost";
 
 	public List<HostSetting> getHosts() {
 		return hosts;
@@ -75,5 +78,29 @@ public class Settings {
 
 	public Collection<HostSetting> getHostSettings() {
 		return hostMap.values();
+	}
+
+	public String getMyNickName() {
+		return myNickName;
+	}
+
+	public void setMyNickName(String myNickName) {
+		this.myNickName = myNickName;
+	}
+
+	public String getMyRealName() {
+		return myRealName;
+	}
+
+	public void setMyRealName(String myRealName) {
+		this.myRealName = myRealName;
+	}
+
+	public String getMyHostName() {
+		return myHostName;
+	}
+
+	public void setMyHostName(String myHostName) {
+		this.myHostName = myHostName;
 	}
 }

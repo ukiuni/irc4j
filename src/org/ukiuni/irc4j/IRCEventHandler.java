@@ -59,4 +59,10 @@ public interface IRCEventHandler {
 	 * @param message
 	 */
 	public void onPartFromChannel(String channelName, String nickName, String message);
+
+	/**
+	 * Callback on disconnected.
+	 * if you set autoConnect ON, This callback means temporary disconnect.
+	 */
+	public void onDisconnectedOnce();
 }

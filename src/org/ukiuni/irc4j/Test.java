@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.plaf.metal.MetalSplitPaneUI;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants.CharacterConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -38,15 +39,18 @@ import javax.swing.tree.TreePath;
 import org.ukiuni.irc4j.gui.ConnectingManager;
 import org.ukiuni.irc4j.gui.HostSetting;
 import org.ukiuni.irc4j.gui.Settings;
+import org.ukiuni.irc4j.gui.UIFolder;
 
 public class Test {
 	public static TreeNode currentSelectHostNode;
 	public static TreeNode currentSelectChannelNode;
+	public static String myNickName;
+	public static String myHostName = "localhost";
+	public static String myRealName;
 
 	public static void main(String[] args) throws IOException {
 		final JFrame frame = new JFrame("aris");
-
-		final Map<TreeNode, UISet> uiSetMap = new HashMap<TreeNode, UISet>();
+		final UIFolder uiFolder = new UIFolder();
 
 		JSplitPane splitpane = new JSplitPane();
 
@@ -73,6 +77,7 @@ public class Test {
 		rightPanel.setUI(rightVerticalSprit);
 
 		final JList userList = new JList();
+
 		rightPanel.setTopComponent(new JScrollPane(userList));
 
 		final DefaultMutableTreeNode hostAndChannelTreeRootNode = new DefaultMutableTreeNode("rootNode");
@@ -90,18 +95,26 @@ public class Test {
 
 		final ConnectingManager connectingManager = ConnectingManager.getInstance();
 		final Settings settings = Settings.load();
-
+		myNickName = settings.getMyNickName();
+		myRealName = settings.getMyRealName();
+		myHostName = settings.getMyHostName();
+		while (null == myNickName || "".equals(myNickName)) {
+			myNickName = JOptionPane.showInputDialog("input nick name");
+			myRealName = myNickName;
+			settings.setMyNickName(myNickName);
+			settings.setMyRealName(myRealName);
+			settings.save();
+		}
 		inputField.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String input = inputField.getText();
 				if (null != currentSelectChannelNode && !"".equals(input)) {
-					UISet currentUISet = uiSetMap.get(currentSelectChannelNode);
+					UISet currentUISet = uiFolder.get(currentSelectChannelNode);
 					SimpleAttributeSet attribute = new SimpleAttributeSet();
 					try {
-						System.out.println("send to" + currentSelectHostNode + ":" + currentSelectChannelNode);
 						connectingManager.sendMessage(currentSelectHostNode, currentSelectChannelNode.toString(), input);
-						currentUISet.messageDocument.insertString(currentUISet.messageDocument.getLength(), String.format("%1$-12s", "ukiunin") + ":" + input + "\n", attribute);
+						currentUISet.messageDocument.insertString(currentUISet.messageDocument.getLength(), String.format("%1$-12s", myNickName) + ":" + input + "\n", attribute);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -110,34 +123,27 @@ public class Test {
 			}
 		});
 		final ConnectingManager.IRCEventHandler handler = (new ConnectingManager.IRCEventHandler() {
+
 			@Override
 			public void onMessage(IRCClient client, String channelName, String from, String message) {
-				System.out.println("onMessage = " + channelName);
 				SimpleAttributeSet attribute = new SimpleAttributeSet();
-				UISet recievedUISet = uiSetMap.get(currentSelectChannelNode);
+				if (channelName.equals(client.getNickName())) {
+					channelName = from;
+				}
+				UISet recievedUISet = uiFolder.get(client.getHost(), client.getPort(), channelName);
 				if (null == recievedUISet) {
-					DefaultMutableTreeNode channelNode = new DefaultMutableTreeNode(channelName);
-					DefaultMutableTreeNode hostNode = null;
-					Enumeration<DefaultMutableTreeNode> nodes = hostAndChannelTreeRootNode.children();
-					while (nodes.hasMoreElements()) {
-						DefaultMutableTreeNode node = nodes.nextElement();
-						if (node.toString().equals(client.getHost())) {
-							hostNode = node;
-							break;
-						}
-					}
-					hostNode.add(channelNode);
-					DefaultStyledDocument messageDocument = new DefaultStyledDocument();
-					DefaultListModel userlist = new DefaultListModel();
-
-					UISet uiSet = new UISet(client.getHost(), client.getPort(), channelName, messageDocument, userlist);
-					uiSetMap.put(channelNode, uiSet);
+					recievedUISet = appendNewChannelNode(uiFolder, hostAndChannelTreeRootNode, hostAndChannelTree, client, channelName);
 				}
 				try {
 					recievedUISet.messageDocument.insertString(recievedUISet.messageDocument.getLength(), String.format("%1$-12s", from) + ":" + message + "\n", attribute);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			}
+
+			@Override
+			public void onDisconnectedOnce(IRCClient client) {
+
 			}
 
 			@Override
@@ -151,6 +157,8 @@ public class Test {
 				}
 			}
 
+			private boolean ifNext353AcceptedCleanUserList = true;;
+
 			@Override
 			public void onServerMessage(IRCClient client, int id, String message) {
 				System.out.println("s:[" + id + "]" + message);
@@ -158,12 +166,18 @@ public class Test {
 				try {
 					logDocument.insertString(logDocument.getLength(), id + ":" + message + "\n", attribute);
 					if (353 == id) {
+						if (ifNext353AcceptedCleanUserList) {
+						//	connectingManager.clearAllUsers();
+							ifNext353AcceptedCleanUserList = false;
+						}
+
 						Matcher m = Pattern.compile("(#.*):").matcher(message);
 						m.find();
 						String channelName = m.group(1).trim();
 						String[] respondUsers = message.substring(message.lastIndexOf(":") + 1).split(" ");
 
 						Set<String> users = connectingManager.getUsers(client.getHost(), client.getPort(), channelName);
+
 						for (String userName : respondUsers) {
 							if (!users.contains(userName) && users.contains("@" + userName)) {
 								users.add(userName);
@@ -175,6 +189,8 @@ public class Test {
 						for (String userName : users) {
 							targetUISet.userlist.addElement(userName);
 						}
+					} else if (366 == id) {
+						ifNext353AcceptedCleanUserList = true;
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -229,13 +245,12 @@ public class Test {
 										}
 										DefaultMutableTreeNode hostNode = new DefaultMutableTreeNode(serverPath);
 
-										connectingManager.connect(hostNode, serverPath, port, "ukiuni2", "localhost", "ukiuni2", handler);
+										connectingManager.connect(hostNode, serverPath, port, myNickName, myHostName, myRealName, handler);
 										hostAndChannelTreeRootNode.add(hostNode);
 										((DefaultTreeModel) hostAndChannelTree.getModel()).reload();
-										System.out.println("hostNodePath = " + hostNode.toString());
 										currentSelectHostNode = hostNode;
 
-										settings.addHost(serverPath, port, "ukiuni2", "localhost");
+										settings.addHost(serverPath, port, myNickName, myHostName);
 										settings.save();
 									} catch (Exception e) {
 										e.printStackTrace();
@@ -275,10 +290,9 @@ public class Test {
 
 											UISet uiSet = new UISet(client.getHost(), client.getPort(), channelName, messageDocument, userlist);
 
-											uiSetMap.put(currentSelectChannelNode, uiSet);
-											System.out.println("regist = " + selectedNode.toString() + ":" + selectedNode.toString());
+											uiFolder.put(channelNode, uiSet, client.getHost(), client.getPort(), channelName);
 
-											UISet currentUISet = uiSetMap.get(currentSelectChannelNode);
+											UISet currentUISet = uiFolder.get(currentSelectChannelNode);
 											messageArea.setDocument(currentUISet.messageDocument);
 											userList.setModel(currentUISet.userlist);
 
@@ -310,10 +324,9 @@ public class Test {
 					} else {
 						DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) hostAndChannelTree.getLastSelectedPathComponent();
 						if (null != selectedNode && selectedNode.getParent() != hostAndChannelTreeRootNode) {
-							System.out.println("load = " + selectedNode.getParent().toString() + ":" + selectedNode.toString());
 							currentSelectHostNode = selectedNode.getParent();
 							currentSelectChannelNode = selectedNode;
-							UISet uiSet = uiSetMap.get(currentSelectChannelNode);
+							UISet uiSet = uiFolder.get(currentSelectChannelNode);
 							messageArea.setDocument(uiSet.messageDocument);
 							userList.setModel(uiSet.userlist);
 						}
@@ -323,7 +336,19 @@ public class Test {
 				}
 			}
 		});
-
+		userList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (SwingUtilities.isRightMouseButton(e)) {
+					String selectedUserNickName = (String) userList.getSelectedValue();
+					if (null != selectedUserNickName) {
+						if (0 == JOptionPane.showConfirmDialog(frame, "start talk?")) {
+							appendNewChannelNode(uiFolder, hostAndChannelTreeRootNode, hostAndChannelTree, connectingManager.getClient(currentSelectHostNode), selectedUserNickName);
+						}
+					}
+				}
+			}
+		});
 		for (HostSetting hostSettings : settings.getHosts()) {
 
 			DefaultMutableTreeNode hostNode = new DefaultMutableTreeNode(hostSettings.getHostShowName());
@@ -337,7 +362,7 @@ public class Test {
 				DefaultListModel userlist = new DefaultListModel();
 
 				UISet uiSet = new UISet(hostSettings.getHostUrl(), hostSettings.getPort(), channelName, messageDocument, userlist);
-				uiSetMap.put(channelNode, uiSet);
+				uiFolder.put(channelNode, uiSet, hostSettings.getHostUrl(), hostSettings.getPort(), channelName);
 				if (null == currentSelectChannelNode) {
 					currentSelectChannelNode = channelNode;
 				}
@@ -376,6 +401,39 @@ public class Test {
 		public final String host;
 		public final int port;
 		public final String channel;
+	}
+
+	private static DefaultMutableTreeNode findHostTreeNode(final DefaultMutableTreeNode hostAndChannelTreeRootNode, String hostName) {
+		Enumeration<DefaultMutableTreeNode> nodes = hostAndChannelTreeRootNode.children();
+		DefaultMutableTreeNode hostNode = null;
+		while (nodes.hasMoreElements()) {
+			DefaultMutableTreeNode node = nodes.nextElement();
+			if (node.toString().equals(hostName)) {
+				hostNode = node;
+				break;
+			}
+		}
+		return hostNode;
+	}
+
+	private static UISet appendNewChannelNode(final UIFolder uiFolder, final DefaultMutableTreeNode hostAndChannelTreeRootNode, final JTree hostAndChannelTree, IRCClient client, String channelName) {
+		UISet recievedUISet;
+		DefaultMutableTreeNode channelNode = new DefaultMutableTreeNode(channelName);
+		DefaultMutableTreeNode hostNode = null;
+
+		hostNode = findHostTreeNode(hostAndChannelTreeRootNode, client.getHost());
+		hostNode.add(channelNode);
+		DefaultStyledDocument messageDocument = new DefaultStyledDocument();
+		DefaultListModel userlist = new DefaultListModel();
+
+		UISet uiSet = new UISet(client.getHost(), client.getPort(), channelName, messageDocument, userlist);
+		uiFolder.put(channelNode, uiSet, client.getHost(), client.getPort(), channelName);
+		recievedUISet = uiSet;
+
+		((DefaultTreeModel) hostAndChannelTree.getModel()).reload();
+
+		hostAndChannelTree.expandRow(hostAndChannelTreeRootNode.getIndex(hostNode));
+		return recievedUISet;
 	}
 
 	public static JPopupMenu createAddServerPopup(final AddServerPopupCallback callback, int x, int y) {

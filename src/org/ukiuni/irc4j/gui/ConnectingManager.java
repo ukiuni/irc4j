@@ -49,6 +49,14 @@ public class ConnectingManager {
 		return channelAndUsers.get(channel);
 	}
 
+	public void clearAllUsers() {
+		for (Map<String, Set<String>> channelAndUsers : hostAndChannelAndUsers.values()) {
+			for (Set<String> users : channelAndUsers.values()) {
+				users.clear();
+			}
+		}
+	}
+
 	public void connect(Object registerKey, final String host, final int port, final String nickName, final String myHost, final String realName, final IRCEventHandler handler) throws IOException {
 		final IRCClient client = new IRCClient(host, port, nickName, myHost, realName);
 		client.addHandler(new org.ukiuni.irc4j.IRCEventHandler() {
@@ -75,6 +83,13 @@ public class ConnectingManager {
 
 			@Override
 			public void onError(Throwable e) {
+				handler.onError(client, e);
+			}
+
+			@Override
+			public void onDisconnectedOnce() {
+				handler.onDisconnectedOnce(client);
+				
 			}
 		});
 		client.connect();
@@ -117,6 +132,11 @@ public class ConnectingManager {
 		 *            message
 		 */
 		public void onMessage(IRCClient client, String channelName, String from, String message) {
+		}
+
+		public void onDisconnectedOnce(IRCClient client) {
+			// TODO Auto-generated method stub
+			
 		}
 
 		/**

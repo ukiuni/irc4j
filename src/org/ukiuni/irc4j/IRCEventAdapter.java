@@ -40,4 +40,8 @@ public abstract class IRCEventAdapter implements IRCEventHandler {
 	@Override
 	public void onPartFromChannel(String channelName, String nickName, String message) {
 	}
+
+	@Override
+	public void onDisconnectedOnce() {
+	}
 }
