@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ukiuni.irc4j.IRCClient;
+import org.ukiuni.irc4j.client.DCCMessage;
 
 public class ConnectingManager {
 	private Map<String, Map<String, Set<String>>> hostAndChannelAndUsers = new HashMap<String, Map<String, Set<String>>>();
@@ -91,6 +92,11 @@ public class ConnectingManager {
 				handler.onDisconnectedOnce(client);
 				
 			}
+
+			@Override
+			public void onDCC(String channelName, String from, DCCMessage dcc) {
+				handler.onDCC(client, channelName, from, dcc);
+			}
 		});
 		client.connect();
 		clientMap.put(registerKey, client);
@@ -134,9 +140,10 @@ public class ConnectingManager {
 		public void onMessage(IRCClient client, String channelName, String from, String message) {
 		}
 
+		public void onDCC(IRCClient client, String channelName, String from, DCCMessage dcc) {
+		}
+
 		public void onDisconnectedOnce(IRCClient client) {
-			// TODO Auto-generated method stub
-			
 		}
 
 		/**

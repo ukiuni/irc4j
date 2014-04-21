@@ -1,5 +1,7 @@
 package org.ukiuni.irc4j;
 
+import org.ukiuni.irc4j.client.DCCMessage;
+
 /*
  * Copyright [2013] [ukiuni]
  * 
@@ -65,4 +67,9 @@ public interface IRCEventHandler {
 	 * if you set autoConnect ON, This callback means temporary disconnect.
 	 */
 	public void onDisconnectedOnce();
+
+	/**
+	 * Callback on DCC received.
+	 */
+	public void onDCC(String channelName, String from, DCCMessage dcc);
 }

@@ -1,5 +1,7 @@
 package org.ukiuni.irc4j;
 
+import org.ukiuni.irc4j.client.DCCMessage;
+
 /*
  * Copyright [2013] [ukiuni]
  * 
@@ -43,5 +45,9 @@ public abstract class IRCEventAdapter implements IRCEventHandler {
 
 	@Override
 	public void onDisconnectedOnce() {
+	}
+
+	@Override
+	public void onDCC(String channelName, String from, DCCMessage dcc) {
 	}
 }

@@ -39,12 +39,33 @@ public class MessageCommand extends ClientCommand {
 			}
 		}
 		String message = getCommandParametersString().substring(channelName.length() + 1 + 1);// space
-																								// and
+																								// and//
 																								// :
-
-		for (IRCEventHandler ircEventHandler : handlers) {
-			ircEventHandler.onMessage(channelName, from, message);
+		DCCMessage dcc = parseDCC(message);
+		if (null != dcc) {
+			for (IRCEventHandler ircEventHandler : handlers) {
+				ircEventHandler.onDCC(channelName, from, dcc);
+			}
+		} else {
+			for (IRCEventHandler ircEventHandler : handlers) {
+				ircEventHandler.onMessage(channelName, from, message);
+			}
 		}
+	}
+
+	private DCCMessage parseDCC(String message) {
+		message = message.replace(new String(new char[] { new Character((char) 1).charValue() }), "");
+		if (message.startsWith("DCC")) {
+			String[] spritedData = message.split(" ");
+			if (6 == spritedData.length) {
+				String fileName = spritedData[2];
+				int portNum = Integer.valueOf(spritedData[4]);
+				long fileSize = Long.valueOf(spritedData[5]);
+				String targetHost = getLine().substring(getLine().indexOf("@")+1,getLine().indexOf(" "));
+				return new DCCMessage(targetHost, fileName, portNum, fileSize);
+			}
+		}
+		return null;
 	}
 
 }

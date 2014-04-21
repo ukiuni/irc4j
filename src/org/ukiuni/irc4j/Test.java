@@ -2,6 +2,7 @@ package org.ukiuni.irc4j;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -36,10 +37,12 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.ukiuni.irc4j.client.DCCMessage;
 import org.ukiuni.irc4j.gui.ConnectingManager;
 import org.ukiuni.irc4j.gui.HostSetting;
 import org.ukiuni.irc4j.gui.Settings;
 import org.ukiuni.irc4j.gui.UIFolder;
+import org.ukiuni.irc4j.server.command.FileRecieveThread;
 
 public class Test {
 	public static TreeNode currentSelectHostNode;
@@ -167,7 +170,7 @@ public class Test {
 					logDocument.insertString(logDocument.getLength(), id + ":" + message + "\n", attribute);
 					if (353 == id) {
 						if (ifNext353AcceptedCleanUserList) {
-						//	connectingManager.clearAllUsers();
+							// connectingManager.clearAllUsers();
 							ifNext353AcceptedCleanUserList = false;
 						}
 
@@ -218,6 +221,31 @@ public class Test {
 				targetUISet.userlist.removeAllElements();
 				for (String userName : users) {
 					targetUISet.userlist.addElement(userName);
+				}
+			}
+
+			@Override
+			public void onDCC(IRCClient client, String channelName, String from, DCCMessage dcc) {
+				int selectedOption = JOptionPane.showConfirmDialog(frame, "file received from " + from + "\nname:" + dcc.fileName, "", JOptionPane.YES_NO_OPTION);
+				if (0 == selectedOption) {
+					FileDialog dialog = new FileDialog(frame, "save file", FileDialog.SAVE);
+					dialog.setFile(dcc.fileName);
+					dialog.setModal(true);
+					dialog.setVisible(true);
+					final String fullPath = dialog.getDirectory() + dialog.getFile();
+					dialog.dispose();
+					FileRecieveThread fileRecieveThread = new FileRecieveThread(dcc.targetHost, dcc.portNum, fullPath, dcc.fileSize, new FileRecieveThread.OnCompleteListener() {
+						@Override
+						public void onError(Throwable e) {
+							e.printStackTrace();
+						}
+
+						@Override
+						public void onComplete(String uploadedUri) {
+							System.out.println("completed = "+uploadedUri);
+						}
+					});
+					fileRecieveThread.start();
 				}
 			}
 		});
