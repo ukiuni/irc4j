@@ -523,6 +523,7 @@ public class Database {
 			stmt.setString(2, channelName);
 			rs = stmt.executeQuery();
 			if (!rs.next()) {
+				IOUtil.close(stmt);
 				stmt = con.prepareStatement("insert into user_and_channel_relation (user_id, channel_name, created_at) values (?, ?, now())");
 				stmt.setLong(1, user.getId());
 				stmt.setString(2, channelName);
