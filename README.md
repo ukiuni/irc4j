@@ -8,7 +8,7 @@ irc4j is IRC client/server implementation for java.
 download archive from [here](https://github.com/ukiuni/irc4j/releases) and unzip, exec one script. just it.
 
 ```shell:
-unzip irc4j_server_xxx.zip
+unzip aris.x.x.x.zip
 cd bin
 chmod +x ./airs.sh
 nohup ./airs.sh 2>&1 >> irc.log &
