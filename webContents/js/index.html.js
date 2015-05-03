@@ -160,8 +160,9 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 	newChatMessagePane = replaceToLink(newChatMessagePane, myNickName);
 	var channelPane_messageArea = $("#channelPane_messageArea_" + channelName);
 	channelPane_messageArea.prepend(newChatMessagePane);
-	if (senderNickName != myNickName && (!document.hasFocus() || !channelPane_messageArea.isVisible()) && notify && webkitNotifications && webkitNotifications.createNotification) {
-		if (0 == webkitNotifications.checkPermission()) {
+	
+	if (senderNickName != myNickName && (!document.hasFocus() || !channelPane_messageArea.isVisible()) && notify && Notification) {
+		if ("granted" == Notification.permission) {
 			var containsNotificationKeyword = false;
 			for ( var i in notificationKeywordArray) {
 				if (0 <= message.indexOf(notificationKeywordArray[i])) {
@@ -171,7 +172,10 @@ function appendMessageToChannelPane(channelName, createdAt, senderNickName, mess
 			}
 			var icon = containsNotificationKeyword ? "/images/notify_warn.gif" : "/images/notify_standard.gif"
 			var loadChannelName = (channelName.startsWith(CHANNEL_NAME_PREFIX)) ? "#" + channelName.substring(CHANNEL_NAME_PREFIX.length) : channelName;
-			var notifyWindow = webkitNotifications.createNotification(icon, "[" + loadChannelName + "] " + senderNickName, message);
+			var notifyWindow = new Notification("[" + loadChannelName + "] " + senderNickName, {
+				icon : icon,
+				body : message
+			});
 			notifyWindow.onclick = function() {
 				window.focus();
 				showChatPane();
